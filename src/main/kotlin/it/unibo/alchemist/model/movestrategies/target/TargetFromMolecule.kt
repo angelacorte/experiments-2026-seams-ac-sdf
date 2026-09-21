@@ -5,7 +5,7 @@ import it.unibo.alchemist.model.Node
 import it.unibo.alchemist.model.Position
 import it.unibo.alchemist.model.molecules.SimpleMolecule
 import it.unibo.alchemist.model.movestrategies.TargetSelectionStrategy
-import it.unibo.collektive.model.SpeedControl2D
+import it.unibo.common.SpeedControl2D
 
 /**
  * A target selection strategy that computes the next target position for a node
