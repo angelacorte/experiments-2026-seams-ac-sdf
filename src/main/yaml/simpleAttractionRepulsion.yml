@@ -9,7 +9,7 @@ _pool: &program
     type: Event
     actions:
       - type: RunCollektiveProgram
-        parameters: [it.unibo.collektive.examples.gradient.GradientKt.gradientEntrypoint]
+        parameters: [it.unibo.collektive.entrypoint.AttractionRepulsionKt.attractionRepulsionEntrypoint]
 
 deployments:
   - type: Rectangle
