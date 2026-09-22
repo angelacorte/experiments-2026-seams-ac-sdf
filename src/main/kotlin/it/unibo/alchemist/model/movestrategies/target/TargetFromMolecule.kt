@@ -29,12 +29,13 @@ class TakeTargetFromMolecule<T, P : Position<P>>(
         val currentPos = environment.getPosition(node)
         val speed = node.getConcentration(SimpleMolecule("Velocity")) as? SpeedControl2D
         return when {
-            node.contains(SimpleMolecule("Robot")) && speed != null && (speed.x != 0.0 || speed.y != 0.0) -> {
+            speed != null && (speed.x != 0.0 || speed.y != 0.0) -> {
                 environment.makePosition(
                     currentPos.coordinates[0] + speed.x * 1000.0,
                     currentPos.coordinates[1] + speed.y * 1000.0,
                 )
             }
+
             else -> currentPos
         }
     }
