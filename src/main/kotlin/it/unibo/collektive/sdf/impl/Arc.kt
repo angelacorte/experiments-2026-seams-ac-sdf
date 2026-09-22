@@ -1,7 +1,7 @@
 package it.unibo.collektive.sdf.impl
 
 import it.unibo.collektive.model.Position
-import it.unibo.common.pointsDistance
+import it.unibo.collektive.model.euclideanDistanceTo
 import it.unibo.collektive.sdf.SDF
 import kotlin.math.PI
 import kotlin.math.abs
@@ -34,8 +34,8 @@ class Arc(
         val angle = atan2(position.y - center.y, position.x - center.x)
         val normalizedAngle = (angle - startAngle).mod(2.0 * PI)
         val distance = when {
-            normalizedAngle <= aperture -> abs(radius - pointsDistance(position, center))
-            else -> min(pointsDistance(position, start), pointsDistance(position, end))
+            normalizedAngle <= aperture -> abs(radius - position.euclideanDistanceTo(center))
+            else -> min(position.euclideanDistanceTo(start), position.euclideanDistanceTo(end))
         }
         return distance - thickness
     }

@@ -1,7 +1,7 @@
 package it.unibo.collektive.sdf.impl
 
 import it.unibo.collektive.model.Position
-import it.unibo.common.pointsDistance
+import it.unibo.collektive.model.euclideanDistanceTo
 import it.unibo.collektive.sdf.SDF
 import kotlin.math.abs
 
@@ -20,7 +20,7 @@ class Circle(
     private val thickness: Double = 0.0,
 ) : SDF {
     override fun invoke(position: Position): Double {
-        val circleDist = radius - pointsDistance(position, center)
+        val circleDist = radius - position.euclideanDistanceTo(center)
 
         return if (isRing) abs(circleDist) - thickness else circleDist
     }
