@@ -11,11 +11,7 @@ import it.unibo.collektive.sdf.SDF
  * @property end The (X, Y) coordinates of the ending point of the segment.
  * @property thickness The thickness of the segment (default is 0.0).
  */
-class Segment(
-    private val start: Position,
-    private val end: Position,
-    private val thickness: Double = 0.0,
-) : SDF {
+class Segment(private val start: Position, private val end: Position, private val thickness: Double = 0.0) : SDF {
     override fun invoke(position: Position): Double {
         val segmentX = end.x - start.x
         val segmentY = end.y - start.y

@@ -11,11 +11,7 @@ import kotlin.math.PI
  * @param height The total height of the letter.
  * @property thickness The thickness of the letter's strokes (default is 0.0).
  */
-class LetterB(
-    start: Position,
-    height: Double,
-    private val thickness: Double = 0.0,
-) : SDF {
+class LetterB(start: Position, height: Double, private val thickness: Double = 0.0) : SDF {
     private val verticalStem = Segment(start, Position(start.x, start.y + height))
 
     private val lowerArc = Arc(
