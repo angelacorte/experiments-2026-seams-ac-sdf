@@ -14,53 +14,53 @@ import kotlin.math.sqrt
  * Represents a 2D Signed Distance Field (SDF) of a star shape or a star-shaped ring.
  *
  * @property center The (X, Y) coordinates of the star's center.
- * @property radius The radius of the star.
- * @property n The number of points on the star.
- * @param m Determines how deep/profound the angles between the points are (default is n / 2.0).
- * @property isRing True if the space is a ring shaped like a star instead of a solid star (default is false).
- * @property thickness The thickness of the ring, or used to make round corners (default is 0.0).
- */
+ * @property radius The outer radius of the star.
+ * @property pointCount The number of points of the star.
+ * @param spikiness Controls how sharp and pronounced the star's points are.
+ * Must be between 2 and [pointCount]. Lower values produce a shape closer
+ * to a regular polygon, while higher values produce sharper indentations.
+ * @property isRing True if the SDF represents a star-shaped ring instead of a solid star.
+ * @property thickness The thickness of the ring, or the amount used to round the boundary.
+*/
 class Star(
     private val center: Position,
     private val radius: Double,
-    private val n: Int,
-    m: Double = n / 2.0,
+    private val pointCount: Int,
+    spikiness: Double = pointCount / 2.0,
     private val isRing: Boolean = false,
     private val thickness: Double = 0.0,
 ) : SDF {
-    private val an = PI / n.toDouble()
-    private val en = PI / m
-
-    private val acsX = cos(an)
-    private val acsY = sin(an)
-    private val ecsX = cos(en)
-    private val ecsY = sin(en)
+    private val halfSectorAngle = PI / pointCount.toDouble()
+    private val edgeAngle = PI / spikiness
+    private val sectorDirectionX = cos(halfSectorAngle)
+    private val sectorDirectionY = sin(halfSectorAngle)
+    private val edgeDirectionX = cos(edgeAngle)
+    private val edgeDirectionY = sin(edgeAngle)
 
     override fun invoke(position: Position): Double {
-        var px = position.x - center.x
-        var py = position.y - center.y
+        var localX = position.x - center.x
+        var localY = position.y - center.y
+        val angle = atan2(localX, localY)
+        val sectorAngle = 2.0 * halfSectorAngle
+        val foldedAngle = angle.mod(sectorAngle) - halfSectorAngle
+        val distanceFromCenter = sqrt(localX * localX + localY * localY)
 
-        val angle = atan2(px, py)
-        val twoAn = 2.0 * an
+        localX = distanceFromCenter * cos(foldedAngle)
+        localY = distanceFromCenter * abs(sin(foldedAngle))
+        localX -= radius * sectorDirectionX
+        localY -= radius * sectorDirectionY
 
-        val bn = angle.mod(twoAn) - an
+        val edgeProjection = localX * edgeDirectionX + localY * edgeDirectionY
+        val maxEdgeProjection = radius * sectorDirectionY / edgeDirectionY
+        val edgeOffset = (-edgeProjection).coerceIn(0.0, maxEdgeProjection)
 
-        val rPoint = sqrt(px * px + py * py)
-        px = rPoint * cos(bn)
-        py = rPoint * abs(sin(bn))
+        localX += edgeDirectionX * edgeOffset
+        localY += edgeDirectionY * edgeOffset
 
-        px -= radius * acsX
-        py -= radius * acsY
-
-        val dot = px * ecsX + py * ecsY
-        val maxClamp = radius * acsY / ecsY
-
-        val clamped = (-dot).coerceIn(0.0, maxClamp)
-
-        px += ecsX * clamped
-        py += ecsY * clamped
-
-        val distance = sqrt(px * px + py * py) * sign(px)
-        return if (isRing) abs(distance) - thickness else distance - thickness
+        val signedDistance = sqrt(localX * localX + localY * localY) * sign(localX)
+        return when {
+            isRing -> abs(signedDistance) - thickness
+            else -> signedDistance - thickness
+        }
     }
 }
