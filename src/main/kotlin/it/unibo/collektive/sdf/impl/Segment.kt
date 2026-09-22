@@ -11,23 +11,24 @@ import it.unibo.collektive.sdf.SDF
  * @property end The (X, Y) coordinates of the ending point of the segment.
  * @property thickness The thickness of the segment (default is 0.0).
  */
-class Segment(private val start: Position, private val end: Position, private val thickness: Double = 0.0) : SDF {
+class Segment(
+    private val start: Position,
+    private val end: Position,
+    private val thickness: Double = 0.0,
+) : SDF {
     override fun invoke(position: Position): Double {
-        val abX = end.x - start.x
-        val abY = end.y - start.y
-        val apX = position.x - start.x
-        val apY = position.y - start.y
+        val segmentX = end.x - start.x
+        val segmentY = end.y - start.y
+        val pointX = position.x - start.x
+        val pointY = position.y - start.y
+        val segmentLengthSquared = segmentX * segmentX + segmentY * segmentY
 
-        val abLenSq = abX * abX + abY * abY
+        if (segmentLengthSquared == 0.0) return position.euclideanDistanceTo(start)
 
-        if (abLenSq == 0.0) return position.euclideanDistanceTo(start)
-
-        val t = (apX * abX + apY * abY) / abLenSq
-
-        val tClamped = t.coerceIn(0.0, 1.0)
-
-        val closestX = start.x + tClamped * abX
-        val closestY = start.y + tClamped * abY
+        val projectionFactor = (pointX * segmentX + pointY * segmentY) / segmentLengthSquared
+        val clampedProjectionFactor = projectionFactor.coerceIn(0.0, 1.0)
+        val closestX = start.x + clampedProjectionFactor * segmentX
+        val closestY = start.y + clampedProjectionFactor * segmentY
 
         return position.euclideanDistanceTo(Position(closestX, closestY)) - thickness
     }
