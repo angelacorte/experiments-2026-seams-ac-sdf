@@ -1,5 +1,4 @@
-import java.util.Locale
-import org.gradle.kotlin.dsl.withType
+import java.util.*
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
 plugins {
@@ -7,7 +6,7 @@ plugins {
     alias(libs.plugins.gitSemVer)
     alias(libs.plugins.collektive)
     alias(libs.plugins.kotlin.jvm)
-//    alias(libs.plugins.kotlin.qa)
+    alias(libs.plugins.kotlin.qa)
     alias(libs.plugins.multiJvmTesting)
     alias(libs.plugins.taskTree)
 }
