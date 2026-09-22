@@ -23,3 +23,7 @@ data class SpeedControl2D(override val x: Double, override val y: Double) : Vect
  * Zero control input utility.
  */
 fun zeroSpeed(): SpeedControl2D = SpeedControl2D(0.0, 0.0)
+
+operator fun Vector2D.times(scalar: Double): Vector2D = SpeedControl2D(x * scalar, y * scalar)
+
+operator fun SpeedControl2D.plus(other: Vector2D): SpeedControl2D = SpeedControl2D(x + other.x, y + other.y)

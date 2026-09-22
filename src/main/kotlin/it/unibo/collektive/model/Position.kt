@@ -1,5 +1,6 @@
 package it.unibo.collektive.model
 
+import it.unibo.common.SpeedControl2D
 import it.unibo.common.Vector2D
 import kotlin.math.pow
 import kotlin.math.sqrt
@@ -13,10 +14,16 @@ import kotlin.math.sqrt
 data class Position(override val x: Double, override val y: Double) : Vector2D
 
 /** Adds the components of [position] to this position. */
-operator fun Position.plus(position: Position): Position = Position(x + position.x, y + position.y)
+// operator fun Position.plus(position: Position): Position = Position(x + position.x, y + position.y)
+
+operator fun Position.plus(other: Vector2D): Position = Position(x + other.x, y + other.y)
 
 /** Subtracts the components of [position] from this position. */
 operator fun Position.minus(position: Position): Position = Position(x - position.x, y - position.y)
+
+operator fun Position.div(position: Position): Position = Position(x / position.x, y / position.y)
+
+operator fun Position.div(scalar: Double): SpeedControl2D = SpeedControl2D(x / scalar, y / scalar)
 
 /**
  * Calculate the Euclidean distance between two points in 2D space.
