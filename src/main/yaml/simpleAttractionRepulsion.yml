@@ -2,7 +2,7 @@ incarnation: collektive
 
 network-model:
   type: ConnectWithinDistance
-  parameters: [5]
+  parameters: [18]
 
 _pool: &program
   - time-distribution: 1
@@ -10,9 +10,13 @@ _pool: &program
     actions:
       - type: RunCollektiveProgram
         parameters: [it.unibo.collektive.entrypoint.AttractionRepulsionKt.attractionRepulsionEntrypoint]
+      - type: SpeedToTarget
+        parameters: [ ]
 
 deployments:
   - type: Rectangle
-    parameters: [199, 0, 0, 20, 20]
+    parameters: [199, 0, 0, 100, 100]
     programs:
       - *program
+    properties:
+      - type: it.unibo.collektive.alchemist.device.sensors.impl.LocationSensorProperty
