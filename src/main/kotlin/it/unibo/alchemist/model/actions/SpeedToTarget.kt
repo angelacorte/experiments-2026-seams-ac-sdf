@@ -7,7 +7,7 @@ import it.unibo.alchemist.model.Position
 import it.unibo.alchemist.model.Reaction
 import it.unibo.alchemist.model.movestrategies.routing.StraightLine
 import it.unibo.alchemist.model.movestrategies.target.SpeedFromMolecule
-import it.unibo.alchemist.model.movestrategies.target.TakeTargetFromMolecule
+import it.unibo.alchemist.model.movestrategies.target.TargetFromMolecule
 import it.unibo.alchemist.model.positions.Euclidean2DPosition
 
 /**
@@ -28,7 +28,7 @@ class SpeedToTarget<T, P : Position<P>>(environment: Environment<T, Euclidean2DP
         environment = environment,
         node = node,
         routingStrategy = StraightLine(),
-        targetSelectionStrategy = TakeTargetFromMolecule(environment, node),
+        targetSelectionStrategy = TargetFromMolecule(environment, node),
         speedSelectionStrategy = SpeedFromMolecule(node, environment),
     ) {
     override fun cloneAction(node: Node<T>, reaction: Reaction<T>): Action<T> = SpeedToTarget(environment, node)

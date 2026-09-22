@@ -20,7 +20,7 @@ import it.unibo.common.SpeedControl2D
  * @property environment the environment in which the node moves
  * @property node the node whose target is being computed
  */
-class TakeTargetFromMolecule<T, P : Position<P>>(
+class TargetFromMolecule<T, P : Position<P>>(
     private val environment: Environment<T, P>,
     private val node: Node<T>,
 ) : TargetSelectionStrategy<T, P> {
@@ -35,7 +35,6 @@ class TakeTargetFromMolecule<T, P : Position<P>>(
                     currentPos.coordinates[1] + speed.y * 1000.0,
                 )
             }
-
             else -> currentPos
         }
     }
