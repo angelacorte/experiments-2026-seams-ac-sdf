@@ -38,6 +38,7 @@ class LetterE(start: Position, height: Double, private val thickness: Double = 0
         upperArm(position),
     ) - thickness
 
+    /** Constants defining the proportions of the letter. */
     companion object {
         private const val HALF = 0.5
         private const val THREE_EIGHTHS = 0.375

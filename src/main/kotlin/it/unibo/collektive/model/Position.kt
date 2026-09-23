@@ -21,8 +21,10 @@ operator fun Position.plus(other: Vector2D): Position = Position(x + other.x, y 
 /** Subtracts the components of [position] from this position. */
 operator fun Position.minus(position: Position): Position = Position(x - position.x, y - position.y)
 
+/** Divides the coordinates of this position by the corresponding coordinates of [position]. */
 operator fun Position.div(position: Position): Position = Position(x / position.x, y / position.y)
 
+/** Converts this position to a speed control by dividing its coordinates by [scalar]. */
 operator fun Position.div(scalar: Double): SpeedControl2D = SpeedControl2D(x / scalar, y / scalar)
 
 /**

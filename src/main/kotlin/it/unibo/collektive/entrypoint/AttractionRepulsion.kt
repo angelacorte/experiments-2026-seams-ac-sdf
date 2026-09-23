@@ -18,6 +18,9 @@ import it.unibo.common.times
 import it.unibo.common.zeroSpeed
 import kotlin.math.pow
 
+/**
+ * The nominal distance maintained between devices by the attraction-repulsion behavior.
+ */
 const val NOMINAL_DISTANCE = 20.0
 
 /**
@@ -60,8 +63,8 @@ fun <ID : Comparable<ID>> Aggregate<ID>.attractionRepulsion(
 /**
  * An entry point for the attraction-repulsion behavior in a Collektive simulation.
  *
- * This function computes the displacement for the device based on attraction-repulsion interactions with neighboring devices
- * and applies the resulting velocity to the device.
+ * This function computes the displacement for the device based on attraction-repulsion interactions with neighboring
+ * devices and applies the resulting velocity to the device.
  *
  * @param device The Collektive device representing the current node in the simulation.
  * @param locationSensor The sensor providing the current coordinates of the device.

@@ -20,10 +20,8 @@ import it.unibo.common.SpeedControl2D
  * @property environment the environment in which the node moves
  * @property node the node whose target is being computed
  */
-class TargetFromMolecule<T, P : Position<P>>(
-    private val environment: Environment<T, P>,
-    private val node: Node<T>,
-) : TargetSelectionStrategy<T, P> {
+class TargetFromMolecule<T, P : Position<P>>(private val environment: Environment<T, P>, private val node: Node<T>) :
+    TargetSelectionStrategy<T, P> {
 
     override fun getTarget(): P? {
         val currentPos = environment.getPosition(node)

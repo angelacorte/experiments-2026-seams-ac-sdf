@@ -24,6 +24,8 @@ data class SpeedControl2D(override val x: Double, override val y: Double) : Vect
  */
 fun zeroSpeed(): SpeedControl2D = SpeedControl2D(0.0, 0.0)
 
+/** Scales this vector by [scalar]. */
 operator fun Vector2D.times(scalar: Double): Vector2D = SpeedControl2D(x * scalar, y * scalar)
 
+/** Adds the coordinates of [other] to this control input. */
 operator fun SpeedControl2D.plus(other: Vector2D): SpeedControl2D = SpeedControl2D(x + other.x, y + other.y)

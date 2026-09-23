@@ -61,6 +61,7 @@ class LetterB(start: Position, height: Double, private val thickness: Double = 0
         upperSegment(position),
     ) - thickness
 
+    /** Constants defining the proportions of the letter. */
     companion object {
         private const val HALF_DIVISOR = 2.0
         private const val QUARTER_DIVISOR = 4.0

@@ -42,13 +42,13 @@ fun moveNodeToPosition(nodeID: Int, newPosition: Vector2D) {
 //    Device(it.x, it.y, env.requiredDouble("SafeMargin"), velocity, env.requiredDouble("MaxSpeed"))
 // }
 
-private fun Node<*>.requiredDouble(molecule: String): Double {
-    val concentration = getConcentration(SimpleMolecule(molecule))
-    require(concentration is Number) {
-        "Node $id should carry a numeric '$molecule' molecule, but its concentration is '$concentration'"
-    }
-    return concentration.toDouble()
-}
+// private fun Node<*>.requiredDouble(molecule: String): Double {
+//    val concentration = getConcentration(SimpleMolecule(molecule))
+//    require(concentration is Number) {
+//        "Node $id should carry a numeric '$molecule' molecule, but its concentration is '$concentration'"
+//    }
+//    return concentration.toDouble()
+// }
 
 /**
  * Applies 2the computed control [velocity][velocity] to the robot by moving its node inside the environment.
