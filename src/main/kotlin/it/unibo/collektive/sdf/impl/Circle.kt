@@ -20,7 +20,7 @@ class Circle(
     private val thickness: Double = 0.0,
 ) : SDF {
     override fun invoke(position: Position): Double {
-        val circleDist = radius - position.euclideanDistanceTo(center)
+        val circleDist = position.euclideanDistanceTo(center) - radius
 
         return if (isRing) abs(circleDist) - thickness else circleDist
     }
