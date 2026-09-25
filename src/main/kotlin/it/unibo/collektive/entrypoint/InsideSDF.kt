@@ -73,12 +73,14 @@ fun gradientToSDF(sdf: SDF, currentPosition: Position, epsilon: Double): SpeedCo
     return SpeedControl2D(dx, dy)
 }
 
+context(device: CollektiveDevice<*>)
 fun directionTowardsSDF(
     sdf: SDF,
     currentPosition: Position,
     epsilon: Double,
 ): SpeedControl2D {
     val distance = sdf(currentPosition)
+    device["distanceToSDF"] = distance
     val gradient = gradientToSDF(sdf, currentPosition, epsilon)
     val magnitude = hypot(gradient.x, gradient.y)
     return when {
