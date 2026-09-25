@@ -10,10 +10,8 @@ import it.unibo.collektive.model.Position
 import it.unibo.collektive.model.div
 import it.unibo.collektive.model.euclideanDistanceTo
 import it.unibo.collektive.model.minus
-import it.unibo.collektive.model.plus
 import it.unibo.collektive.stdlib.collapse.fold
 import it.unibo.common.SpeedControl2D
-import it.unibo.common.plus
 import it.unibo.common.times
 import it.unibo.common.zeroSpeed
 import kotlin.math.pow
@@ -52,12 +50,12 @@ fun <ID : Comparable<ID>> Aggregate<ID>.attractionRepulsion(
                 val netForce: Double = attractionForce - repulsionForce
                 direction * netForce
             }
-            else -> zeroSpeed()
+            else -> zeroSpeed
         }
     }
-    val displacement = displacements.all.fold(zeroSpeed()) { acc, force -> acc + force.value }
-    val newPosition = currentPosition + displacement
-    newPosition.yielding { displacement }
+    val displacement: SpeedControl2D = displacements.all.fold(zeroSpeed) { acc, force -> acc + force.value }
+    val newPosition: Position = Position(currentPosition.x + displacement.x, currentPosition.y + displacement.y)
+    newPosition.yielding { displacement } 
 }
 
 /**
