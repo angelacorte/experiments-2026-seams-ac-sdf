@@ -3,9 +3,7 @@
 package it.unibo.collektive.alchemist.device
 
 import it.unibo.alchemist.collektive.device.CollektiveDevice
-import it.unibo.alchemist.model.Node
 import it.unibo.alchemist.model.Position
-import it.unibo.alchemist.model.molecules.SimpleMolecule
 import it.unibo.alchemist.model.positions.Euclidean2DPosition
 import it.unibo.common.SpeedControl2D
 import it.unibo.common.Vector2D
@@ -33,29 +31,12 @@ fun moveNodeToPosition(nodeID: Int, newPosition: Vector2D) {
     }
 }
 
-// /**
-// * Builds a [Device] view for the current device state using environment variables.
-// */
-// context(position: LocationSensor, env: EnvironmentVariables)
-// fun getRobot(): Device = position.coordinates().let {
-//    val velocity = env.getOrDefault("Control", SpeedControl2D(0.0, 0.0))
-//    Device(it.x, it.y, env.requiredDouble("SafeMargin"), velocity, env.requiredDouble("MaxSpeed"))
-// }
-
-// private fun Node<*>.requiredDouble(molecule: String): Double {
-//    val concentration = getConcentration(SimpleMolecule(molecule))
-//    require(concentration is Number) {
-//        "Node $id should carry a numeric '$molecule' molecule, but its concentration is '$concentration'"
-//    }
-//    return concentration.toDouble()
-// }
-
 /**
  * Applies 2the computed control [velocity][velocity] to the robot by moving its node inside the environment.
  *
  * Under ZOH dynamics the displacement is ∆t · u:  p_{k+1} = p_k + ∆t · u_k.
  */
-context(device: CollektiveDevice<Euclidean2DPosition>)
+context(device: CollektiveDevice<*>)
 fun applyVelocity(velocity: SpeedControl2D) {
     device["Velocity"] = velocity
 }
