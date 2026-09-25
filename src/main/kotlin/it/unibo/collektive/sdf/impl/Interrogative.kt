@@ -18,8 +18,7 @@ class Interrogative(
     radius: Double,
     private val thickness: Double = 0.0,
 ) : SDF {
-    private val arc =
-        Arc(center, radius, -PI / 2.0, 3.0 / 2.0 * PI,)
+    private val arc = Arc(center, radius, -PI / 2.0, 3.0 / 2.0 * PI,)
 
     private val segment = Segment(Position(center.x, center.y - radius), Position(center.x, center.y - 2.0 * radius),)
 
