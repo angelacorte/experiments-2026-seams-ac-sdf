@@ -12,6 +12,8 @@ fun interface SDF {
      * if the value is negative, the point is inside the SDF.
      */
     operator fun invoke(position: Position): Double
+
+    fun isInside(position: Position): Boolean = this(position) <= 0.0
 }
 
 /**
