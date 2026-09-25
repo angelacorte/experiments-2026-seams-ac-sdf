@@ -1,0 +1,22 @@
+incarnation: collektive
+
+network-model:
+  type: ConnectWithinDistance
+  parameters: [18]
+
+_pool: &program
+  - time-distribution: 1
+    type: Event
+    actions:
+      - type: RunCollektiveProgram
+        parameters: [it.unibo.collektive.entrypoint.InsideSDFKt.insideSDFEntrypoint]
+      - type: SpeedToTarget
+        parameters: [ ]
+
+deployments:
+  - type: Rectangle
+    parameters: [199, 0, 0, 100, 100]
+    programs:
+      - *program
+    properties:
+      - type: it.unibo.collektive.alchemist.device.sensors.impl.LocationSensorProperty
