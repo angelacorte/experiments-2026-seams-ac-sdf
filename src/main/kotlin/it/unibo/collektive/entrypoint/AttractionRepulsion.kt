@@ -7,11 +7,10 @@ import it.unibo.collektive.aggregate.api.sharing
 import it.unibo.collektive.alchemist.device.applyVelocity
 import it.unibo.collektive.alchemist.device.sensors.LocationSensor
 import it.unibo.collektive.model.Position
-import it.unibo.collektive.model.div
-import it.unibo.collektive.model.euclideanDistanceTo
 import it.unibo.collektive.model.minus
 import it.unibo.collektive.stdlib.collapse.fold
 import it.unibo.common.SpeedControl2D
+import it.unibo.common.Vector2D
 import it.unibo.common.times
 import it.unibo.common.zeroSpeed
 import kotlin.math.pow
@@ -39,23 +38,33 @@ fun <ID : Comparable<ID>> Aggregate<ID>.attractionRepulsion(
     desiredDistance: Double,
 ): SpeedControl2D = sharing(currentPosition) { positions ->
     val displacements = positions.map { (id, position) ->
-        val relativePosition = position - currentPosition
-        val distance = currentPosition.euclideanDistanceTo(position)
-        when {
-            distance > 0.0 && id != localId -> {
-                val direction: SpeedControl2D = relativePosition / distance
-                val attractionForce: Double = attractionCoefficient * distance
-                val repulsionCoefficient: Double = attractionCoefficient * desiredDistance.pow(3)
-                val repulsionForce: Double = repulsionCoefficient / distance.pow(2)
-                val netForce: Double = attractionForce - repulsionForce
-                direction * netForce
-            }
-            else -> zeroSpeed
+        when (id) {
+            localId -> zeroSpeed
+            else -> attractionRepulsionForce(position - currentPosition, attractionCoefficient, desiredDistance)
         }
     }
     val displacement: SpeedControl2D = displacements.all.fold(zeroSpeed) { acc, force -> acc + force.value }
     val newPosition: Position = Position(currentPosition.x + displacement.x, currentPosition.y + displacement.y)
     newPosition.yielding { displacement } 
+}
+
+/**
+ * The attraction-repulsion force exerted by a neighbor located at [relativePosition] (i.e., `neighbor - self`).
+ * See [attractionRepulsion] for the meaning of [attractionCoefficient] and [desiredDistance].
+ */
+fun attractionRepulsionForce(
+    relativePosition: Vector2D,
+    attractionCoefficient: Double,
+    desiredDistance: Double,
+): SpeedControl2D {
+    val distance = relativePosition.norm
+    if (distance == 0.0) return zeroSpeed
+    val direction: SpeedControl2D = relativePosition * (1.0 / distance)
+    val attractionForce: Double = attractionCoefficient * distance
+    val repulsionCoefficient: Double = attractionCoefficient * desiredDistance.pow(3)
+    val repulsionForce: Double = repulsionCoefficient / distance.pow(2)
+    val netForce: Double = attractionForce - repulsionForce
+    return direction * netForce
 }
 
 /**
