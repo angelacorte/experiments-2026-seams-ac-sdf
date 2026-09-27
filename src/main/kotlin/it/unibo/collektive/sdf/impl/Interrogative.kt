@@ -24,5 +24,6 @@ class Interrogative(
 
     private val dot = Circle(Position(center.x, center.y - 3 * radius), radius * 0.12)
 
-    override fun invoke(position: Position): Double = min(min(arc(position), segment(position)), dot(position)) - thickness
+    override fun invoke(position: Position): Double =
+        min(min(arc(position), segment(position)), dot(position)) - thickness
 }

@@ -2,6 +2,8 @@ package it.unibo.collektive.sdf.impl
 
 import it.unibo.collektive.model.Position
 import it.unibo.collektive.sdf.SDF
+import it.unibo.collektive.sdf.expand
+import it.unibo.collektive.sdf.or
 
 /**
  * Represents a 2D Signed Distance Field (SDF) of the letter E.
@@ -31,12 +33,9 @@ class LetterE(start: Position, height: Double, private val thickness: Double = 0
         Position(start.x + height * HALF, start.y + height),
     )
 
-    override fun invoke(position: Position): Double = minOf(
-        verticalStem(position),
-        lowerArm(position),
-        middleArm(position),
-        upperArm(position),
-    ) - thickness
+    private val letter = (verticalStem or lowerArm or middleArm or upperArm) expand thickness
+
+    override fun invoke(position: Position): Double = letter(position)
 
     /** Constants defining the proportions of the letter. */
     companion object {

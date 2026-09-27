@@ -1,5 +1,10 @@
 incarnation: collektive
 
+variables:
+  spreadMode: &spreadMode
+    type: ArbitraryVariable
+    parameters: [FIXED, [FIXED, EDGE, SPRING]]
+
 network-model:
   type: ConnectWithinDistance
   parameters: [18]
@@ -16,6 +21,9 @@ _pool: &program
 deployments:
   - type: Rectangle
     parameters: [300, 0, 0, 100, 100]
+    contents:
+      - molecule: spreadMode
+        concentration: *spreadMode
     programs:
       - *program
     properties:
