@@ -7,7 +7,7 @@ variables:
 
 network-model:
   type: ConnectWithinDistance
-  parameters: [18]
+  parameters: [30]
 
 _pool: &program
   - time-distribution: 1
@@ -20,7 +20,7 @@ _pool: &program
 
 deployments:
   - type: Rectangle
-    parameters: [300, 0, 0, 100, 100]
+    parameters: [100, 0, 0, 100, 100]
     contents:
       - molecule: spreadMode
         concentration: *spreadMode
