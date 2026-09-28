@@ -1,5 +1,6 @@
 package it.unibo.common
 
+import it.unibo.collektive.model.Position
 import kotlin.math.sqrt
 
 /**
@@ -14,6 +15,8 @@ interface Vector2D {
         get() = 2
 
     operator fun plus(v: Vector2D): SpeedControl2D = SpeedControl2D(x + v.x, y + v.y)
+
+    operator fun plus(v: Position): Position = Position(x + v.x, y + v.y)
 
     val norm get() = sqrt(x * x + y * y)
 }

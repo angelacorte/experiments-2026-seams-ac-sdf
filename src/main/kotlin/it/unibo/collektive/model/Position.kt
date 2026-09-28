@@ -18,6 +18,8 @@ data class Position(override val x: Double, override val y: Double) : Vector2D
 
 operator fun Position.plus(other: Vector2D): Position = Position(x + other.x, y + other.y)
 
+operator fun Position.plus(other: Position): Position = Position(x + other.x, y + other.y)
+
 /** Subtracts the components of [position] from this position. */
 operator fun Position.minus(position: Position): Position = Position(x - position.x, y - position.y)
 
