@@ -7,19 +7,16 @@ import it.unibo.collektive.alchemist.device.applyVelocity
 import it.unibo.collektive.alchemist.device.sensors.RelativePositionSensor
 import it.unibo.collektive.model.Position
 import it.unibo.collektive.sdf.impl.Triangle
-import it.unibo.collektive.sdf.rotate
-import it.unibo.collektive.sdf.scale
-import it.unibo.collektive.stdlib.collapse.fold
 import it.unibo.collektive.stdlib.consensus.boundedElection
 import it.unibo.collektive.stdlib.spreading.gradientCast
 import it.unibo.collektive.stdlib.time.sharedClock
 import it.unibo.common.times
 import it.unibo.common.zeroSpeed
-import kotlin.math.ln
-import kotlin.math.sqrt
-import kotlin.time.DurationUnit
 import kotlin.time.Instant
-import kotlin.time.Instant.Companion.DISTANT_PAST
+import it.unibo.collektive.sdf.translate
+import it.unibo.collektive.stdlib.time.localDeltaTime
+import kotlin.math.sqrt
+import kotlin.time.Duration
 
 private val origin = Position(0.0, 0.0)
 
@@ -58,24 +55,32 @@ fun Aggregate<Int>.relativeToLeaderEntrypoint(
     val clock = sharedClock(Instant.fromEpochMilliseconds((device.currentTime.toDouble() * 1000).toLong()))
     val shape = Triangle(
         origin,
-        Position(160.0, 0.0),
-        Position(80.0, 160.0),
-    )//.rotate(Math.toRadians((clock - DISTANT_PAST).toDouble(DurationUnit.SECONDS)) / 3.0)
+        Position(200.0, 0.0),
+        Position(100.0, 200.0),
+    ).translate(-80.0, -80.0)//.rotate(Math.toRadians((clock - DISTANT_PAST).toDouble(DurationUnit.SECONDS)) / 3.0)
 
         //LetterE(origin, 100.0)
         //Star(origin, 45.0, 5, 2.5)
         // Repulsion uses the perceived (dx, dy), not the neighbors' (possibly stale) estimated positions.
-        val repulsion = mapNeighborhood { attractionRepulsionForce(sensor.relativeTo(it) * -1.0, 0.0001, 30.0) }
-        .neighbors.fold(zeroSpeed) { acc, force -> acc + force.value }
+//    val repulsion = mapNeighborhood { attractionRepulsionForce(sensor.relativeTo(it) * -1.0, 0.0001, 30.0) }
+//    .neighbors.fold(zeroSpeed) { acc, force -> acc + force.value }
+    val repulsion = attractionRepulsion(position, 0.0001, 80.0)
     // Inside, the shape already keeps the swarm together: boost repulsion to spread faster.
-    val repulsionGain = if (shape.isInside(position)) (sqrt( -1.0 * shape(position)) + 1.0)  else 1.0
+//    val repulsionGain = if (shape.isInside(position)) -1.0 * shape(position)  else 1.0
+    val repulsionGain = if (shape.isInside(position)) (sqrt( -1.0 * shape(position)))  else 1.0
+    val delta: Duration = localDeltaTime(Instant.fromEpochMilliseconds((device.currentTime.toDouble() * 1000.0).toLong()))
     val control = directionTowardsSDF(shape, position, 0.001) + repulsion * repulsionGain
+    val deltaMovement = control * (delta.inWholeMilliseconds/1000.0)
+    val coercedControl: Double = when {
+        !shape.isInside(deltaMovement + position) && shape.isInside(position) -> 0.0
+        else -> 1.0
+    }
     val maxSpeed = 1.0
     applyVelocity(
         when {
             isLeader -> zeroSpeed // The leader is the reference frame: it stays still.
             control.norm > maxSpeed -> control * (maxSpeed / control.norm)
             else -> control
-        },
+        } * coercedControl,
     )
 }
