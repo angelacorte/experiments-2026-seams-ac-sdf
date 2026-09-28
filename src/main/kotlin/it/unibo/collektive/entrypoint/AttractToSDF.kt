@@ -13,6 +13,7 @@ import it.unibo.common.Vector2D
 import it.unibo.common.plus
 import it.unibo.common.times
 import kotlin.math.pow
+import kotlin.math.sqrt
 
 fun Aggregate<Int>.towardsSDFEntrypoint(device: CollektiveDevice<*>, locationSensor: LocationSensor) = with(device) {
     val currentPosition = locationSensor.coordinates()
@@ -26,7 +27,8 @@ fun Aggregate<Int>.towardsSDFEntrypoint(device: CollektiveDevice<*>, locationSen
         0.001,
     )
     val displaceAttractionRepulsion: SpeedControl2D = attractionRepulsion(currentPosition, 0.0001, 30.0,)
-    val currentControl = displaceToSDF + displaceAttractionRepulsion
+    val repulsionGain = if (interrogative.isInside(currentPosition)) (sqrt( -1.0 * interrogative(currentPosition)) + 1.0)  else 1.0
+    val currentControl = displaceToSDF + (displaceAttractionRepulsion * repulsionGain)
     applyVelocity(currentControl)
 //    applyVelocity(
 //        if (currentControl.norm < 1.0) SpeedControl2D(currentControl.x.megaPow, currentControl.y.megaPow) else currentControl

@@ -19,32 +19,25 @@ fun interface SDF {
     fun isInside(position: Position): Boolean = this(position) <= 0.0
 }
 
-/**
- * Creates a new Signed Distance Field (SDF) representing the inverse of the given [shape].
- * * By negating the distance value, the internal regions (traditionally negative) become
- * external (positive), and the external regions become internal.
- */
-fun inverseSDF(shape: SDF): SDF = SDF { position -> -shape(position) }
-
-/** Union, `min(φA, φB)`: inside [this] or inside [other]. */
+/** Union, `min(A, B)`: inside [this] or inside [other]. */
 infix fun SDF.or(other: SDF): SDF = SDF { position -> minOf(this(position), other(position)) }
 
-/** Intersection, `max(φA, φB)`: inside [this] and inside [other]. */
+/** Intersection, `max(A, B)`: inside [this] and inside [other]. */
 infix fun SDF.and(other: SDF): SDF = SDF { position -> maxOf(this(position), other(position)) }
 
 /** Union of all these shapes. */
 fun Iterable<SDF>.union(): SDF = reduce { union, shape -> union or shape }
 
-/** Complement, `-φ`: outside [this]. */
-operator fun SDF.not(): SDF = inverseSDF(this)
+/** Complement, `-A`: outside [this]. */
+operator fun SDF.not(): SDF = SDF { position -> -this(position) }
 
-/** Difference, `max(φA, -φB)`: inside [this] but outside [other]. */
+/** Difference, `max(A, -B)`: inside [this] but outside [other]. */
 operator fun SDF.minus(other: SDF): SDF = this and !other
 
-/** [this] grown outward by [distance], rounding its corners: `φ - distance`. A negative [distance] shrinks it. */
+/** [this] grown outward by [distance], rounding its corners: `A - distance`. A negative [distance] shrinks it. */
 infix fun SDF.expand(distance: Double): SDF = SDF { position -> this(position) - distance }
 
-/** A band of half-width [thickness] along the boundary of [this]: `|φ| - thickness`. */
+/** A band of half-width [thickness] along the boundary of [this]: |A| - thickness. */
 infix fun SDF.ring(thickness: Double): SDF = SDF { position -> abs(this(position)) - thickness }
 
 /** [this] moved by ([dx], [dy]). Rigid, so distances stay exact. */

@@ -6,20 +6,17 @@ import it.unibo.collektive.aggregate.api.mapNeighborhood
 import it.unibo.collektive.alchemist.device.applyVelocity
 import it.unibo.collektive.alchemist.device.sensors.RelativePositionSensor
 import it.unibo.collektive.model.Position
-import it.unibo.collektive.model.plus
-import it.unibo.collektive.sdf.impl.LetterE
-import it.unibo.collektive.sdf.rotate
-import it.unibo.collektive.sdf.impl.Star
 import it.unibo.collektive.sdf.impl.Triangle
+import it.unibo.collektive.sdf.rotate
+import it.unibo.collektive.sdf.scale
 import it.unibo.collektive.stdlib.collapse.fold
 import it.unibo.collektive.stdlib.consensus.boundedElection
-import it.unibo.collektive.stdlib.consensus.globalElection
 import it.unibo.collektive.stdlib.spreading.gradientCast
 import it.unibo.collektive.stdlib.time.sharedClock
-import it.unibo.common.Vector2D
-import it.unibo.common.plus
 import it.unibo.common.times
 import it.unibo.common.zeroSpeed
+import kotlin.math.ln
+import kotlin.math.sqrt
 import kotlin.time.DurationUnit
 import kotlin.time.Instant
 import kotlin.time.Instant.Companion.DISTANT_PAST
@@ -61,9 +58,9 @@ fun Aggregate<Int>.relativeToLeaderEntrypoint(
     val clock = sharedClock(Instant.fromEpochMilliseconds((device.currentTime.toDouble() * 1000).toLong()))
     val shape = Triangle(
         origin,
-        Position(80.0, 0.0),
-        Position(40.0, 80.0),
-    ).rotate(Math.toRadians((clock - DISTANT_PAST).toDouble(DurationUnit.SECONDS)) / 3.0)
+        Position(160.0, 0.0),
+        Position(80.0, 160.0),
+    )//.rotate(Math.toRadians((clock - DISTANT_PAST).toDouble(DurationUnit.SECONDS)) / 3.0)
 
         //LetterE(origin, 100.0)
         //Star(origin, 45.0, 5, 2.5)
@@ -71,7 +68,7 @@ fun Aggregate<Int>.relativeToLeaderEntrypoint(
         val repulsion = mapNeighborhood { attractionRepulsionForce(sensor.relativeTo(it) * -1.0, 0.0001, 30.0) }
         .neighbors.fold(zeroSpeed) { acc, force -> acc + force.value }
     // Inside, the shape already keeps the swarm together: boost repulsion to spread faster.
-    val repulsionGain = if (shape.isInside(position)) 20.0 else 1.0
+    val repulsionGain = if (shape.isInside(position)) (sqrt( -1.0 * shape(position)) + 1.0)  else 1.0
     val control = directionTowardsSDF(shape, position, 0.001) + repulsion * repulsionGain
     val maxSpeed = 1.0
     applyVelocity(
