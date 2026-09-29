@@ -1,7 +1,9 @@
-package it.unibo.collektive.sdf.impl
+package it.unibo.collektive.sdf.impl.letters
 
 import it.unibo.collektive.model.Position
 import it.unibo.collektive.sdf.SDF
+import it.unibo.collektive.sdf.impl.base.Arc
+import it.unibo.collektive.sdf.impl.base.Segment
 import kotlin.math.PI
 
 /**
