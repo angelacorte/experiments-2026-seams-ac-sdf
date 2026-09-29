@@ -5,9 +5,7 @@ import it.unibo.collektive.aggregate.api.Aggregate
 import it.unibo.collektive.alchemist.device.applyVelocity
 import it.unibo.collektive.alchemist.device.sensors.LocationSensor
 import it.unibo.collektive.model.Position
-import it.unibo.collektive.sdf.impl.letters.Word
-import it.unibo.collektive.sdf.impl.shapes.composite.FibonacciSpiral
-import it.unibo.collektive.sdf.impl.shapes.composite.Spiral
+import it.unibo.collektive.sdf.text.toSdf
 import it.unibo.collektive.stdlib.spreading.isHappeningAnywhere
 import it.unibo.collektive.stdlib.time.localDeltaTime
 import it.unibo.common.SpeedControl2D
@@ -16,7 +14,6 @@ import kotlin.math.pow
 import kotlin.math.sqrt
 import kotlin.time.Duration
 import kotlin.time.Instant
-import it.unibo.collektive.sdf.impl.letters.toSdf
 
 val shape = "COLLEKTIVE".toSdf(start = Position(-20.0, 30.0), height = 40.0, thickness = 4.2, spacing = 10.5,)
 //val shape = Stairs(Position(0.0, 0.0), 20.0, 20.0, 5)
@@ -24,7 +21,7 @@ val shape = "COLLEKTIVE".toSdf(start = Position(-20.0, 30.0), height = 40.0, thi
 //val shape = Spiral(Position(0.0, 0.0), spacing = 20.0, turns = 4, innerRadius = 10.0, thickness = 5.0)
 //val shape = Star(Position(50.0, 50.0), 75.0, 5, 3.0)
 //val shape = Circle(Position(50.0, 50.0), 40.0)
-//val shape = Interrogative(Position(100.0, 100.0), 30.0, 10.0)
+//val shape = QuestionMark(Position(100.0, 100.0), 30.0, 10.0)
 //val shape = Triangle(Position(0.0, 0.0), Position(200.0, 0.0), Position(100.0, 200.0))
 
 fun Aggregate<Int>.towardsSDFEntrypoint(device: CollektiveDevice<*>, locationSensor: LocationSensor) = with(device) {
