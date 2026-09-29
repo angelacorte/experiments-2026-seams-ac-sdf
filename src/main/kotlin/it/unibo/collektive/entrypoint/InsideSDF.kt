@@ -11,7 +11,7 @@ import it.unibo.collektive.model.minus
 import it.unibo.collektive.sdf.SDF
 import it.unibo.collektive.sdf.primitive.Circle
 import it.unibo.collektive.sdf.gradientToSDF
-import it.unibo.collektive.sdf.impl.Circle
+
 import it.unibo.collektive.stdlib.collapse.fold
 import it.unibo.collektive.stdlib.collapse.reduce
 import it.unibo.common.SpeedControl2D
