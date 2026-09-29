@@ -6,7 +6,7 @@ import it.unibo.collektive.aggregate.api.mapNeighborhood
 import it.unibo.collektive.alchemist.device.applyVelocity
 import it.unibo.collektive.alchemist.device.sensors.RelativePositionSensor
 import it.unibo.collektive.model.Position
-import it.unibo.collektive.sdf.impl.base.Triangle
+import it.unibo.collektive.sdf.shape.Triangle
 import it.unibo.collektive.sdf.translate
 import it.unibo.collektive.stdlib.consensus.boundedElection
 import it.unibo.collektive.stdlib.spreading.gradientCast
