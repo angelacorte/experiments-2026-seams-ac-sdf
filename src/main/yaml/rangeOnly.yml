@@ -13,9 +13,12 @@ _pool: &program
       - type: SpeedToTarget
         parameters: [ ]
 
+seeds:
+  simulation: 102
+
 deployments:
   - type: Rectangle
-    parameters: [300, 0, 0, 100, 100]
+    parameters: [200, 0, 0, 100, 100]
     contents:
       # Anchors
       - { molecule: leaderElectionBound, concentration: 200 } # Hops within which anchor 1 is elected
@@ -30,13 +33,13 @@ deployments:
       - { molecule: desiredDistance, concentration: 30.0 } # Where attraction and repulsion balance
       - { molecule: insideRepulsionGain, concentration: 20.0 } # Repulsion boost inside the shape
       - { molecule: maxSpeed, concentration: 1.0 }
-      # Steering without bearing (frame alignment from odometry)
+      # Steering without bearing (frame alignment from the own commands)
       - { molecule: forgettingFactor, concentration: 0.95 } # Past evidence kept at each round
       - { molecule: maxDisplacement, concentration: 5.0 } # Estimate changes above this are frame jumps
       - { molecule: minMotionEnergy, concentration: 5.0 } # Motion needed before steering
       - { molecule: minConfidence, concentration: 0.1 } # Direction spread needed before steering
-      - { molecule: explorationNoise, concentration: 0.4 } # Random motion kept while steering
+      - { molecule: explorationNoise, concentration: 0.1 } # Random motion kept while steering
     programs:
       - *program
     properties:
-      - type: it.unibo.collektive.alchemist.device.sensors.impl.OdometrySensorProperty
+      - type: it.unibo.collektive.alchemist.device.BodyFrameProperty

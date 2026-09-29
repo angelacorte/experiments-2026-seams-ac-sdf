@@ -118,5 +118,11 @@
     "colorCache": {
       "value": -16777216
     }
+  },
+  {
+    "type": "class it.unibo.alchemist.boundary.gui.effects.DrawHeading"
+  },
+  {
+    "type": "class it.unibo.alchemist.boundary.gui.effects.DrawActuation"
   }
 ]

@@ -5,7 +5,6 @@ import it.unibo.collektive.aggregate.Field
 import it.unibo.collektive.aggregate.api.Aggregate
 import it.unibo.collektive.aggregate.api.neighboring
 import it.unibo.collektive.alchemist.device.applyVelocity
-import it.unibo.collektive.alchemist.device.sensors.OdometrySensor
 import it.unibo.collektive.localization.AnchorRole
 import it.unibo.collektive.localization.FrameAlignment
 import it.unibo.collektive.localization.electAnchors
@@ -25,10 +24,11 @@ import kotlin.math.sin
 /**
  * Range-only shape formation: devices sense only the distances to their neighbors (no bearing, no shared orientation).
  * Three anchors fix a frame ([electAnchors]), every device estimates its position in it ([localize]), and learns how
- * to steer in that frame from the motion perceived by its [odometry] ([FrameAlignment]).
+ * to steer in that frame from how its own commands, given in its body frame, move it among the anchors
+ * ([FrameAlignment]).
  * All the parameters are read from the simulation file (see `rangeOnly.yml`).
  */
-fun Aggregate<Int>.rangeOnlyEntrypoint(device: CollektiveDevice<*>, odometry: OdometrySensor) = with(device) {
+fun Aggregate<Int>.rangeOnlyEntrypoint(device: CollektiveDevice<*>) = with(device) {
     val neighborDistances = distances()
     val role = electAnchors(
         neighborDistances,
@@ -42,7 +42,7 @@ fun Aggregate<Int>.rangeOnlyEntrypoint(device: CollektiveDevice<*>, odometry: Od
     val shape = Star(
         frame.centroid,
         radius = parameter("starRadius"),
-        pointCount = 8,//parameter("starPoints").toInt(),
+        pointCount = parameter("starPoints").toInt(),
         spikiness = parameter("starSpikiness"),
     )
     val repulsion = repulsionFromEstimates(
@@ -56,11 +56,15 @@ fun Aggregate<Int>.rangeOnlyEntrypoint(device: CollektiveDevice<*>, odometry: Od
         val repulsionGain = if (shape.isInside(it)) parameter("insideRepulsionGain") else 1.0
         directionTowardsSDF(shape, it, parameter("sdfGradientStep")) + repulsion * repulsionGain
     }
+    device["control"] = control ?: zeroSpeed // The ideal command, in the anchor frame
+    val lastCommand = getOrNull<SpeedControl2D>("Velocity") ?: zeroSpeed // Applied since the last round
+    val commanded = evolve(zeroSpeed) { it + lastCommand }
     val alignment = evolve(FrameAlignment()) {
-        it.learn(position, odometry.travelled(), parameter("forgettingFactor"), parameter("maxDisplacement"))
+        it.learn(position, commanded, parameter("forgettingFactor"), parameter("maxDisplacement"))
     }
     val command = when {
-        isAnchor || control == null -> zeroSpeed // The anchors are the reference frame: they stay still.
+        control == null -> randomGenerator.randomDirection()
+        isAnchor -> zeroSpeed // The anchors are the reference frame: they stay still.
         // Explore until the alignment is reliable.
         !alignment.isConfident(parameter("minMotionEnergy"), parameter("minConfidence")) ->
             randomGenerator.randomDirection()

@@ -27,6 +27,15 @@ sourceSets {
     }
 }
 
+dependencies {
+    testImplementation(kotlin("test"))
+}
+
+tasks.test {
+    useJUnitPlatform()
+    testLogging { showStandardStreams = true }
+}
+
 multiJvm {
     jvmVersionForCompilation.set(17)
 }

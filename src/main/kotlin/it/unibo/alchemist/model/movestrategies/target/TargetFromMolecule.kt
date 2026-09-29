@@ -5,6 +5,7 @@ import it.unibo.alchemist.model.Node
 import it.unibo.alchemist.model.Position
 import it.unibo.alchemist.model.molecules.SimpleMolecule
 import it.unibo.alchemist.model.movestrategies.TargetSelectionStrategy
+import it.unibo.collektive.alchemist.device.BodyFrameProperty
 import it.unibo.common.SpeedControl2D
 
 /**
@@ -25,7 +26,10 @@ class TargetFromMolecule<T, P : Position<P>>(private val environment: Environmen
 
     override fun getTarget(): P? {
         val currentPos = environment.getPosition(node)
-        val speed = node.getConcentration(SimpleMolecule("Velocity")) as? SpeedControl2D
+        val command = node.getConcentration(SimpleMolecule("Velocity")) as? SpeedControl2D
+        // A node with a body frame commands its velocity in it.
+        val body = node.properties.filterIsInstance<BodyFrameProperty<*>>().firstOrNull()
+        val speed = command?.let { body?.toEnvironment(it) ?: it }
         return when {
             speed != null && (speed.x != 0.0 || speed.y != 0.0) -> {
                 environment.makePosition(

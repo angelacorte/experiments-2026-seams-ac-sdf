@@ -38,9 +38,10 @@ fun Aggregate<Int>.electAnchors(
 }
 
 /**
- * Anchor 1 picks anchors 2 and 3 among its neighbors, as in Čapkun et al.: the farthest neighbor as anchor 2, and the
- * common neighbor making the tallest triangle as anchor 3. It keeps its [previous] choice while it is still valid, so
- * the frame does not move; its own [distances] and the [distancesAmongNeighbors] are all direct (1-hop) measures.
+ * Anchor 1 picks anchors 2 and 3 among its neighbors, as in Čapkun et al.:
+ * the farthest neighbor as anchor 2, and the common neighbor making the tallest triangle as anchor 3.
+ * It keeps its [previous] choice while it is still valid, so the frame does not move;
+ * its own [distances] and the [distancesAmongNeighbors] are all direct (1-hop) measures.
  * A choice is valid if anchor 3 is at least [minAnchorsHeight] away from the line of anchors 1 and 2.
  */
 private fun chooseAnchors2And3(

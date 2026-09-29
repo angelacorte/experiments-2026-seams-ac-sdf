@@ -10,16 +10,16 @@ import kotlin.math.pow
 
 /**
  * Learns the orthogonal map T (a rotation or a reflection) from the body frame to the anchor frame, fitting the
- * correlation `C = Σ Δp·mᵀ` between the change Δp of the estimated position and the motion m perceived by the
- * odometry (Δp ≈ T·m), as in 2D Procrustes (see also Cornejo & Nagpal, WAFR 2014).
+ * correlation `C = Σ Δp·mᵀ` between the change Δp of the estimated position and the motion m in the body frame
+ * (Δp ≈ T·m), as in 2D Procrustes (see also Cornejo & Nagpal, WAFR 2014).
  *
  * @property correlationXX the entry `Σ Δp.x·m.x` of C.
  * @property correlationXY the entry `Σ Δp.x·m.y` of C.
  * @property correlationYX the entry `Σ Δp.y·m.x` of C.
  * @property correlationYY the entry `Σ Δp.y·m.y` of C.
- * @property motionEnergy the energy of the perceived motion, `Σ|m|²`.
+ * @property motionEnergy the energy of the motion in the body frame, `Σ|m|²`.
  * @property lastPosition the previous estimated position, null if unknown.
- * @property lastTravelled the previous reading of the odometry, null before the first one.
+ * @property lastTravelled the previous [learn]ed displacement in the body frame, null before the first one.
  */
 data class FrameAlignment(
     val correlationXX: Double = 0.0,
@@ -44,9 +44,9 @@ data class FrameAlignment(
         motionEnergy > minMotionEnergy && confidence > minConfidence
 
     /**
-     * Learns from the new estimated [position] (null if unknown) and the [travelled] reading of the odometry,
-     * keeping [forgettingFactor] of the past evidence; changes of the estimate above [maxDisplacement] are taken as
-     * frame jumps rather than moves, and ignored.
+     * Learns from the new estimated [position] (null if unknown) and the displacement [travelled] since the start in
+     * the body frame, keeping [forgettingFactor] of the past evidence; changes of the estimate above [maxDisplacement]
+     * are taken as frame jumps rather than moves, and ignored.
      */
     fun learn(
         position: Position?,
