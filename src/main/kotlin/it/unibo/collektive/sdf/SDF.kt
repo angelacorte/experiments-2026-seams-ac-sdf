@@ -16,8 +16,10 @@ fun interface SDF {
      */
     operator fun invoke(position: Position): Double
 
+    /** Whether [position] lies inside this field or on its boundary. */
     fun isInside(position: Position): Boolean = this(position) <= 0.0
 
+    /** Whether [position] lies strictly outside this field. */
     fun isOutside(position: Position): Boolean = this(position) > 0.0
 }
 
@@ -27,8 +29,9 @@ infix fun SDF.or(other: SDF): SDF = SDF { position -> minOf(this(position), othe
 /** Intersection, `max(A, B)`: inside [this] and inside [other]. */
 infix fun SDF.and(other: SDF): SDF = SDF { position -> maxOf(this(position), other(position)) }
 
-/** Union of all these shapes. */
-fun Iterable<SDF>.union(): SDF = reduce { union, shape -> union or shape }
+/** Union of all these shapes. The collection must not be empty. */
+fun Iterable<SDF>.union(): SDF = reduceOrNull { union, shape -> union or shape }
+    ?: error("Cannot build the union of an empty collection")
 
 /** Complement, `-A`: outside [this]. */
 operator fun SDF.not(): SDF = SDF { position -> -this(position) }
@@ -40,7 +43,10 @@ operator fun SDF.minus(other: SDF): SDF = this and !other
 infix fun SDF.expand(distance: Double): SDF = SDF { position -> this(position) - distance }
 
 /** A band of half-width [thickness] along the boundary of [this]: |A| - thickness. */
-infix fun SDF.ring(thickness: Double): SDF = SDF { position -> abs(this(position)) - thickness }
+infix fun SDF.ring(thickness: Double): SDF {
+    require(thickness >= 0.0) { "Ring thickness cannot be negative, got $thickness" }
+    return SDF { position -> abs(this(position)) - thickness }
+}
 
 /** The boundary of [this] as a zero-width stroke, `|A|`: to be thickened with [expand]. */
 fun SDF.outline(): SDF = this ring 0.0
