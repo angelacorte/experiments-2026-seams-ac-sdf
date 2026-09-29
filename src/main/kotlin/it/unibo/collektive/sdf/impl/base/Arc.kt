@@ -2,7 +2,9 @@ package it.unibo.collektive.sdf.impl.base
 
 import it.unibo.collektive.model.Position
 import it.unibo.collektive.model.euclideanDistanceTo
+import it.unibo.collektive.model.polar
 import it.unibo.collektive.sdf.SDF
+import it.unibo.collektive.sdf.union
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.atan2
@@ -38,5 +40,31 @@ class Arc(
             else -> min(position.euclideanDistanceTo(start), position.euclideanDistanceTo(end))
         }
         return distance - thickness
+    }
+
+    /** Factories for arcs combined with each other. */
+    companion object {
+        /**
+         * A chain of circular arcs, each [sweep] radians long and counterclockwise, starting at angle 0.
+         * The i-th arc has radius `radii[i]` and starts where the previous one ended, going in the same direction,
+         * so the joints have no corners: the center of each arc lies on the radius that ends the previous one,
+         * moved by the difference between the two radii.
+         *
+         * @param center The (X, Y) coordinates of the center of the first arc.
+         * @param radii The radius of each arc.
+         * @param sweep The angular length of each arc in radians.
+         * @param thickness The half-width of the stroke (default is 0.0).
+         */
+        fun tangentChain(center: Position, radii: List<Double>, sweep: Double, thickness: Double = 0.0): SDF {
+            var arcCenter = center
+            var startAngle = 0.0
+            return radii.mapIndexed { index, radius ->
+                if (index > 0) {
+                    arcCenter = arcCenter.polar(radii[index - 1] - radius, startAngle + sweep)
+                    startAngle += sweep
+                }
+                Arc(arcCenter, radius, startAngle, sweep, thickness)
+            }.union()
+        }
     }
 }
