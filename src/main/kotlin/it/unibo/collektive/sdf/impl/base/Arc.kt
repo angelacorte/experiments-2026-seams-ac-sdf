@@ -1,4 +1,4 @@
-package it.unibo.collektive.sdf.impl
+package it.unibo.collektive.sdf.impl.base
 
 import it.unibo.collektive.model.Position
 import it.unibo.collektive.model.euclideanDistanceTo
