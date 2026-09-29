@@ -11,7 +11,7 @@ import it.unibo.collektive.localization.electAnchors
 import it.unibo.collektive.localization.localize
 import it.unibo.collektive.model.Position
 import it.unibo.collektive.model.minus
-import it.unibo.collektive.sdf.impl.Star
+import it.unibo.collektive.sdf.impl.shapes.simple.Star
 import it.unibo.collektive.stdlib.collapse.fold
 import it.unibo.common.SpeedControl2D
 import it.unibo.common.times

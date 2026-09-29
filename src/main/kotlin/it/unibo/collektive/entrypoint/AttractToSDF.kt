@@ -5,10 +5,7 @@ import it.unibo.collektive.aggregate.api.Aggregate
 import it.unibo.collektive.alchemist.device.applyVelocity
 import it.unibo.collektive.alchemist.device.sensors.LocationSensor
 import it.unibo.collektive.model.Position
-import it.unibo.collektive.sdf.impl.Circle
-import it.unibo.collektive.sdf.impl.Interrogative
-import it.unibo.collektive.sdf.impl.Star
-import it.unibo.collektive.sdf.impl.Triangle
+import it.unibo.collektive.sdf.impl.shapes.simple.Star
 import it.unibo.collektive.stdlib.spreading.isHappeningAnywhere
 import it.unibo.collektive.stdlib.time.localDeltaTime
 import it.unibo.common.SpeedControl2D

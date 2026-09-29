@@ -1,21 +1,16 @@
 package it.unibo.collektive.entrypoint
 
 import it.unibo.alchemist.collektive.device.CollektiveDevice
-import it.unibo.alchemist.model.positions.Euclidean2DPosition
-import it.unibo.collektive.aggregate.Field
 import it.unibo.collektive.aggregate.api.Aggregate
 import it.unibo.collektive.aggregate.api.neighboring
-import it.unibo.collektive.aggregate.api.share
 import it.unibo.collektive.aggregate.values
 import it.unibo.collektive.alchemist.device.applyVelocity
 import it.unibo.collektive.alchemist.device.sensors.LocationSensor
 import it.unibo.collektive.model.Position
 import it.unibo.collektive.model.minus
 import it.unibo.collektive.sdf.SDF
-import it.unibo.collektive.sdf.impl.Circle
-import it.unibo.collektive.stdlib.collapse.fold
+import it.unibo.collektive.sdf.impl.base.Circle
 import it.unibo.collektive.stdlib.collapse.reduce
-import it.unibo.collektive.stdlib.pairs.FieldedPairs.first
 import it.unibo.common.SpeedControl2D
 import it.unibo.common.Vector2D
 import it.unibo.common.times
