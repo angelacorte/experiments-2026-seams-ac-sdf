@@ -7,33 +7,39 @@ import it.unibo.collektive.aggregate.values
 import it.unibo.collektive.alchemist.device.applyVelocity
 import it.unibo.collektive.alchemist.device.currentInstant
 import it.unibo.collektive.alchemist.device.sensors.LocationSensor
-import it.unibo.collektive.formation.AdaptiveStep
-import it.unibo.collektive.formation.LatticeNeighborhood
-import it.unibo.collektive.formation.LocalBorder
-import it.unibo.collektive.formation.RepulsionLaw
-import it.unibo.collektive.formation.SpacingRule
-import it.unibo.collektive.formation.latticeParameters
+import it.unibo.collektive.formation.*
 import it.unibo.collektive.model.Position
 import it.unibo.collektive.model.minus
 import it.unibo.collektive.sdf.SDF
+import it.unibo.collektive.sdf.gradientToSDF
 import it.unibo.collektive.sdf.scale
-import it.unibo.collektive.sdf.shape.FibonacciSpiral
-import it.unibo.collektive.sdf.shape.Spiral
 import it.unibo.collektive.sdf.text.toSdf
-import it.unibo.collektive.stdlib.spreading.isHappeningAnywhere
 import it.unibo.collektive.stdlib.time.localDeltaTime
-import it.unibo.common.SpeedControl2D
-import it.unibo.common.Vector2D
-import it.unibo.common.limitedTo
-import it.unibo.common.times
-import kotlin.math.sqrt
-import kotlin.time.Duration
+import it.unibo.common.*
+import kotlin.math.hypot
 import kotlin.time.DurationUnit
 import kotlin.time.Instant
 
-private val shape = FibonacciSpiral(Position(50.0, 50.0), 15.0, 6, 5.0)
+private val shape = "VARDA CHE ROBA VECIO".toSdf(start = Position(-20.0, 30.0), height = 40.0, thickness = 4.2, spacing = 10.5,).scale(0.5)
+//FibonacciSpiral(Position(50.0, 50.0), 15.0, 6, 5.0)
     //Spiral(Position(0.0, 0.0), 10.0, 2, 10.0, 2.0).scale(3.0)
 
+context(device: CollektiveDevice<*>)
+fun directionTowardsSDF(
+    sdf: SDF,
+    currentPosition: Position,
+    epsilon: Double,
+): SpeedControl2D {
+    val distance = sdf(currentPosition)
+    device["distanceToSDF"] = distance
+    val gradient = gradientToSDF(sdf, currentPosition, epsilon)
+    val magnitude = hypot(gradient.x, gradient.y)
+    return when {
+        distance <= 0.0 -> zeroSpeed
+        magnitude > 0.0 -> SpeedControl2D(-gradient.x / magnitude, -gradient.y / magnitude)
+        else -> zeroSpeed
+    }
+}
 /**
  * Variant of [towardsSDFEntrypoint] that uses only repulsion between neighbors (no attraction): the SDF pulls devices
  * towards the shape, while the repulsion of the nearest neighbors ([LatticeNeighborhood], with a [RepulsionLaw])
