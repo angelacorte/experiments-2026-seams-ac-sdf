@@ -8,10 +8,13 @@ import it.unibo.collektive.model.Position
 import it.unibo.collektive.sdf.impl.Circle
 import it.unibo.collektive.sdf.impl.Interrogative
 import it.unibo.collektive.sdf.impl.Star
+import it.unibo.collektive.sdf.impl.Triangle
+import it.unibo.collektive.stdlib.spreading.isHappeningAnywhere
 import it.unibo.collektive.stdlib.time.localDeltaTime
 import it.unibo.common.SpeedControl2D
 import it.unibo.common.times
 import kotlin.math.pow
+import kotlin.math.sqrt
 import kotlin.time.Duration
 import kotlin.time.Instant
 
@@ -19,14 +22,17 @@ fun Aggregate<Int>.towardsSDFEntrypoint(device: CollektiveDevice<*>, locationSen
     val currentPosition = locationSensor.coordinates()
 //    val displaceToSDF: SpeedControl2D = closestToSDF(
     val star = Star(Position(50.0, 50.0), 75.0, 5, 3.0)
-    val circle = Circle(Position(50.0,50.0), 40.0)
-    val interrogative = Interrogative(Position(100.0,100.0), 30.0, 10.0)
+    val circle = Circle(Position(50.0, 50.0), 40.0)
+    val interrogative = Interrogative(Position(100.0, 100.0), 30.0, 10.0)
     val displaceToSDF: SpeedControl2D = directionTowardsSDF(
         interrogative,
         currentPosition,
         0.001,
     )
-    val displaceAttractionRepulsion: SpeedControl2D = attractionRepulsion(currentPosition, 0.0001, 30.0,)
+    val desiredDistance = evolve(2.0) {
+        it.plus(0.5)
+    }
+    val displaceAttractionRepulsion: SpeedControl2D = attractionRepulsion(currentPosition, 0.0001, desiredDistance)
 //    val repulsionGain = if (interrogative.isInside(currentPosition)) (sqrt( -1.0 * interrogative(currentPosition)) + 1.0)  else 1.0
 //    val currentControl = displaceToSDF + (displaceAttractionRepulsion * repulsionGain)
 //    applyVelocity(currentControl)
