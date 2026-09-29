@@ -2,7 +2,9 @@ package it.unibo.collektive.model
 
 import it.unibo.common.SpeedControl2D
 import it.unibo.common.Vector2D
+import kotlin.math.cos
 import kotlin.math.pow
+import kotlin.math.sin
 import kotlin.math.sqrt
 
 /**
@@ -33,3 +35,7 @@ operator fun Position.div(scalar: Double): SpeedControl2D = SpeedControl2D(x / s
  * Calculate the Euclidean distance between two points in 2D space.
  */
 fun Position.euclideanDistanceTo(pos: Position): Double = sqrt((this.x - pos.x).pow(2) + (this.y - pos.y).pow(2))
+
+/** The point at [radius] from [this@polar], along [angle] (radians, counterclockwise from +x). */
+fun Position.polar(radius: Double, angle: Double) =
+    Position(x + radius * cos(angle), y + radius * sin(angle))
