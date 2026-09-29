@@ -4,7 +4,9 @@ import it.unibo.alchemist.collektive.device.CollektiveDevice
 import it.unibo.collektive.aggregate.Field
 import it.unibo.collektive.aggregate.api.Aggregate
 import it.unibo.collektive.aggregate.api.neighboring
+import it.unibo.collektive.aggregate.values
 import it.unibo.collektive.alchemist.device.applyVelocity
+import it.unibo.collektive.alchemist.device.parameter
 import it.unibo.collektive.localization.AnchorRole
 import it.unibo.collektive.localization.FrameAlignment
 import it.unibo.collektive.localization.electAnchors
@@ -14,6 +16,7 @@ import it.unibo.collektive.model.minus
 import it.unibo.collektive.sdf.shape.Star
 import it.unibo.collektive.stdlib.collapse.fold
 import it.unibo.common.SpeedControl2D
+import it.unibo.common.Vector2D
 import it.unibo.common.times
 import it.unibo.common.zeroSpeed
 import org.apache.commons.math3.random.RandomGenerator
@@ -23,9 +26,9 @@ import kotlin.math.sin
 
 /**
  * Range-only shape formation: devices sense only the distances to their neighbors (no bearing, no shared orientation).
- * Three anchors fix a frame ([electAnchors]), every device estimates its position in it ([localize]), and learns how
- * to steer in that frame from how its own commands, given in its body frame, move it among the anchors
- * ([FrameAlignment]).
+ * Three anchors fix a frame ([electAnchors]), every device estimates its position in it ([localize]), forms the
+ * lattice of [latticeVelocity] in that frame, and learns how to steer in it from how its own commands, given in its
+ * body frame, move it among the anchors ([FrameAlignment]).
  * All the parameters are read from the simulation file (see `rangeOnly.yml`).
  */
 fun Aggregate<Int>.rangeOnlyEntrypoint(device: CollektiveDevice<*>) = with(device) {
@@ -45,17 +48,8 @@ fun Aggregate<Int>.rangeOnlyEntrypoint(device: CollektiveDevice<*>) = with(devic
         pointCount = parameter("starPoints").toInt(),
         spikiness = parameter("starSpikiness"),
     )
-    val repulsion = repulsionFromEstimates(
-        position,
-        neighborDistances,
-        attractionCoefficient = parameter("attractionCoefficient"),
-        desiredDistance = 60.0//parameter("desiredDistance"),
-    )
-    val control = position?.let {
-        // Inside, the shape already keeps the swarm together: boost repulsion to spread faster.
-        val repulsionGain = if (shape.isInside(it)) parameter("insideRepulsionGain") else 1.0
-        directionTowardsSDF(shape, it, parameter("sdfGradientStep")) + repulsion * repulsionGain
-    }
+    val offsets = offsetsFromEstimates(position, neighborDistances)
+    val control = position?.let { latticeVelocity(shape, it, offsets) }
     device["control"] = control ?: zeroSpeed // The ideal command, in the anchor frame
     val lastCommand = getOrNull<SpeedControl2D>("Velocity") ?: zeroSpeed // Applied since the last round
     val commanded = evolve(zeroSpeed) { it + lastCommand }
@@ -69,40 +63,26 @@ fun Aggregate<Int>.rangeOnlyEntrypoint(device: CollektiveDevice<*>) = with(devic
         !alignment.isConfident(parameter("minMotionEnergy"), parameter("minConfidence")) ->
             randomGenerator.randomDirection()
         // Keep some random motion, so that the alignment can still tell rotation from reflection.
-        else -> alignment.toBody(control) + randomGenerator.randomDirection() * parameter("explorationNoise")
+        else -> alignment.toBody(control) //+ randomGenerator.randomDirection() * parameter("explorationNoise")
     }
     val maxSpeed = parameter("maxSpeed")
     val velocity = if (command.norm > maxSpeed) command * (maxSpeed / command.norm) else command
     applyVelocity(if (velocity.norm.isFinite()) velocity else zeroSpeed)
 }
 
-/** Reads the numeric parameter [name], set as a molecule in the simulation file. */
-private fun CollektiveDevice<*>.parameter(name: String): Double =
-    requireNotNull(getOrNull<Number>(name)) { "Missing parameter '$name' in the simulation file" }.toDouble()
-
 /**
- * Repulsion from the neighbors, in the anchor frame: the direction comes from the estimated [position]s, the
- * magnitude from the measured [neighborDistances] (see [attractionRepulsionForce] for [attractionCoefficient] and
- * [desiredDistance]).
+ * The offsets of the neighbors (`neighbor - self`), in the anchor frame: the direction comes from the estimated
+ * [position]s, the length from the measured [neighborDistances]. Empty until the device is localized.
  */
-private fun Aggregate<Int>.repulsionFromEstimates(
+private fun Aggregate<Int>.offsetsFromEstimates(
     position: Position?,
     neighborDistances: Field<Int, Double>,
-    attractionCoefficient: Double,
-    desiredDistance: Double,
-): SpeedControl2D = neighboring(position).alignedMapValues(neighborDistances) { neighborPosition, measuredDistance ->
+): List<Vector2D> = neighboring(position).alignedMapValues(neighborDistances) { neighborPosition, measuredDistance ->
     when {
-        position == null || neighborPosition == null -> zeroSpeed
-        else -> {
-            val estimatedOffset = neighborPosition - position
-            attractionRepulsionForce(
-                estimatedOffset * (measuredDistance / estimatedOffset.norm),
-                attractionCoefficient,
-                desiredDistance,
-            )
-        }
+        position == null || neighborPosition == null -> null
+        else -> (neighborPosition - position).let { it * (measuredDistance / it.norm) }
     }
-}.neighbors.fold(zeroSpeed) { total, force -> if (force.value.norm.isFinite()) total + force.value else total }
+}.neighbors.values.list.filterNotNull().filter { it.norm.isFinite() }
 
 private fun RandomGenerator.randomDirection(): SpeedControl2D =
     (2 * PI * nextDouble()).let { SpeedControl2D(cos(it), sin(it)) }

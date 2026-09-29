@@ -40,3 +40,12 @@ operator fun Vector2D.times(scalar: Double) = SpeedControl2D(x * scalar, y * sca
 operator fun SpeedControl2D.plus(other: Vector2D): SpeedControl2D = SpeedControl2D(x + other.x, y + other.y)
 
 operator fun Vector2D.times(other: Vector2D): SpeedControl2D = SpeedControl2D(x * other.x, y * other.y)
+
+/** The dot product of this vector and [other]. */
+infix fun Vector2D.dot(other: Vector2D): Double = x * other.x + y * other.y
+
+/** This vector, scaled down to [maxNorm] if it is longer. */
+fun Vector2D.limitedTo(maxNorm: Double): SpeedControl2D = when {
+    norm > maxNorm -> this * (maxNorm / norm)
+    else -> SpeedControl2D(x, y)
+}

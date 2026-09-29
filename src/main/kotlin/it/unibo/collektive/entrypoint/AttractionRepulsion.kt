@@ -6,6 +6,7 @@ import it.unibo.collektive.aggregate.api.Aggregate
 import it.unibo.collektive.aggregate.api.sharing
 import it.unibo.collektive.alchemist.device.applyVelocity
 import it.unibo.collektive.alchemist.device.sensors.LocationSensor
+import it.unibo.collektive.formation.repulsionForce
 import it.unibo.collektive.model.Position
 import it.unibo.collektive.model.minus
 import it.unibo.collektive.stdlib.collapse.fold
@@ -93,19 +94,6 @@ fun <ID : Comparable<ID>> Aggregate<ID>.repulsion(
     val displacement: SpeedControl2D = displacements.all.fold(zeroSpeed) { acc, force -> acc + force.value }
     val newPosition: Position = Position(currentPosition.x + displacement.x, currentPosition.y + displacement.y)
     newPosition.yielding { displacement }
-}
-
-/**
- * The repulsive force exerted by a neighbor located at [relativePosition] (i.e., `neighbor - self`).
- * It points away from the neighbor. See [repulsion] for the meaning of [coefficient] and [desiredDistance].
- */
-fun repulsionForce(relativePosition: Vector2D, coefficient: Double, desiredDistance: Double): SpeedControl2D {
-    val distance = relativePosition.norm
-    if (distance == 0.0) return zeroSpeed
-    val direction: SpeedControl2D = relativePosition * (1.0 / distance)
-    val repulsionCoefficient: Double = coefficient * desiredDistance.pow(3)
-    val repulsionForce: Double = repulsionCoefficient / distance.pow(2)
-    return direction * (-repulsionForce)
 }
 
 /**

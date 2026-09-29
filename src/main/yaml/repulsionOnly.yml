@@ -1,8 +1,10 @@
 incarnation: collektive
 
+_communication-range: &communicationRange 18 # Shared by the network model and the formation
+
 network-model:
   type: ConnectWithinDistance
-  parameters: [18]
+  parameters: [*communicationRange]
 
 _pool: &program
   - time-distribution: 1
@@ -16,6 +18,28 @@ _pool: &program
 deployments:
   - type: Rectangle
     parameters: [300, 0, 0, 100, 100]
+    contents:
+      # Lattice
+      - { molecule: ringSize, concentration: 6 } # Nearest neighbors forming the first ring (6 in a hexagonal lattice)
+      - { molecule: outsideRepulsionGain, concentration: 0.1 } # Repulsion scale outside the shape
+      - { molecule: sdfGradientStep, concentration: 0.001 } # Step of the finite differences on the SDF
+      - { molecule: maxSpeed, concentration: 1.0 }
+      # Repulsion: softDisk (linear in the overlap, zero beyond the spacing) or inverseSquare (never zero)
+      - { molecule: repulsion, concentration: softDisk }
+      - { molecule: softDiskStiffness, concentration: 0.2 } # softDisk: push per unit of overlap
+      - { molecule: inverseSquareCoefficient, concentration: 0.03 } # inverseSquare: push at the spacing, per unit of it
+      # Spacing: adaptive (driven by the pressure) or fixed
+      - { molecule: spacing, concentration: adaptive }
+      - { molecule: fixedSpacing, concentration: 4.0 } # fixed: ~sqrt(area / devices / 0.866) fills the shape
+      - { molecule: initialSpacing, concentration: 2.0 } # adaptive, and the rest of this group
+      - { molecule: spacingRate, concentration: 0.05 } # Fraction of the pressure error recovered at each round
+      - { molecule: pressureMargin, concentration: 0.5 } # Target pressure, as a fraction of the ring radius
+      - { molecule: communicationRange, concentration: *communicationRange }
+      - { molecule: maxSpacingFraction, concentration: 0.8 } # Largest spacing, as a fraction of the communication range
+      # Step size
+      - { molecule: stepDecrease, concentration: 0.5 } # Gain factor when the control reverses (an overshoot)
+      - { molecule: stepIncrease, concentration: 1.2 } # Gain factor while the control keeps its direction
+      - { molecule: minStepGain, concentration: 0.05 }
     programs:
       - *program
     properties:

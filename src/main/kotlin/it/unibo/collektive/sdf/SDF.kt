@@ -1,6 +1,7 @@
 package it.unibo.collektive.sdf
 
 import it.unibo.collektive.model.Position
+import it.unibo.common.SpeedControl2D
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
@@ -68,4 +69,16 @@ fun SDF.scale(factor: Double, pivot: Position = Position(0.0, 0.0)): SDF {
     return SDF { position ->
         this(Position(pivot.x + (position.x - pivot.x) / factor, pivot.y + (position.y - pivot.y) / factor)) * factor
     }
+}
+
+/**
+ * The gradient of [sdf] at [currentPosition], by central differences of step [epsilon] (not divided by the step: only
+ * its direction is meaningful). It points away from the shape.
+ */
+fun gradientToSDF(sdf: SDF, currentPosition: Position, epsilon: Double): SpeedControl2D {
+    val dx = sdf(Position(currentPosition.x + epsilon, currentPosition.y)) -
+        sdf(Position(currentPosition.x - epsilon, currentPosition.y))
+    val dy = sdf(Position(currentPosition.x, currentPosition.y + epsilon)) -
+        sdf(Position(currentPosition.x, currentPosition.y - epsilon))
+    return SpeedControl2D(dx, dy)
 }

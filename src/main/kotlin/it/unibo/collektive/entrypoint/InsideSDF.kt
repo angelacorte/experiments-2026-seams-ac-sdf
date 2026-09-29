@@ -10,6 +10,9 @@ import it.unibo.collektive.model.Position
 import it.unibo.collektive.model.minus
 import it.unibo.collektive.sdf.SDF
 import it.unibo.collektive.sdf.primitive.Circle
+import it.unibo.collektive.sdf.gradientToSDF
+import it.unibo.collektive.sdf.impl.Circle
+import it.unibo.collektive.stdlib.collapse.fold
 import it.unibo.collektive.stdlib.collapse.reduce
 import it.unibo.common.SpeedControl2D
 import it.unibo.common.Vector2D
@@ -60,12 +63,6 @@ fun <ID: Comparable<ID>> Aggregate<ID>.closestToSDF(
 //    }
 //    val vector = closest.first - currentPosition
 //    return SpeedControl2D(vector.x, vector.y)
-}
-
-fun gradientToSDF(sdf: SDF, currentPosition: Position, epsilon: Double): SpeedControl2D {
-    val dx = sdf(Position(currentPosition.x + epsilon, currentPosition.y)) - sdf(Position(currentPosition.x - epsilon, currentPosition.y))
-    val dy = sdf(Position(currentPosition.x, currentPosition.y + epsilon)) - sdf(Position(currentPosition.x, currentPosition.y - epsilon))
-    return SpeedControl2D(dx, dy)
 }
 
 context(device: CollektiveDevice<*>)
