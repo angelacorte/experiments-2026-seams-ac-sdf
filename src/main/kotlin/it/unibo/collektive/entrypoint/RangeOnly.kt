@@ -41,7 +41,7 @@ fun Aggregate<Int>.rangeOnlyEntrypoint(device: CollektiveDevice<*>) = with(devic
     // The star is centred on the anchors' centroid, so the anchors lie inside the shape.
     val shape = Star(
         frame.centroid,
-        radius = parameter("starRadius"),
+        radius = 60.0,//parameter("starRadius"),
         pointCount = parameter("starPoints").toInt(),
         spikiness = parameter("starSpikiness"),
     )
@@ -49,7 +49,7 @@ fun Aggregate<Int>.rangeOnlyEntrypoint(device: CollektiveDevice<*>) = with(devic
         position,
         neighborDistances,
         attractionCoefficient = parameter("attractionCoefficient"),
-        desiredDistance = parameter("desiredDistance"),
+        desiredDistance = 60.0//parameter("desiredDistance"),
     )
     val control = position?.let {
         // Inside, the shape already keeps the swarm together: boost repulsion to spread faster.

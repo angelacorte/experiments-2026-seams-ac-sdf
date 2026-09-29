@@ -22,8 +22,8 @@ fun Aggregate<Int>.towardsSDFEntrypoint(device: CollektiveDevice<*>, locationSen
     val currentPosition = locationSensor.coordinates()
 //    val displaceToSDF: SpeedControl2D = closestToSDF(
     val star = Star(Position(50.0, 50.0), 75.0, 5, 3.0)
-    val circle = Circle(Position(50.0, 50.0), 40.0)
-    val interrogative = Interrogative(Position(100.0, 100.0), 30.0, 10.0)
+    val circle = Circle(Position(50.0,50.0), 40.0)
+    val interrogative = Interrogative(Position(100.0,100.0), 30.0, 10.0)
     val displaceToSDF: SpeedControl2D = directionTowardsSDF(
         interrogative,
         currentPosition,

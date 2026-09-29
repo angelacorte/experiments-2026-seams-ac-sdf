@@ -19,7 +19,7 @@ import kotlin.math.sin
 class BodyFrameProperty<T : Any>(override val node: Node<T>, private val randomGenerator: RandomGenerator) :
     NodeProperty<T> {
 
-    internal val heading = randomGenerator.nextDouble()
+    internal val heading = PI * 2 * randomGenerator.nextDouble()
 
     override fun cloneOnNewNode(node: Node<T>): NodeProperty<T> = BodyFrameProperty(node, randomGenerator)
 

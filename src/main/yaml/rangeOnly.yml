@@ -2,7 +2,7 @@ incarnation: collektive
 
 network-model:
   type: ConnectWithinDistance
-  parameters: [18]
+  parameters: [50]
 
 _pool: &program
   - time-distribution: 1
@@ -14,11 +14,11 @@ _pool: &program
         parameters: [ ]
 
 seeds:
-  simulation: 102
+  simulation: 10
 
 deployments:
   - type: Rectangle
-    parameters: [200, 0, 0, 100, 100]
+    parameters: [30, 0, 0, 100, 100]
     contents:
       # Anchors
       - { molecule: leaderElectionBound, concentration: 200 } # Hops within which anchor 1 is elected

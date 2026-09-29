@@ -2,6 +2,8 @@ package it.unibo.collektive.sdf.impl
 
 import it.unibo.collektive.model.Position
 import it.unibo.collektive.sdf.SDF
+import it.unibo.collektive.sdf.expand
+import it.unibo.collektive.sdf.or
 import kotlin.math.PI
 import kotlin.math.min
 
@@ -25,5 +27,5 @@ class Interrogative(
     private val dot = Circle(Position(center.x, center.y - 3 * radius), radius * 0.12)
 
     override fun invoke(position: Position): Double =
-        min(min(arc(position), segment(position)), dot(position)) - thickness
+        ((arc or segment or dot) expand thickness)(position)
 }
