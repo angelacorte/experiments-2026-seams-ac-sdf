@@ -42,6 +42,9 @@ infix fun SDF.expand(distance: Double): SDF = SDF { position -> this(position) -
 /** A band of half-width [thickness] along the boundary of [this]: |A| - thickness. */
 infix fun SDF.ring(thickness: Double): SDF = SDF { position -> abs(this(position)) - thickness }
 
+/** The boundary of [this] as a zero-width stroke, `|A|`: to be thickened with [expand]. */
+fun SDF.outline(): SDF = this ring 0.0
+
 /** [this] moved by ([dx], [dy]). Rigid, so distances stay exact. */
 fun SDF.translate(dx: Double, dy: Double): SDF = SDF { position -> this(Position(position.x - dx, position.y - dy)) }
 
