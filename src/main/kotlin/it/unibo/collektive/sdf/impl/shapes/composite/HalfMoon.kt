@@ -1,7 +1,8 @@
-package it.unibo.collektive.sdf.impl
+package it.unibo.collektive.sdf.impl.shapes.composite
 
 import it.unibo.collektive.model.Position
 import it.unibo.collektive.sdf.SDF
+import it.unibo.collektive.sdf.impl.base.Circle
 import it.unibo.collektive.sdf.minus
 
 /**
