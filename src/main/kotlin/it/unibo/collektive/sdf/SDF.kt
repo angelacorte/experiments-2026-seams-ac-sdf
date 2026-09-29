@@ -17,6 +17,8 @@ fun interface SDF {
     operator fun invoke(position: Position): Double
 
     fun isInside(position: Position): Boolean = this(position) <= 0.0
+
+    fun isOutside(position: Position): Boolean = this(position) > 0.0
 }
 
 /** Union, `min(A, B)`: inside [this] or inside [other]. */
