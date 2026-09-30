@@ -1,10 +1,10 @@
 package it.unibo.collektive.sdf.shape
 
-import it.unibo.collektive.model.Position
+import it.unibo.collektive.geometry.Position
 import it.unibo.collektive.sdf.SDF
 import it.unibo.collektive.sdf.expand
-import it.unibo.collektive.sdf.primitive.Segment
 import it.unibo.collektive.sdf.or
+import it.unibo.collektive.sdf.primitive.Segment
 
 /**
  * Represents a 2D Signed Distance Field (SDF) of an X with rounded ends: its two diagonals, thickened by [radius].

@@ -1,12 +1,12 @@
 package it.unibo.collektive.sdf.shape
 
-import it.unibo.collektive.model.Position
+import it.unibo.collektive.geometry.Position
 import it.unibo.collektive.sdf.SDF
 import it.unibo.collektive.sdf.expand
+import it.unibo.collektive.sdf.or
 import it.unibo.collektive.sdf.primitive.Arc
 import it.unibo.collektive.sdf.primitive.Circle
 import it.unibo.collektive.sdf.primitive.Segment
-import it.unibo.collektive.sdf.or
 import kotlin.math.PI
 
 /**

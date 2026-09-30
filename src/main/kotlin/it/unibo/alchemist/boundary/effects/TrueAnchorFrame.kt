@@ -3,10 +3,10 @@ package it.unibo.alchemist.boundary.effects
 import it.unibo.alchemist.model.Environment
 import it.unibo.alchemist.model.Position
 import it.unibo.alchemist.model.molecules.SimpleMolecule
-import it.unibo.common.SpeedControl2D
-import it.unibo.common.Vector2D
+import it.unibo.collektive.geometry.SpeedControl2D
+import it.unibo.collektive.geometry.Vector2D
 import kotlin.math.hypot
-import it.unibo.collektive.model.Position as Coordinates
+import it.unibo.collektive.geometry.Position as Coordinates
 
 /**
  * The frame fixed by the anchors (see `AnchorFrame`), rebuilt from their true positions, which the nodes never see:

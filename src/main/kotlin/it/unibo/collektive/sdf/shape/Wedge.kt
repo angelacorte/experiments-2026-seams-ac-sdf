@@ -1,11 +1,11 @@
 package it.unibo.collektive.sdf.shape
 
-import it.unibo.collektive.model.Position
-import it.unibo.collektive.model.polar
+import it.unibo.collektive.geometry.Position
+import it.unibo.collektive.geometry.polar
 import it.unibo.collektive.sdf.SDF
 import it.unibo.collektive.sdf.and
-import it.unibo.collektive.sdf.primitive.HalfPlane
 import it.unibo.collektive.sdf.or
+import it.unibo.collektive.sdf.primitive.HalfPlane
 import kotlin.math.PI
 
 /**

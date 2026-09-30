@@ -6,8 +6,8 @@ import it.unibo.alchemist.model.Environment
 import it.unibo.alchemist.model.Node
 import it.unibo.alchemist.model.Position2D
 import it.unibo.collektive.alchemist.device.BodyFrameProperty
-import it.unibo.common.SpeedControl2D
-import it.unibo.common.Vector2D
+import it.unibo.collektive.geometry.SpeedControl2D
+import it.unibo.collektive.geometry.Vector2D
 import java.awt.BasicStroke
 import java.awt.Color
 import java.awt.Graphics2D

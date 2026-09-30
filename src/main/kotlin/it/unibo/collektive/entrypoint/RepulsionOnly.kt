@@ -7,9 +7,11 @@ import it.unibo.collektive.aggregate.values
 import it.unibo.collektive.alchemist.device.applyVelocity
 import it.unibo.collektive.alchemist.device.sensors.LocationSensor
 import it.unibo.collektive.formation.*
-import it.unibo.collektive.model.Position
-import it.unibo.collektive.model.minus
+import it.unibo.collektive.geometry.Position
+import it.unibo.collektive.geometry.minus
+import it.unibo.collektive.sdf.ring
 import it.unibo.collektive.sdf.scale
+import it.unibo.collektive.sdf.shape.Star
 import it.unibo.collektive.sdf.text.toSdf
 
 private val shape = "VARDA CHE ROBA VECIO".toSdf(start = Position(-20.0, 30.0), height = 40.0, thickness = 4.2, spacing = 10.5,).scale(0.5)

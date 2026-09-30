@@ -1,6 +1,6 @@
 package it.unibo.collektive.sdf.shape
 
-import it.unibo.collektive.model.Position
+import it.unibo.collektive.geometry.Position
 import it.unibo.collektive.sdf.SDF
 
 private const val HEXAGON_SIDES = 6

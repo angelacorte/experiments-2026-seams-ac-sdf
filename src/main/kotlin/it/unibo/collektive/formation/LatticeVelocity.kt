@@ -2,12 +2,13 @@ package it.unibo.collektive.formation
 
 import it.unibo.alchemist.collektive.device.CollektiveDevice
 import it.unibo.collektive.aggregate.api.Aggregate
-import it.unibo.collektive.model.Position
+import it.unibo.collektive.geometry.Position
+import it.unibo.collektive.geometry.SpeedControl2D
+import it.unibo.collektive.geometry.Vector2D
+import it.unibo.collektive.geometry.limitedTo
+import it.unibo.collektive.geometry.plus
+import it.unibo.collektive.geometry.times
 import it.unibo.collektive.sdf.SDF
-import it.unibo.common.SpeedControl2D
-import it.unibo.common.Vector2D
-import it.unibo.common.limitedTo
-import it.unibo.common.times
 
 /**
  * The lattice velocity for a device at [position] whose neighbors are at [offsets] (`neighbor - self`), both in the

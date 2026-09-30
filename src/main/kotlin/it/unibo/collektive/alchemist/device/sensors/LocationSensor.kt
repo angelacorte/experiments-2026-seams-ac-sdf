@@ -1,6 +1,6 @@
 package it.unibo.collektive.alchemist.device.sensors
 
-import it.unibo.collektive.model.Position
+import it.unibo.collektive.geometry.Position
 
 /**
  * A sensor that provides location-related information within the environment.

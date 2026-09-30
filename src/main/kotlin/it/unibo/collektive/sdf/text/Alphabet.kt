@@ -1,6 +1,6 @@
 package it.unibo.collektive.sdf.text
 
-import it.unibo.collektive.model.Position
+import it.unibo.collektive.geometry.Position
 import it.unibo.collektive.sdf.SDF
 import it.unibo.collektive.sdf.minus
 import it.unibo.collektive.sdf.or

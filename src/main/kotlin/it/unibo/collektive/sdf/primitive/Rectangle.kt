@@ -1,6 +1,6 @@
 package it.unibo.collektive.sdf.primitive
 
-import it.unibo.collektive.model.Position
+import it.unibo.collektive.geometry.Position
 import it.unibo.collektive.sdf.SDF
 import kotlin.math.abs
 import kotlin.math.hypot

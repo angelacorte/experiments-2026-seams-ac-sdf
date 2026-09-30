@@ -2,8 +2,8 @@ package it.unibo.collektive.alchemist.device
 
 import it.unibo.alchemist.model.Node
 import it.unibo.alchemist.model.NodeProperty
-import it.unibo.common.SpeedControl2D
-import it.unibo.common.Vector2D
+import it.unibo.collektive.geometry.SpeedControl2D
+import it.unibo.collektive.geometry.Vector2D
 import org.apache.commons.math3.random.RandomGenerator
 import kotlin.math.PI
 import kotlin.math.cos

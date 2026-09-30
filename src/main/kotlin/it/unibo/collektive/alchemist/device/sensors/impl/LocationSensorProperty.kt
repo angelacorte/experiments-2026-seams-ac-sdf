@@ -5,7 +5,7 @@ import it.unibo.alchemist.model.Node
 import it.unibo.alchemist.model.NodeProperty
 import it.unibo.alchemist.model.Position
 import it.unibo.collektive.alchemist.device.sensors.LocationSensor
-import it.unibo.collektive.model.Position as Coordinate
+import it.unibo.collektive.geometry.Position as Coordinate
 
 /**
  * An implementation of a location sensor property for nodes in an Alchemist environment.

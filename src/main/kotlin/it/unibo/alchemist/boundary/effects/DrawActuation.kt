@@ -7,7 +7,7 @@ import it.unibo.alchemist.model.Node
 import it.unibo.alchemist.model.Position2D
 import it.unibo.alchemist.model.molecules.SimpleMolecule
 import it.unibo.collektive.alchemist.device.BodyFrameProperty
-import it.unibo.common.Vector2D
+import it.unibo.collektive.geometry.Vector2D
 import java.awt.Color
 import java.awt.Graphics2D
 import kotlin.math.min

@@ -1,6 +1,6 @@
 package it.unibo.collektive.alchemist.device.sensors
 
-import it.unibo.common.Vector2D
+import it.unibo.collektive.geometry.Vector2D
 
 /**
  * A sensor perceiving the relative displacement (dx, dy) w.r.t. neighboring nodes, without global positioning.

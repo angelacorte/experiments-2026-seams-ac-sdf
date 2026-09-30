@@ -1,8 +1,9 @@
 package it.unibo.collektive.formation
 
-import it.unibo.common.SpeedControl2D
-import it.unibo.common.Vector2D
-import it.unibo.common.zeroSpeed
+import it.unibo.collektive.geometry.SpeedControl2D
+import it.unibo.collektive.geometry.Vector2D
+import it.unibo.collektive.geometry.plus
+import it.unibo.collektive.geometry.zeroSpeed
 
 /**
  * The lattice around a device, as offsets `neighbor - self`

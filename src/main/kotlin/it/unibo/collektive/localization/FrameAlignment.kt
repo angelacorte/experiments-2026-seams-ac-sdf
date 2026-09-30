@@ -1,9 +1,9 @@
 package it.unibo.collektive.localization
 
-import it.unibo.collektive.model.Position
-import it.unibo.collektive.model.minus
-import it.unibo.common.SpeedControl2D
-import it.unibo.common.Vector2D
+import it.unibo.collektive.geometry.Position
+import it.unibo.collektive.geometry.SpeedControl2D
+import it.unibo.collektive.geometry.Vector2D
+import it.unibo.collektive.geometry.minus
 import kotlin.math.abs
 import kotlin.math.hypot
 import kotlin.math.pow

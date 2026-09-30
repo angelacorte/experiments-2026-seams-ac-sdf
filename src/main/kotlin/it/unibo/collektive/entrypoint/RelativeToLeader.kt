@@ -7,14 +7,15 @@ import it.unibo.collektive.aggregate.values
 import it.unibo.collektive.alchemist.device.applyVelocity
 import it.unibo.collektive.alchemist.device.sensors.RelativePositionSensor
 import it.unibo.collektive.formation.latticeVelocity
-import it.unibo.collektive.model.Position
+import it.unibo.collektive.geometry.Position
+import it.unibo.collektive.geometry.plus
+import it.unibo.collektive.geometry.times
+import it.unibo.collektive.geometry.zeroSpeed
 import it.unibo.collektive.sdf.shape.Triangle
 import it.unibo.collektive.sdf.translate
 import it.unibo.collektive.stdlib.consensus.boundedElection
 import it.unibo.collektive.stdlib.spreading.gradientCast
 import it.unibo.collektive.stdlib.time.sharedClock
-import it.unibo.common.times
-import it.unibo.common.zeroSpeed
 import kotlin.time.Instant
 
 // For bounded leader election
@@ -54,8 +55,8 @@ fun Aggregate<Int>.relativeToLeaderEntrypoint(device: CollektiveDevice<*>, senso
             Position(100.0, 200.0),
         ).translate(-80.0, -80.0) // .rotate(Math.toRadians((clock - DISTANT_PAST).toDouble(DurationUnit.SECONDS)) / 3.0)
 
-        // LetterE(origin, 100.0)
-        // Star(origin, 45.0, 5, 2.5)
+        // LetterE(Position.origin, 100.0)
+        // Star(Position.origin, 45.0, 5, 2.5)
         // The offsets are the perceived (dx, dy), not the neighbors' (possibly stale) estimated positions.
         val offsets = mapNeighborhood { sensor.relativeTo(it) * -1.0 }.neighbors.values.list
         applyVelocity(

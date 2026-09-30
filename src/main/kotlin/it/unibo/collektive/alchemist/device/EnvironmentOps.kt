@@ -5,8 +5,8 @@ package it.unibo.collektive.alchemist.device
 import it.unibo.alchemist.collektive.device.CollektiveDevice
 import it.unibo.alchemist.model.Position
 import it.unibo.alchemist.model.positions.Euclidean2DPosition
-import it.unibo.common.SpeedControl2D
-import it.unibo.common.Vector2D
+import it.unibo.collektive.geometry.SpeedControl2D
+import it.unibo.collektive.geometry.Vector2D
 import kotlin.time.Instant
 
 private const val MILLISECONDS_PER_SECOND = 1000.0

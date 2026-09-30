@@ -1,7 +1,7 @@
 package it.unibo.collektive.sdf
 
-import it.unibo.collektive.model.Position
-import it.unibo.common.SpeedControl2D
+import it.unibo.collektive.geometry.Position
+import it.unibo.collektive.geometry.SpeedControl2D
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin

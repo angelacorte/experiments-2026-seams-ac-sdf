@@ -6,7 +6,7 @@ import it.unibo.alchemist.model.Position
 import it.unibo.alchemist.model.Time
 import it.unibo.alchemist.model.molecules.SimpleMolecule
 import it.unibo.alchemist.model.movestrategies.SpeedSelectionStrategy
-import it.unibo.common.SpeedControl2D
+import it.unibo.collektive.geometry.SpeedControl2D
 import kotlin.math.hypot
 
 /**

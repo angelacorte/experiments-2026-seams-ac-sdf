@@ -1,9 +1,9 @@
 package it.unibo.collektive.formation
 
-import it.unibo.common.SpeedControl2D
-import it.unibo.common.Vector2D
-import it.unibo.common.times
-import it.unibo.common.zeroSpeed
+import it.unibo.collektive.geometry.SpeedControl2D
+import it.unibo.collektive.geometry.Vector2D
+import it.unibo.collektive.geometry.times
+import it.unibo.collektive.geometry.zeroSpeed
 import kotlin.math.pow
 
 /** How a neighbor pushes a device away, given the lattice spacing. */

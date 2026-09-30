@@ -1,8 +1,8 @@
 package it.unibo.collektive.formation
 
-import it.unibo.common.Vector2D
-import it.unibo.common.dot
-import it.unibo.common.zeroSpeed
+import it.unibo.collektive.geometry.Vector2D
+import it.unibo.collektive.geometry.dot
+import it.unibo.collektive.geometry.zeroSpeed
 import kotlin.math.max
 import kotlin.math.min
 
