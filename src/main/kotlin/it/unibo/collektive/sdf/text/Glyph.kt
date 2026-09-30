@@ -11,6 +11,15 @@ import it.unibo.collektive.sdf.union
 internal const val GLYPH_WIDTH = 0.5
 internal const val GLYPH_RADIUS = GLYPH_WIDTH / 2
 
+/** The width of the glyphs that need more room than the standard [GLYPH_WIDTH], such as W. */
+internal const val WIDE_GLYPH_WIDTH = 0.75
+
+/** The normalized width of the cell of [character]: [WIDE_GLYPH_WIDTH] for W, [GLYPH_WIDTH] otherwise. */
+internal fun glyphWidth(character: Char): Double = when (character.uppercaseChar()) {
+    'W' -> WIDE_GLYPH_WIDTH
+    else -> GLYPH_WIDTH
+}
+
 /** Marks declarations that belong to the glyph-building DSL. */
 @DslMarker
 private annotation class GlyphDsl
@@ -21,14 +30,17 @@ internal data class GlyphPoint(val x: Double, val y: Double)
 /**
  * Builds letter geometry in a normalized coordinate system.
  *
- * The origin is the glyph's bottom-left corner, the y-axis spans `0.0..1.0`, and the standard glyph width is
- * [width]. Coordinates are converted to world space only when a primitive is created.
+ * The origin is the glyph's bottom-left corner, the y-axis spans `0.0..1.0`, and the glyph spans [width]
+ * horizontally. Coordinates are converted to world space only when a primitive is created.
+ *
+ * @property width The width of this glyph in normalized coordinates ([GLYPH_WIDTH] unless the glyph is wider).
  */
 @GlyphDsl
-internal class GlyphScope(private val origin: Position, private val height: Double) {
-    /** The standard glyph width in normalized coordinates. */
-    val width: Double = GLYPH_WIDTH
-
+internal class GlyphScope(
+    private val origin: Position,
+    private val height: Double,
+    val width: Double = GLYPH_WIDTH,
+) {
     /** The standard radius used by rounded glyph parts. */
     val radius: Double = GLYPH_RADIUS
 
@@ -102,10 +114,12 @@ internal fun glyph(
     origin: Position,
     height: Double,
     thickness: Double = 0.0,
+    width: Double = GLYPH_WIDTH,
     draw: GlyphScope.() -> SDF,
 ): SDF {
     require(height > 0.0) { "Glyph height must be positive, got $height" }
     require(thickness >= 0.0) { "Glyph thickness cannot be negative, got $thickness" }
-    return GlyphScope(origin, height).draw() expand thickness
+    require(width > 0.0) { "Glyph width must be positive, got $width" }
+    return GlyphScope(origin, height, width).draw() expand thickness
 }
 

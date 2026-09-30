@@ -16,7 +16,7 @@ internal val LATIN_ALPHABET: CharRange = 'A'..'Z'
 fun Char.toSdf(start: Position, height: Double, thickness: Double = 0.0): SDF {
     val letter = uppercaseChar()
     require(letter in LATIN_ALPHABET) { "No SDF glyph is available for '$this'" }
-    return glyph(start, height, thickness) { draw(letter) }
+    return glyph(start, height, thickness, glyphWidth(letter)) { draw(letter) }
 }
 
 /** Renders this string as an SDF [TextBlock], supporting spaces and newlines. */
@@ -95,7 +95,7 @@ private fun GlyphScope.draw(letter: Char): SDF = when (letter) {
             arc(width / 2 at 0.25, radius = width / 2, startAngle = PI, aperture = PI)
 
     'V' -> line(0 at 1, width / 2 at 0) or line(width / 2 at 0, width at 1)
-    'W' -> polyline(0 at 1, 0.125 at 0, width / 2 at 0.45, 0.375 at 0, width at 1)
+    'W' -> polyline(0 at 1, 0.22 * width at 0, width / 2 at 0.7, 0.78 * width at 0, width at 1)
     'X' -> line(0 at 0, width at 1) or line(0 at 1, width at 0)
     'Y' ->
         line(0 at 1, width / 2 at 0.5) or

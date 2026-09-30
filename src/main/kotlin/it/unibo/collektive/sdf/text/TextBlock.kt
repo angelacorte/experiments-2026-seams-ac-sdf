@@ -45,15 +45,18 @@ class TextBlock(
         }
     }
 
-    private val characterAdvance = advance(glyphHeight, thickness, spacing)
     private val lineAdvance = glyphHeight + 2 * thickness + lineSpacing
 
     private val shape: SDF = lines
         .flatMapIndexed { lineIndex, line ->
+            // Where each character starts along the line: glyphs can have different widths.
+            val offsets = line.runningFold(0.0) { x, character ->
+                x + advance(character, glyphHeight, thickness, spacing)
+            }
             line.mapIndexedNotNull { characterIndex, character ->
                 character.takeIf { it in LATIN_ALPHABET }?.toSdf(
                     start = Position(
-                        x = start.x + characterIndex * characterAdvance,
+                        x = start.x + offsets[characterIndex],
                         y = start.y - lineIndex * lineAdvance,
                     ),
                     height = glyphHeight,
@@ -98,12 +101,12 @@ class TextBlock(
             return TextBlock(text, start, glyphHeight, thickness, spacing, lineSpacing)
         }
 
-        /** Horizontal distance between two consecutive character origins. */
-        private fun advance(glyphHeight: Double, thickness: Double, spacing: Double): Double =
-            GLYPH_WIDTH * glyphHeight + 2 * thickness + spacing
+        /** Horizontal distance from the origin of [character] to the origin of the next one. */
+        private fun advance(character: Char, glyphHeight: Double, thickness: Double, spacing: Double): Double =
+            glyphWidth(character) * glyphHeight + 2 * thickness + spacing
 
         private fun widthOf(line: String, glyphHeight: Double, thickness: Double, spacing: Double): Double =
-            if (line.isEmpty()) 0.0 else line.length * advance(glyphHeight, thickness, spacing) - spacing
+            if (line.isEmpty()) 0.0 else line.sumOf { advance(it, glyphHeight, thickness, spacing) } - spacing
 
         private fun normalizedLines(text: String): List<String> = text
             .replace("\r\n", "\n")
