@@ -13,7 +13,11 @@ import kotlin.math.sqrt
  * @property x The horizontal coordinate.
  * @property y The vertical coordinate.
  */
-data class Position(override val x: Double, override val y: Double) : Vector2D
+data class Position(override val x: Double, override val y: Double) : Vector2D {
+    companion object {
+        val origin = Position(0.0, 0.0)
+    }
+}
 
 /** Adds the components of [position] to this position. */
 // operator fun Position.plus(position: Position): Position = Position(x + position.x, y + position.y)
