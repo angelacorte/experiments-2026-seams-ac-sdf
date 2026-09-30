@@ -25,11 +25,20 @@ val zeroSpeed: SpeedControl2D = SpeedControl2D(0.0, 0.0)
 /** The sum of this vector and [other]. */
 operator fun Vector2D.plus(other: Vector2D): SpeedControl2D = SpeedControl2D(x + other.x, y + other.y)
 
+/** The difference between this vector and [other]. */
+operator fun Vector2D.minus(other: Vector2D): SpeedControl2D = SpeedControl2D(x - other.x, y - other.y)
+
 /** This vector scaled by [scalar]. */
 operator fun Vector2D.times(scalar: Double): SpeedControl2D = SpeedControl2D(x * scalar, y * scalar)
 
 /** The dot product of this vector and [other]. */
 infix fun Vector2D.dot(other: Vector2D): Double = x * other.x + y * other.y
+
+/**
+ * The (z component of the) cross product of this vector and [other]: positive when [other] points to the left of
+ * this vector (counterclockwise from it), negative when it points to the right, and zero when they are parallel.
+ */
+infix fun Vector2D.cross(other: Vector2D): Double = x * other.y - y * other.x
 
 /** This vector, scaled down to [maxNorm] if it is longer. */
 fun Vector2D.limitedTo(maxNorm: Double): SpeedControl2D = when {

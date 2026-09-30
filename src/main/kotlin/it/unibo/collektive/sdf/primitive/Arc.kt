@@ -2,13 +2,12 @@ package it.unibo.collektive.sdf.primitive
 
 import it.unibo.collektive.geometry.Position
 import it.unibo.collektive.geometry.euclideanDistanceTo
+import it.unibo.collektive.geometry.polar
 import it.unibo.collektive.sdf.SDF
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.atan2
-import kotlin.math.cos
 import kotlin.math.min
-import kotlin.math.sin
 
 /**
  * Represents a 2D Signed Distance Field (SDF) of an arc.
@@ -31,17 +30,15 @@ class Arc(
         }
     }
 
-    private val endAngle = startAngle + aperture
-    private val start = Position(center.x + radius * cos(startAngle), center.y + radius * sin(startAngle))
-    private val end = Position(center.x + radius * cos(endAngle), center.y + radius * sin(endAngle))
+    private val start = center.polar(radius, startAngle)
+    private val end = center.polar(radius, startAngle + aperture)
 
     override fun invoke(position: Position): Double {
-        val angle = atan2(position.y - center.y, position.x - center.x)
-        val normalizedAngle = (angle - startAngle).mod(2.0 * PI)
-        val distance = when {
-            normalizedAngle <= aperture -> abs(radius - position.euclideanDistanceTo(center))
+        // The angle of position around the center, measured counterclockwise from the start of the arc.
+        val angle = (atan2(position.y - center.y, position.x - center.x) - startAngle).mod(2 * PI)
+        return when {
+            angle <= aperture -> abs(radius - position.euclideanDistanceTo(center))
             else -> min(position.euclideanDistanceTo(start), position.euclideanDistanceTo(end))
         }
-        return distance
     }
 }
