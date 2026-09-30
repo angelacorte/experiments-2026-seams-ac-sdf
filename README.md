@@ -222,24 +222,24 @@ The project is currently organized as follows:
 
 ```text
 || TODO
-experiments-2026-seams-ac-sdf/ 
-├── python/                # Plotting utilities
-├── docker/                 # Dockerfiles to build containers
-├── effects/                # Json specification for Alchemist's GUI visualization
-├── gradle/                 # Gradle wrapper files
+experiments-2026-seams-ac-sdf/
+├── data/                       # Simulation exports, used to generate the charts
+├── docker/                     # Dockerfiles to build the containers (simulations and charts)
+├── effects/                    # JSON specification for Alchemist's GUI visualization
+├── gradle/                     # Gradle wrapper files
+├── python                      # Plotting utilities
 ├── src/
 │   └── main/
-│     ├──kotlin/it/unibo/     # Kotlin source code for the experiments
-|     │   ├── alchemist       # Alchemist's model and global reactions
-│     │   │   └── collektive/device # Collektive device integration for Alchemist
-│     │   ├──collektive/
-│     │   │   ├──alchemist/device/sensors/  # Sensors for the experiments, including random generator and time sensor
-│     │   │   ├──model/            # Utilities   
-│     │   │   ├──stdlib/           # Leader election strategies  
-│     │   │   ├──experiments/      # Entrypoints for the experiments
-│     │   └──filtering/            # Particle filter implementation
-│     ├── resources/               # Stores the zebra trajectories used within the simulations;
-│     └── yaml/                    # YAML files for the experiments specification
+│       ├── kotlin/it/unibo/    # Kotlin source code for the experiments
+│       │   ├── alchemist/      # Alchemist extensions: GUI effects, movement actions and strategies
+│       │   └── collektive/
+│       │       ├── alchemist/device/  # Collektive integration for Alchemist: body frame and sensors
+│       │       ├── entrypoint/        # Entrypoints for the experiments
+│       │       ├── formation/         # Shape formation: lattice spacing, repulsion, and local border of the shape
+│       │       ├── geometry/          # Positions and vectors in the plane, with their operations
+│       │       ├── localization/      # GPS-free localization: anchor election, anchor frame, and frame alignment
+│       │       └── sdf/               # DSL for 2D Signed Distance Fields: primitives, shapes, and text (see its README)
+│       └── yaml/               # YAML files for the experiments specification
 ```
 
 #### Simulation entrypoint
