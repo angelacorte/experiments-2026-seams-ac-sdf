@@ -44,7 +44,7 @@ class Star(
     private val tip = Position(radius, 0.0)
 
     /** The inner vertex of the folded slice, where the edges leaving two adjacent tips meet. */
-    private val notch = ORIGIN.polar(radius * sin(PI / spikiness - slice) / sin(PI / spikiness), slice)
+    private val notch = Position.origin.polar(radius * sin(PI / spikiness - slice) / sin(PI / spikiness), slice)
 
     private val edge = Segment(tip, notch)
 
@@ -61,14 +61,10 @@ class Star(
     private fun fold(position: Position): Position {
         // Clockwise from +y, so that the angle 0 is the upper tip.
         val angle = atan2(position.x - center.x, position.y - center.y).mod(2 * slice)
-        return ORIGIN.polar(position.euclideanDistanceTo(center), minOf(angle, 2 * slice - angle))
+        return Position.origin.polar(position.euclideanDistanceTo(center), minOf(angle, 2 * slice - angle))
     }
 
     /** Whether [position], inside the slice, lies on the same side of the edge as the center, i.e., inside the star. */
     private fun isOnCenterSide(position: Position): Boolean =
         (notch.x - tip.x) * (position.y - tip.y) - (notch.y - tip.y) * (position.x - tip.x) > 0
-
-    private companion object {
-        val ORIGIN = Position(0.0, 0.0)
-    }
 }
