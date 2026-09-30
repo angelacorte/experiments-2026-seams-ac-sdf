@@ -18,6 +18,9 @@ data class LocalBorder(val distance: Double, val outward: SpeedControl2D) {
     /** Whether the device is inside the shape. */
     val isInside: Boolean get() = distance <= 0.0
 
+    /** The unit direction towards the shape: zero inside it, or where the normal is undefined. */
+    val towardsShape: SpeedControl2D get() = if (isInside) zeroSpeed else outward * -1.0
+
     /** The mirror image across this border of the point at [offset] from the device. */
     fun mirror(offset: Vector2D): SpeedControl2D {
         val offsetDistance = distance + offset.x * outward.x + offset.y * outward.y // The signed distance of that point

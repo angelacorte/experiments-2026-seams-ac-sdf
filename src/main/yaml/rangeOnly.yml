@@ -29,7 +29,7 @@ deployments:
       - { molecule: starRadius, concentration: 45.0 }
       - { molecule: starPoints, concentration: 5 }
       - { molecule: starSpikiness, concentration: 2.5 }
-      # Lattice (as in onlyRepulsion.yml; push per neighbor rescaled to the larger spacing)
+      # Lattice (as in repulsionOnly.yml; push per neighbor rescaled to the larger spacing)
       - { molecule: ringSize, concentration: 6 } # Nearest neighbors forming the first ring (6 in a hexagonal lattice)
       - { molecule: outsideRepulsionGain, concentration: 0.1 } # Repulsion scale outside the shape
       - { molecule: sdfGradientStep, concentration: 0.001 } # Step of the finite differences on the SDF

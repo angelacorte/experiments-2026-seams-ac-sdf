@@ -6,6 +6,7 @@ import it.unibo.collektive.aggregate.api.mapNeighborhood
 import it.unibo.collektive.aggregate.values
 import it.unibo.collektive.alchemist.device.applyVelocity
 import it.unibo.collektive.alchemist.device.sensors.RelativePositionSensor
+import it.unibo.collektive.formation.latticeVelocity
 import it.unibo.collektive.model.Position
 import it.unibo.collektive.sdf.shape.Triangle
 import it.unibo.collektive.sdf.translate

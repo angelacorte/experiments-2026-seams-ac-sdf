@@ -26,7 +26,7 @@ data class LatticeParameters(
 )
 
 /**
- * Reads the [LatticeParameters] from the molecules of the simulation file (see `onlyRepulsion.yml`): the `repulsion`
+ * Reads the [LatticeParameters] from the molecules of the simulation file (see `repulsionOnly.yml`): the `repulsion`
  * (`softDisk` or `inverseSquare`) and the `spacing` (`adaptive` or `fixed`) pick the modes, each reading only its own
  * parameters.
  */

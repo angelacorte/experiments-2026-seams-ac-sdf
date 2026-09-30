@@ -7,6 +7,7 @@ import it.unibo.collektive.aggregate.api.neighboring
 import it.unibo.collektive.aggregate.values
 import it.unibo.collektive.alchemist.device.applyVelocity
 import it.unibo.collektive.alchemist.device.parameter
+import it.unibo.collektive.formation.latticeVelocity
 import it.unibo.collektive.localization.AnchorRole
 import it.unibo.collektive.localization.FrameAlignment
 import it.unibo.collektive.localization.electAnchors
