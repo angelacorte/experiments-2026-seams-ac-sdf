@@ -8,6 +8,7 @@ import it.unibo.collektive.sdf.SDF
 import it.unibo.collektive.sdf.minus
 import it.unibo.collektive.sdf.outline
 import it.unibo.collektive.sdf.primitive.Arc
+import it.unibo.collektive.sdf.primitive.Corners
 import it.unibo.collektive.sdf.primitive.RoundedRectangle
 import it.unibo.collektive.sdf.primitive.Segment
 import it.unibo.collektive.sdf.union
@@ -103,10 +104,7 @@ internal class GlyphScope(val width: Double = GLYPH_WIDTH) {
             center = (horizontal.start + horizontal.endInclusive) / 2 at (vertical.start + vertical.endInclusive) / 2,
             width = horizontal.endInclusive - horizontal.start,
             height = vertical.endInclusive - vertical.start,
-            topLeft = corners.topLeft,
-            topRight = corners.topRight,
-            bottomRight = corners.bottomRight,
-            bottomLeft = corners.bottomLeft,
+            corners = corners,
         )
     }
 
@@ -122,16 +120,4 @@ internal class GlyphScope(val width: Double = GLYPH_WIDTH) {
         vertical = bottom..top,
         corners = Corners(topRight = radius, bottomRight = radius),
     ).outline()
-}
-
-/** Corner radii in normalized glyph coordinates. */
-internal data class Corners(
-    val topLeft: Double = 0.0,
-    val topRight: Double = 0.0,
-    val bottomRight: Double = 0.0,
-    val bottomLeft: Double = 0.0,
-) {
-    internal companion object {
-        fun all(radius: Double): Corners = Corners(radius, radius, radius, radius)
-    }
 }
