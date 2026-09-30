@@ -56,7 +56,7 @@ fun SDF.outline(): SDF = this ring 0.0
 fun SDF.translate(dx: Double, dy: Double): SDF = SDF { position -> this(Position(position.x - dx, position.y - dy)) }
 
 /** [this] rotated by [angle] (radians, counterclockwise) around [pivot]. Rigid, so distances stay exact. */
-fun SDF.rotate(angle: Double, pivot: Position = Position(0.0, 0.0)): SDF = SDF { position ->
+fun SDF.rotate(angle: Double, pivot: Position = Position.origin): SDF = SDF { position ->
     // Sample the original shape at the query point rotated back by -angle.
     val dx = position.x - pivot.x
     val dy = position.y - pivot.y
@@ -64,7 +64,7 @@ fun SDF.rotate(angle: Double, pivot: Position = Position(0.0, 0.0)): SDF = SDF {
 }
 
 /** [this] uniformly scaled by [factor] around [pivot]; distances are rescaled too, so they stay exact. */
-fun SDF.scale(factor: Double, pivot: Position = Position(0.0, 0.0)): SDF {
+fun SDF.scale(factor: Double, pivot: Position = Position.origin): SDF {
     require(factor > 0.0) { "Scale factor must be positive, got $factor" }
     return SDF { position ->
         this(Position(pivot.x + (position.x - pivot.x) / factor, pivot.y + (position.y - pivot.y) / factor)) * factor
