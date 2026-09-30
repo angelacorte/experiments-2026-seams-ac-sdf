@@ -15,19 +15,16 @@ import kotlin.math.PI
  *
  * @param center The (X, Y) coordinates of the arc's center.
  * @param radius The radius of the arc, which also dictates the size and position of the other components.
- * @property thickness The thickness of the shape (default is 0.0).
+ * @param thickness The thickness of the shape (default is 0.0).
  */
-class QuestionMark(center: Position, radius: Double, private val thickness: Double = 0.0) : SDF {
-    init {
-        require(radius > 0.0) { "Question mark radius must be positive, got $radius" }
-        require(thickness >= 0.0) { "Question mark thickness cannot be negative, got $thickness" }
-    }
-
-    private val arc = Arc(center, radius, -PI / 2, 3 * PI / 2)
-
-    private val segment = Segment(Position(center.x, center.y - radius), Position(center.x, center.y - 2 * radius))
-
-    private val dot = Circle(Position(center.x, center.y - 3 * radius), radius * 0.12)
-
-    override fun invoke(position: Position): Double = ((arc or segment or dot) expand thickness)(position)
-}
+class QuestionMark(center: Position, radius: Double, thickness: Double = 0.0) :
+    SDF by (
+        run {
+            require(radius > 0.0) { "Question mark radius must be positive, got $radius" }
+            require(thickness >= 0.0) { "Question mark thickness cannot be negative, got $thickness" }
+            val arc = Arc(center, radius, -PI / 2, 3 * PI / 2)
+            val segment = Segment(Position(center.x, center.y - radius), Position(center.x, center.y - 2 * radius))
+            val dot = Circle(Position(center.x, center.y - 3 * radius), radius * 0.12)
+            (arc or segment or dot) expand thickness
+        }
+        )
