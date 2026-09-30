@@ -1,6 +1,8 @@
 package it.unibo.collektive.sdf.shape
 
 import it.unibo.collektive.geometry.Position
+import it.unibo.collektive.geometry.cross
+import it.unibo.collektive.geometry.minus
 import it.unibo.collektive.sdf.SDF
 import it.unibo.collektive.sdf.primitive.Segment
 
@@ -26,6 +28,5 @@ class Triangle(private val a: Position, private val b: Position, private val c: 
     }
 
     /** Positive when [position] lies on the left of the line going [from] → [to]. */
-    private fun side(from: Position, to: Position, position: Position) =
-        (to.x - from.x) * (position.y - from.y) - (to.y - from.y) * (position.x - from.x)
+    private fun side(from: Position, to: Position, position: Position) = (to - from) cross (position - from)
 }

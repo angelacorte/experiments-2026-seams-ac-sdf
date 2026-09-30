@@ -1,7 +1,9 @@
 package it.unibo.collektive.sdf.shape
 
 import it.unibo.collektive.geometry.Position
+import it.unibo.collektive.geometry.cross
 import it.unibo.collektive.geometry.euclideanDistanceTo
+import it.unibo.collektive.geometry.minus
 import it.unibo.collektive.geometry.polar
 import it.unibo.collektive.sdf.SDF
 import it.unibo.collektive.sdf.primitive.Segment
@@ -43,6 +45,9 @@ class Star(private val center: Position, radius: Double, pointCount: Int, spikin
 
     private val edge = Segment(tip, notch)
 
+    /** The direction of the [edge], from the tip to the notch. */
+    private val edgeDirection = notch - tip
+
     override fun invoke(position: Position): Double {
         val folded = fold(position)
         val distance = edge(folded)
@@ -60,6 +65,5 @@ class Star(private val center: Position, radius: Double, pointCount: Int, spikin
     }
 
     /** Whether [position], inside the slice, lies on the same side of the edge as the center, i.e., inside the star. */
-    private fun isOnCenterSide(position: Position): Boolean =
-        (notch.x - tip.x) * (position.y - tip.y) - (notch.y - tip.y) * (position.x - tip.x) > 0
+    private fun isOnCenterSide(position: Position): Boolean = (edgeDirection cross (position - tip)) > 0
 }
