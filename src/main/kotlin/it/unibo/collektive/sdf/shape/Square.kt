@@ -11,4 +11,3 @@ import it.unibo.collektive.sdf.primitive.Rectangle
  * @param side The side length.
  */
 class Square(center: Position, side: Double) : SDF by Rectangle(center, side, side)
-

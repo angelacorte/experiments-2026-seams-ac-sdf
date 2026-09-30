@@ -24,12 +24,8 @@ sealed interface SpacingRule {
      * @property pressureMargin the target pressure, as a fraction of the ring radius.
      * @property max the largest spacing, below the communication range so that no neighbor is pushed out of it.
      */
-    data class Adaptive(
-        override val initial: Double,
-        val rate: Double,
-        val pressureMargin: Double,
-        val max: Double,
-    ) : SpacingRule {
+    data class Adaptive(override val initial: Double, val rate: Double, val pressureMargin: Double, val max: Double) :
+        SpacingRule {
         override fun next(spacing: Double, neighborhood: LatticeNeighborhood): Double {
             val pressure = spacing - neighborhood.ringRadius
             val adapted = when {

@@ -4,10 +4,10 @@ import it.unibo.alchemist.model.Node
 import it.unibo.alchemist.model.NodeProperty
 import it.unibo.collektive.geometry.SpeedControl2D
 import it.unibo.collektive.geometry.Vector2D
-import org.apache.commons.math3.random.RandomGenerator
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
+import org.apache.commons.math3.random.RandomGenerator
 
 /**
  * The body frame of a node, in which it commands its velocity: the frame of the environment rotated by a random

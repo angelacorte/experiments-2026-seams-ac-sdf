@@ -48,4 +48,3 @@ class Polygon(vertices: List<Position>) : SDF {
 
     private fun squaredLength(x: Double, y: Double) = x * x + y * y
 }
-

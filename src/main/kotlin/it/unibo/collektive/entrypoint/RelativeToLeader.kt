@@ -48,15 +48,13 @@ fun Aggregate<Int>.relativeToLeaderEntrypoint(device: CollektiveDevice<*>, senso
         device["leader"] = isLeader
         val position = positionRelativeTo(isLeader, sensor)
         // The shared clock counts from DISTANT_PAST, and the whole network agrees on it: 1 degree per time unit.
-        val clock = sharedClock(Instant.fromEpochMilliseconds((device.currentTime.toDouble() * 1000).toLong()))
+//        val clock = sharedClock(Instant.fromEpochMilliseconds((device.currentTime.toDouble() * 1000).toLong()))
         val shape = Triangle(
             Position.origin,
             Position(200.0, 0.0),
             Position(100.0, 200.0),
-        ).translate(-80.0, -80.0) // .rotate(Math.toRadians((clock - DISTANT_PAST).toDouble(DurationUnit.SECONDS)) / 3.0)
-
-        // LetterE(Position.origin, 100.0)
-        // Star(Position.origin, 45.0, 5, 2.5)
+        ).translate(-80.0, -80.0)
+        // .rotate(Math.toRadians((clock - DISTANT_PAST).toDouble(DurationUnit.SECONDS)) / 3.0)
         // The offsets are the perceived (dx, dy), not the neighbors' (possibly stale) estimated positions.
         val offsets = mapNeighborhood { sensor.relativeTo(it) * -1.0 }.neighbors.values.list
         applyVelocity(

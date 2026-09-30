@@ -15,20 +15,15 @@ import kotlin.math.PI
  * @param innerRadius The radius at which the spiral starts (default is 0.0, starting from the center).
  * @param thickness The half-width of the stroke (default is 0.0).
  */
-class Spiral(
-    center: Position,
-    spacing: Double,
-    turns: Int,
-    innerRadius: Double = 0.0,
-    thickness: Double = 0.0,
-) : SDF by tangentArcChain(
-    center = center,
-    radii = run {
-        require(spacing > 0.0) { "Spiral spacing must be positive, got $spacing" }
-        require(turns > 0) { "A spiral needs at least one turn, got $turns" }
-        require(innerRadius >= 0.0) { "Spiral inner radius cannot be negative, got $innerRadius" }
-        List(2 * turns) { innerRadius + it * spacing / 2 }
-    },
-    sweep = PI,
-    thickness = thickness,
-)
+class Spiral(center: Position, spacing: Double, turns: Int, innerRadius: Double = 0.0, thickness: Double = 0.0) :
+    SDF by tangentArcChain(
+        center = center,
+        radii = run {
+            require(spacing > 0.0) { "Spiral spacing must be positive, got $spacing" }
+            require(turns > 0) { "A spiral needs at least one turn, got $turns" }
+            require(innerRadius >= 0.0) { "Spiral inner radius cannot be negative, got $innerRadius" }
+            List(2 * turns) { innerRadius + it * spacing / 2 }
+        },
+        sweep = PI,
+        thickness = thickness,
+    )

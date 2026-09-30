@@ -23,12 +23,7 @@ import kotlin.math.sin
  * @param spikiness How sharp the points are, between 2 and [pointCount] (Quilez's `m`): 2 gives a regular polygon,
  * higher values carve deeper notches, and [pointCount] shrinks the points to lines.
  */
-class Star(
-    private val center: Position,
-    radius: Double,
-    pointCount: Int,
-    spikiness: Double = pointCount / 2.0,
-) : SDF {
+class Star(private val center: Position, radius: Double, pointCount: Int, spikiness: Double = pointCount / 2.0) : SDF {
     init {
         require(radius > 0.0) { "Star radius must be positive, got $radius" }
         require(pointCount >= 2) { "A star needs at least two points, got $pointCount" }

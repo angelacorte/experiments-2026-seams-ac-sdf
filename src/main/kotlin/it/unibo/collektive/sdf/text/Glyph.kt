@@ -36,11 +36,7 @@ internal data class GlyphPoint(val x: Double, val y: Double)
  * @property width The width of this glyph in normalized coordinates ([GLYPH_WIDTH] unless the glyph is wider).
  */
 @GlyphDsl
-internal class GlyphScope(
-    private val origin: Position,
-    private val height: Double,
-    val width: Double = GLYPH_WIDTH,
-) {
+internal class GlyphScope(private val origin: Position, private val height: Double, val width: Double = GLYPH_WIDTH) {
     /** The standard radius used by rounded glyph parts. */
     val radius: Double = GLYPH_RADIUS
 
@@ -86,8 +82,10 @@ internal class GlyphScope(
         require(horizontal.start <= horizontal.endInclusive) { "Horizontal glyph bounds must be ordered" }
         require(vertical.start <= vertical.endInclusive) { "Vertical glyph bounds must be ordered" }
         return RoundedRectangle(
-            center = ((horizontal.start + horizontal.endInclusive) / 2 at
-                (vertical.start + vertical.endInclusive) / 2).toWorld(),
+            center = (
+                (horizontal.start + horizontal.endInclusive) / 2 at
+                    (vertical.start + vertical.endInclusive) / 2
+                ).toWorld(),
             width = (horizontal.endInclusive - horizontal.start) * height,
             height = (vertical.endInclusive - vertical.start) * height,
             topLeft = corners.topLeft * height,
@@ -139,4 +137,3 @@ internal fun glyph(
     require(width > 0.0) { "Glyph width must be positive, got $width" }
     return GlyphScope(origin, height, width).draw() expand thickness
 }
-

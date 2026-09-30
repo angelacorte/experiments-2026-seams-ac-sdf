@@ -21,10 +21,10 @@ import it.unibo.collektive.localization.electAnchors
 import it.unibo.collektive.localization.localize
 import it.unibo.collektive.sdf.shape.Star
 import it.unibo.collektive.stdlib.collapse.fold
-import org.apache.commons.math3.random.RandomGenerator
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
+import org.apache.commons.math3.random.RandomGenerator
 
 /**
  * Range-only shape formation: devices sense only the distances to their neighbors (no bearing, no shared orientation).
@@ -46,7 +46,7 @@ fun Aggregate<Int>.rangeOnlyEntrypoint(device: CollektiveDevice<*>) = with(devic
     // The star is centred on the anchors' centroid, so the anchors lie inside the shape.
     val shape = Star(
         frame.centroid,
-        radius = 60.0,//parameter("starRadius"),
+        radius = 60.0, // parameter("starRadius"),
         pointCount = parameter("starPoints").toInt(),
         spikiness = parameter("starSpikiness"),
     )
@@ -65,7 +65,7 @@ fun Aggregate<Int>.rangeOnlyEntrypoint(device: CollektiveDevice<*>) = with(devic
         !alignment.isConfident(parameter("minMotionEnergy"), parameter("minConfidence")) ->
             randomGenerator.randomDirection()
         // Keep some random motion, so that the alignment can still tell rotation from reflection.
-        else -> alignment.toBody(control) //+ randomGenerator.randomDirection() * parameter("explorationNoise")
+        else -> alignment.toBody(control) // + randomGenerator.randomDirection() * parameter("explorationNoise")
     }
     val maxSpeed = parameter("maxSpeed")
     val velocity = if (command.norm > maxSpeed) command * (maxSpeed / command.norm) else command

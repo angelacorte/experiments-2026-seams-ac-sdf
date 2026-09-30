@@ -6,7 +6,7 @@ import it.unibo.collektive.geometry.plus
 import it.unibo.collektive.geometry.zeroSpeed
 
 /**
- * The lattice around a device, as offsets `neighbor - self`
+ * The lattice around a device, as offsets `neighbor - self`.
  *
  * @param border the border of the shape near the device.
  * @param ringSize the nearest neighbors (real or mirrored) forming the first [ring] of the lattice.

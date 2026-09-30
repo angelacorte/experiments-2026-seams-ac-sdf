@@ -16,5 +16,3 @@ import it.unibo.collektive.sdf.primitive.Circle
  */
 class CircularSector(center: Position, radius: Double, halfAperture: Double) :
     SDF by (Circle(center, radius) and Wedge(center, halfAperture))
-
-

@@ -16,13 +16,14 @@ import kotlin.math.PI
  * @param tip The (X, Y) coordinates of the wedge's tip.
  * @param halfAperture Half of the angle of the wedge in radians, measured from the +y axis, between 0 and π.
  */
-class Wedge(tip: Position, halfAperture: Double) : SDF by (
-    run {
-        require(halfAperture > 0.0 && halfAperture <= PI) {
-            "Wedge half-aperture must be in (0, π], got $halfAperture"
+class Wedge(tip: Position, halfAperture: Double) :
+    SDF by (
+        run {
+            require(halfAperture > 0.0 && halfAperture <= PI) {
+                "Wedge half-aperture must be in (0, π], got $halfAperture"
+            }
+            val rightSide = HalfPlane(tip, tip.polar(1.0, PI / 2 - halfAperture))
+            val leftSide = HalfPlane(tip.polar(1.0, PI / 2 + halfAperture), tip)
+            if (halfAperture <= PI / 2) rightSide and leftSide else rightSide or leftSide
         }
-        val rightSide = HalfPlane(tip, tip.polar(1.0, PI / 2 - halfAperture))
-        val leftSide = HalfPlane(tip.polar(1.0, PI / 2 + halfAperture), tip)
-        if (halfAperture <= PI / 2) rightSide and leftSide else rightSide or leftSide
-    }
-)
+        )

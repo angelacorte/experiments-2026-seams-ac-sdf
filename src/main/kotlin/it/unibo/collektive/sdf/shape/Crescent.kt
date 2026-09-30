@@ -13,13 +13,13 @@ import it.unibo.collektive.sdf.primitive.Circle
  * @param radius The radius of both disks.
  * @param offset The shift of the carved disk: the smaller, the thinner the crescent.
  */
-class Crescent(center: Position, radius: Double, offset: Double) : SDF by (
-    run {
-        require(radius > 0.0) { "Crescent radius must be positive, got $radius" }
-        require(offset > 0.0 && offset < 2 * radius) {
-            "Crescent offset must be in (0, ${2 * radius}), got $offset"
+class Crescent(center: Position, radius: Double, offset: Double) :
+    SDF by (
+        run {
+            require(radius > 0.0) { "Crescent radius must be positive, got $radius" }
+            require(offset > 0.0 && offset < 2 * radius) {
+                "Crescent offset must be in (0, ${2 * radius}), got $offset"
+            }
+            Circle(center, radius) - Circle(Position(center.x + offset, center.y), radius)
         }
-        Circle(center, radius) - Circle(Position(center.x + offset, center.y), radius)
-    }
-)
-
+        )

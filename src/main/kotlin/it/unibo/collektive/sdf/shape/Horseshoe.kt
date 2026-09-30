@@ -44,4 +44,4 @@ class Horseshoe(center: Position, radius: Double, aperture: Double, armLength: D
                 arm(center.polar(radius, PI / 2 - aperture), PI - aperture) or
                 arm(center.polar(radius, PI / 2 + aperture), aperture)
         }
-    )
+        )

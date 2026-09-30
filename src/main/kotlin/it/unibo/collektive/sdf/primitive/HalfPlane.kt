@@ -20,7 +20,6 @@ class HalfPlane(private val from: Position, to: Position) : SDF {
         require(length > 0.0) { "The two points of a half plane must differ, got $from twice" }
     }
 
-    override fun invoke(position: Position): Double =
-        // Minus the distance from the line, positive on its left.
+    override fun invoke(position: Position): Double = // Minus the distance from the line, positive on its left.
         -(directionX * (position.y - from.y) - directionY * (position.x - from.x)) / length
 }

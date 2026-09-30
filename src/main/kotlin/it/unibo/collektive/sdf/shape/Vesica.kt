@@ -14,10 +14,11 @@ import it.unibo.collektive.sdf.primitive.Circle
  * @param offset How far the centers of the disks are from [center] along x: from 0 (a circle) up to [radius]
  * (excluded), where the lens gets thinner and thinner.
  */
-class Vesica(center: Position, radius: Double, offset: Double) : SDF by (
-    run {
-        require(offset >= 0.0 && offset < radius) { "The offset must be in [0, radius), got $offset for $radius" }
-        Circle(Position(center.x - offset, center.y), radius) and Circle(Position(center.x + offset, center.y), radius)
-    }
-)
-
+class Vesica(center: Position, radius: Double, offset: Double) :
+    SDF by (
+        run {
+            require(offset >= 0.0 && offset < radius) { "The offset must be in [0, radius), got $offset for $radius" }
+            Circle(Position(center.x - offset, center.y), radius) and
+                Circle(Position(center.x + offset, center.y), radius)
+        }
+        )

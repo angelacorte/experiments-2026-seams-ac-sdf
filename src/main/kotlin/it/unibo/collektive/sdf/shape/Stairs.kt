@@ -14,14 +14,15 @@ import it.unibo.collektive.sdf.union
  * @param stepHeight The height of each step.
  * @param steps The number of steps.
  */
-class Stairs(origin: Position, stepWidth: Double, stepHeight: Double, steps: Int) : SDF by (
-    run {
-        require(stepWidth > 0.0) { "Step width must be positive, got $stepWidth" }
-        require(stepHeight > 0.0) { "Step height must be positive, got $stepHeight" }
-        require(steps > 0) { "A staircase needs at least one step, got $steps" }
-        List(steps) { step ->
-            val height = (step + 1) * stepHeight
-            Rectangle(Position(origin.x + (step + 0.5) * stepWidth, origin.y + height / 2), stepWidth, height)
-        }.union()
-    }
-)
+class Stairs(origin: Position, stepWidth: Double, stepHeight: Double, steps: Int) :
+    SDF by (
+        run {
+            require(stepWidth > 0.0) { "Step width must be positive, got $stepWidth" }
+            require(stepHeight > 0.0) { "Step height must be positive, got $stepHeight" }
+            require(steps > 0) { "A staircase needs at least one step, got $steps" }
+            List(steps) { step ->
+                val height = (step + 1) * stepHeight
+                Rectangle(Position(origin.x + (step + 0.5) * stepWidth, origin.y + height / 2), stepWidth, height)
+            }.union()
+        }
+        )

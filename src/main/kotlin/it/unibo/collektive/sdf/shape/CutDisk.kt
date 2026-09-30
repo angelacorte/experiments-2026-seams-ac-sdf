@@ -16,11 +16,12 @@ import kotlin.math.abs
  * @param cutHeight The height of the cutting line above [center], between `-radius` (nothing is cut)
  * and [radius] (nothing is left).
  */
-class CutDisk(center: Position, radius: Double, cutHeight: Double) : SDF by (
-    run {
-        require(radius > 0.0) { "Cut disk radius must be positive, got $radius" }
-        require(abs(cutHeight) <= radius) { "The cut must be within the disk: |$cutHeight| > $radius" }
-        val cut = Position(center.x, center.y + cutHeight)
-        Circle(center, radius) and HalfPlane(cut, Position(cut.x + 1.0, cut.y))
-    }
-)
+class CutDisk(center: Position, radius: Double, cutHeight: Double) :
+    SDF by (
+        run {
+            require(radius > 0.0) { "Cut disk radius must be positive, got $radius" }
+            require(abs(cutHeight) <= radius) { "The cut must be within the disk: |$cutHeight| > $radius" }
+            val cut = Position(center.x, center.y + cutHeight)
+            Circle(center, radius) and HalfPlane(cut, Position(cut.x + 1.0, cut.y))
+        }
+        )

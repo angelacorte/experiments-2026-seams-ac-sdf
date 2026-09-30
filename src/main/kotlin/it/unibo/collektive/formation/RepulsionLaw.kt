@@ -11,12 +11,20 @@ sealed interface RepulsionLaw {
     /** The push on the device of a neighbor at [offset] (`neighbor - self`), for the lattice [spacing]. */
     fun force(offset: Vector2D, spacing: Double): SpeedControl2D
 
-    /** Linear in the overlap, and zero beyond the spacing (see [softRepulsionForce]). */
+    /**
+     * Linear in the overlap, and zero beyond the spacing (see [softRepulsionForce]).
+     *
+     * @property stiffness how strongly the push grows with the overlap `spacing - distance`.
+     */
     data class SoftDisk(val stiffness: Double) : RepulsionLaw {
         override fun force(offset: Vector2D, spacing: Double) = softRepulsionForce(offset, stiffness, spacing)
     }
 
-    /** Inverse square of the distance, never zero (see [repulsionForce]). */
+    /**
+     * Inverse square of the distance, never zero (see [repulsionForce]).
+     *
+     * @property coefficient the scale of the push: it is `coefficient * spacing` at the lattice spacing.
+     */
     data class InverseSquare(val coefficient: Double) : RepulsionLaw {
         override fun force(offset: Vector2D, spacing: Double) = repulsionForce(offset, coefficient, spacing)
     }

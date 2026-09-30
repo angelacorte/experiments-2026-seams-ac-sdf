@@ -36,4 +36,3 @@ fun Aggregate<Int>.latticeVelocity(shape: SDF, position: Position, offsets: List
     val step = evolve(AdaptiveStep()) { it.adapt(control, parameters.step) }
     return control.limitedTo(parameters.maxSpeed) * step.gain
 }
-

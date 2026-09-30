@@ -12,12 +12,7 @@ import kotlin.math.PI
  * Builds a tangent chain of circular arcs with increasing or decreasing radii.
  * Each arc starts where the previous one ends and continues in the same direction.
  */
-internal fun tangentArcChain(
-    center: Position,
-    radii: List<Double>,
-    sweep: Double,
-    thickness: Double,
-): SDF {
+internal fun tangentArcChain(center: Position, radii: List<Double>, sweep: Double, thickness: Double): SDF {
     require(radii.isNotEmpty()) { "An arc chain needs at least one radius" }
     require(radii.all { it >= 0.0 }) { "Arc chain radii cannot be negative, got $radii" }
     require(sweep > 0.0 && sweep <= 2 * PI) { "Arc chain sweep must be in (0, 2π], got $sweep" }

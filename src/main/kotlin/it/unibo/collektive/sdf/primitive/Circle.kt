@@ -9,10 +9,7 @@ import it.unibo.collektive.sdf.SDF
  * @property center The (X, Y) coordinates of the circle's center.
  * @property radius The radius of the circle.
  */
-class Circle(
-    private val center: Position,
-    private val radius: Double,
-) : SDF {
+class Circle(private val center: Position, private val radius: Double) : SDF {
     init {
         require(radius > 0.0) { "Circle radius must be positive, got $radius" }
     }

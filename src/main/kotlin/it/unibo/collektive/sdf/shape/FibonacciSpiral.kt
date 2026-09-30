@@ -20,18 +20,14 @@ private fun fibonacci(count: Int): List<Long> = generateSequence(1L to 1L) { (a,
  * @param quarterTurns The number of quarter circles.
  * @param thickness The half-width of the stroke (default is 0.0).
  */
-class FibonacciSpiral(
-    center: Position,
-    scale: Double,
-    quarterTurns: Int,
-    thickness: Double = 0.0,
-) : SDF by tangentArcChain(
-    center = center,
-    radii = run {
-        require(scale > 0.0) { "Fibonacci spiral scale must be positive, got $scale" }
-        require(quarterTurns > 0) { "A Fibonacci spiral needs at least one quarter turn, got $quarterTurns" }
-        fibonacci(quarterTurns).map { it * scale }
-    },
-    sweep = PI / 2,
-    thickness = thickness,
-)
+class FibonacciSpiral(center: Position, scale: Double, quarterTurns: Int, thickness: Double = 0.0) :
+    SDF by tangentArcChain(
+        center = center,
+        radii = run {
+            require(scale > 0.0) { "Fibonacci spiral scale must be positive, got $scale" }
+            require(quarterTurns > 0) { "A Fibonacci spiral needs at least one quarter turn, got $quarterTurns" }
+            fibonacci(quarterTurns).map { it * scale }
+        },
+        sweep = PI / 2,
+        thickness = thickness,
+    )
