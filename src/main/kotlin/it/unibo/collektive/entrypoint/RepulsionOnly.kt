@@ -23,7 +23,7 @@ import it.unibo.collektive.geometry.minus
 fun Aggregate<Int>.towardsSDFRepulsionOnlyEntrypoint(device: CollektiveDevice<*>, locationSensor: LocationSensor) =
     with(device) {
         val position = locationSensor.coordinates()
-        val shape = shape // .scale(1.0 + 0.2 * sin(2 * PI * elapsed / 500.0))
+//        val shape = shape // .scale(1.0 + 0.2 * sin(2 * PI * elapsed / 500.0))
         // .rotate(2 * PI * elapsed / 1000.0)
         // .translate(50.0, 50.0)
         val offsets = neighboring(position).neighbors.values.list.map { it - position }
