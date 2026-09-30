@@ -44,8 +44,25 @@ internal class GlyphScope(
     /** The standard radius used by rounded glyph parts. */
     val radius: Double = GLYPH_RADIUS
 
-    /** Creates a glyph-local point, for example `0 at 1` or `0.25 at 0.5`. */
+    /*
+     * The guides of the glyph, to be combined into points with `at`, e.g. `left at top` or `center at middle`.
+     * Vertically: the baseline, the middle, and the top. Horizontally: the sides, the axis, and a coordinate
+     * safely past the right side, for boxes carving openings through it.
+     */
+    val bottom = 0.0
+    val top = 1.0
+    val middle = (bottom + top) / 2
+    val left = 0.0
+    val right = left + width
+    val center = (left + right) / 2
+    val beyondRight = right + width
+
+    /** Creates a glyph-local point, for example `left at top` or `0.25 at middle`. */
     infix fun Number.at(y: Number): GlyphPoint = GlyphPoint(toDouble(), y.toDouble())
+
+    /** The point at [fraction] of the way from [from] to [to]: 0 is [from], 1 is [to]. */
+    fun between(from: GlyphPoint, to: GlyphPoint, fraction: Double): GlyphPoint =
+        GlyphPoint(from.x + (to.x - from.x) * fraction, from.y + (to.y - from.y) * fraction)
 
     /** Creates a zero-width line between two glyph-local points. */
     fun line(from: GlyphPoint, to: GlyphPoint): SDF = Segment(from.toWorld(), to.toWorld())
