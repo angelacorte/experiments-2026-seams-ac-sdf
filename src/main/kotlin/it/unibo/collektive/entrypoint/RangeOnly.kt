@@ -7,6 +7,7 @@ import it.unibo.collektive.aggregate.api.neighboring
 import it.unibo.collektive.aggregate.values
 import it.unibo.collektive.alchemist.device.applyVelocity
 import it.unibo.collektive.alchemist.device.parameter
+import it.unibo.collektive.alchemist.device.sensors.impl.ShapeProperty
 import it.unibo.collektive.formation.latticeVelocity
 import it.unibo.collektive.geometry.Position
 import it.unibo.collektive.geometry.SpeedControl2D
@@ -19,8 +20,6 @@ import it.unibo.collektive.localization.AnchorRole
 import it.unibo.collektive.localization.FrameAlignment
 import it.unibo.collektive.localization.electAnchors
 import it.unibo.collektive.localization.localize
-import it.unibo.collektive.sdf.shape.Star
-import it.unibo.collektive.stdlib.collapse.fold
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -33,7 +32,7 @@ import org.apache.commons.math3.random.RandomGenerator
  * body frame, move it among the anchors ([FrameAlignment]).
  * All the parameters are read from the simulation file (see `rangeOnly.yml`).
  */
-fun Aggregate<Int>.rangeOnlyEntrypoint(device: CollektiveDevice<*>) = with(device) {
+fun Aggregate<Int>.rangeOnlyEntrypoint(device: CollektiveDevice<*>, formation: ShapeProperty<*>) = with(device) {
     val neighborDistances = distances()
     val role = electAnchors(
         neighborDistances,
@@ -43,13 +42,8 @@ fun Aggregate<Int>.rangeOnlyEntrypoint(device: CollektiveDevice<*>) = with(devic
     val isAnchor = role != AnchorRole.NONE
     device["leader"] = isAnchor
     val (frame, position) = localize(role, neighborDistances)
-    // The star is centred on the anchors' centroid, so the anchors lie inside the shape.
-    val shape = Star(
-        frame.centroid,
-        radius = 60.0, // parameter("starRadius"),
-        pointCount = parameter("starPoints").toInt(),
-        spikiness = parameter("starSpikiness"),
-    )
+    // The shape is anchored on the anchors' centroid, so the anchors lie inside it.
+    val shape = formation.shape.placedAt(frame.centroid)
     val offsets = offsetsFromEstimates(position, neighborDistances)
     val control = position?.let { latticeVelocity(shape, it, offsets) }
     device["control"] = control ?: zeroSpeed // The ideal command, in the anchor frame
