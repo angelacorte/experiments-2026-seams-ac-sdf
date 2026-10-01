@@ -5,12 +5,15 @@ import it.unibo.collektive.aggregate.api.Aggregate
 import it.unibo.collektive.aggregate.api.neighboring
 import it.unibo.collektive.aggregate.values
 import it.unibo.collektive.alchemist.device.applyVelocity
+import it.unibo.collektive.alchemist.device.parameter
 import it.unibo.collektive.alchemist.device.sensors.LocationSensor
+import it.unibo.collektive.alchemist.device.sensors.impl.ShapeProperty
 import it.unibo.collektive.formation.AdaptiveStep
 import it.unibo.collektive.formation.LatticeNeighborhood
 import it.unibo.collektive.formation.RepulsionLaw
 import it.unibo.collektive.formation.SpacingRule
 import it.unibo.collektive.formation.latticeVelocity
+import it.unibo.collektive.geometry.Position
 import it.unibo.collektive.geometry.minus
 
 /**
@@ -20,12 +23,14 @@ import it.unibo.collektive.geometry.minus
  * ([SpacingRule]), with a step size that adapts to overshoots ([AdaptiveStep]).
  * All the parameters, modes included, are read from the simulation file (see `repulsionOnly.yml`).
  */
-fun Aggregate<Int>.towardsSDFRepulsionOnlyEntrypoint(device: CollektiveDevice<*>, locationSensor: LocationSensor) =
-    with(device) {
-        val position = locationSensor.coordinates()
-//        val shape = shape // .scale(1.0 + 0.2 * sin(2 * PI * elapsed / 500.0))
-        // .rotate(2 * PI * elapsed / 1000.0)
-        // .translate(50.0, 50.0)
-        val offsets = neighboring(position).neighbors.values.list.map { it - position }
-        applyVelocity(latticeVelocity(shape, position, offsets))
-    }
+fun Aggregate<Int>.repulsionOnlyEntrypoint(
+    device: CollektiveDevice<*>,
+    locationSensor: LocationSensor,
+    formation: ShapeProperty<*>,
+) = with(device) {
+    val position = locationSensor.coordinates()
+    // Global positions: the shape is placed at a fixed point of the environment.
+    val shape = formation.shape.placedAt(Position(parameter("shapeCenterX"), parameter("shapeCenterY")))
+    val offsets = neighboring(position).neighbors.values.list.map { it - position }
+    applyVelocity(latticeVelocity(shape, position, offsets))
+}

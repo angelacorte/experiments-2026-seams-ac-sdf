@@ -1,6 +1,23 @@
 incarnation: collektive
 
-_communication-range: &communicationRange 18 # Shared by the network model and the formation
+variables:
+  maxSeed: &maxSeed
+    type: SystemEnvVariable
+    parameters: [ "MAX_SEED", 5 ] # default 5 if not specified
+  seed: &seed
+    min: 0
+    max: *maxSeed
+    step: 1
+    default: 42
+  nodes: &nodes
+    type: ArbitraryVariable
+    parameters: [ 100, [ 50, 100, 200, 300 ] ]
+  communication-range: &communicationRange # Shared by the network model and the formation
+    type: ArbitraryVariable
+    parameters: [ 20, [ 10, 20, 30 ] ]
+  shape: &shape # Same list in every scenario: see it.unibo.collektive.entrypoint.ShapeCatalog
+    type: ArbitraryVariable
+    parameters: [ star, [ star, hexagon, ring, crescent, horseshoe ] ]
 
 network-model:
   type: ConnectWithinDistance
@@ -11,14 +28,17 @@ _pool: &program
     type: Event
     actions:
       - type: RunCollektiveProgram
-        parameters: [ it.unibo.collektive.entrypoint.RepulsionOnlyKt.towardsSDFRepulsionOnlyEntrypoint]
+        parameters: [ it.unibo.collektive.entrypoint.RepulsionOnlyKt.repulsionOnlyEntrypoint]
       - type: SpeedToTarget
         parameters: [ ]
 
 deployments:
   - type: Rectangle
-    parameters: [300, 0, 0, 100, 100]
+    parameters: [*nodes, 0, 0, 100, 100]
     contents:
+      # Shape
+      - { molecule: shapeCenterX, concentration: 50.0 } # Where the origin of the shape lies, in global coordinates
+      - { molecule: shapeCenterY, concentration: 50.0 }
       # Lattice
       - { molecule: ringSize, concentration: 6 } # Nearest neighbors forming the first ring (6 in a hexagonal lattice)
       - { molecule: outsideRepulsionGain, concentration: 0.1 } # Repulsion scale outside the shape
@@ -43,4 +63,6 @@ deployments:
     programs:
       - *program
     properties:
+      - type: it.unibo.collektive.alchemist.device.sensors.impl.ShapeProperty
+        parameters: [ *shape ]
       - type: it.unibo.collektive.alchemist.device.sensors.impl.LocationSensorProperty
