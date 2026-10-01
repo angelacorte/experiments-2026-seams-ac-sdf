@@ -1,27 +1,28 @@
 package it.unibo.collektive.entrypoint
 
 import it.unibo.collektive.geometry.Position
+import it.unibo.collektive.sdf.SDF
 import it.unibo.collektive.sdf.primitive.Circle
-import it.unibo.collektive.sdf.primitive.Polygon
 import it.unibo.collektive.sdf.ring
-import it.unibo.collektive.sdf.scale
-import it.unibo.collektive.sdf.shape.QuestionMark
+import it.unibo.collektive.sdf.shape.Crescent
+import it.unibo.collektive.sdf.shape.Hexagon
+import it.unibo.collektive.sdf.shape.Horseshoe
 import it.unibo.collektive.sdf.shape.Star
+import it.unibo.collektive.sdf.translate
+import kotlin.math.PI
 
-// private val shape = "HELLO\nWORLD"
-// .toSdf(start = Position(-20.0, 30.0), height = 40.0, thickness = 4.2, spacing = 10.5,).scale(0.5)
-// private val shape = Star(Position.origin, 75.0, 5, 3.0)
 /**
- * Shape used for simulation purposes.
+ * The shapes the simulations batch over, shared by all the scenarios.
+ * Every shape contains the origin of its local frame: the scenario moves that origin where the shape belongs
+ * (a fixed point, the leader, the anchors' centroid), which thus lies inside the shape.
  */
-//val shape = Star(Position.origin, 30.0, 5) ring 3.5
-// FibonacciSpiral(Position(50.0, 50.0), 15.0, 6, 5.0)
-// Spiral(Position(0.0, 0.0), 10.0, 2, 10.0, 2.0).scale(3.0)
-// val shape = Stairs(Position(0.0, 0.0), 20.0, 20.0, 5)
-// val shape = FibonacciSpiral(Position(60.0, 68.0), scale = 2.0, quarterTurns = 12, thickness = 3.0)
-// val shape = Spiral(Position(0.0, 0.0), spacing = 20.0, turns = 4, innerRadius = 10.0, thickness = 5.0)
-// val shape = Star(Position(50.0, 50.0), 75.0, 5, 3.0)
-// val shape = Circle(Position(50.0, 50.0), 40.0) ring 20.0
-// val shape = QuestionMark(Position(50.0, 50.0), 30.0, 10.0)
-// val shape = Triangle(Position(0.0, 0.0), Position(200.0, 0.0), Position(100.0, 200.0))
-val shape = Polygon(listOf(Position.origin, Position(30.0, 0.0), Position(0.0, 30.0), Position(-30.0, 10.0), Position(-10.0, -20.0), Position(0.0, 40.0))).scale(2.0)
+enum class ShapeCatalog(val sdf: SDF) {
+    STAR(Star(Position.origin, 30.0, 5)),
+    HEXAGON(Hexagon(Position.origin, 30.0)),
+    RING(Circle(Position(25.0, 0.0), 25.0) ring 6.0), // The origin is on the band
+    CRESCENT(Crescent(Position(20.0, 0.0), 30.0, 20.0)), // The origin is in the thick part
+    HORSESHOE(Horseshoe(Position(0.0, 20.0), 20.0, PI / 4, 15.0, 6.0)), // The origin is at the bottom of the band
+}
+
+/** The shape moved so that the origin of its frame lies on [origin]. */
+fun ShapeCatalog.placedAt(origin: Position): SDF = sdf.translate(origin.x, origin.y)
