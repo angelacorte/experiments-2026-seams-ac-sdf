@@ -27,7 +27,7 @@ data class LatticeParameters(
 
 /**
  * Reads the [LatticeParameters] from the molecules of the simulation file (see `repulsionOnly.yml`): the `repulsion`
- * (`softDisk` or `inverseSquare`) and the `spacing` (`adaptive` or `fixed`) pick the modes, each reading only its own
+ * (`softDisk`, `inverseSquare` or `spring`) and the `spacing` (`adaptive` or `fixed`) pick the modes, each reading only its own
  * parameters.
  */
 fun CollektiveDevice<*>.latticeParameters(): LatticeParameters = LatticeParameters(
@@ -35,7 +35,8 @@ fun CollektiveDevice<*>.latticeParameters(): LatticeParameters = LatticeParamete
     repulsion = when (val mode = textParameter("repulsion")) {
         "softDisk" -> RepulsionLaw.SoftDisk(stiffness = parameter("softDiskStiffness"))
         "inverseSquare" -> RepulsionLaw.InverseSquare(coefficient = parameter("inverseSquareCoefficient"))
-        else -> error("Unknown repulsion '$mode': use softDisk or inverseSquare")
+        "spring" -> RepulsionLaw.Spring(stiffness = parameter("springStiffness"))
+        else -> error("Unknown repulsion '$mode': use softDisk, inverseSquare or spring")
     },
     outsideGain = parameter("outsideRepulsionGain"),
     gradientStep = parameter("sdfGradientStep"),
