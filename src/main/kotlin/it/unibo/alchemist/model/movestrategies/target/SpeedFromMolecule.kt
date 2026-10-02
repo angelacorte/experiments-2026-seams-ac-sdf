@@ -27,8 +27,9 @@ class SpeedFromMolecule<T, P : Position<P>>(private val node: Node<T>, private v
 
     /**
      * Last simulation time used to compute the elapsed time for the next movement update.
+     * It starts from the creation time, so that nodes added at runtime do not integrate their speed since time zero.
      */
-    var previousTime: Time = Time.ZERO
+    var previousTime: Time = environment.simulationOrNull?.time ?: Time.ZERO
 
     override fun getNodeMovementLength(target: P?): Double {
         val speed = node.getConcentration(SimpleMolecule("Velocity")) as? SpeedControl2D ?: return 0.0
