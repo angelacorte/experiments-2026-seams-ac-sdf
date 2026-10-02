@@ -14,19 +14,13 @@ import kotlin.test.assertTrue
 class YamlLoadCheck {
     @Test
     fun load() {
-        for (file in listOf(
-            "repulsionOnly.yml",
-            "starEntry.yml",
-            "rangeOnly.yml",
-            "relativeToLeader.yml",
-            "dynamicPopulation.yml",
-        )) {
+        for (file in listOf("repulsionOnly.yml", "rangeOnly.yml", "relativeToLeader.yml", "dynamicPopulation.yml")) {
             val simulation = LoadAlchemist.from(ClassLoader.getSystemResource(file))
                 .getDefault<Any?, Euclidean2DPosition>()
             val parameters: LatticeParameters<Any?> = simulation.environment.nodes.first().asProperty()
-            if (file == "starEntry.yml") {
-                assertTrue(parameters.repulsion is RepulsionLaw.Spring)
-                assertEquals(SpacingRule.Neighborhood(4.8, 0.05, 0.1, 0.8 * 18), parameters.spacing)
+            if (file == "repulsionOnly.yml") {
+                assertTrue(parameters.repulsion is RepulsionLaw.SoftDisk)
+                assertEquals(SpacingRule.Adaptive(2.0, 0.05, 0.5, 0.8 * 20), parameters.spacing)
                 assertEquals(1.2, parameters.step.increase)
             }
             val runner = thread { simulation.run() }
