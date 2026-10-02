@@ -47,7 +47,7 @@ fun Aggregate<Int>.relativeToLeaderEntrypoint(
     val isLeader = leaderBasedCentrality == localId
     device["leader"] = isLeader
     val position = positionRelativeTo(isLeader, sensor)
-    // The leader is the origin of the frame, and of the shape: it follows the leader when a new one is elected.
+    // The center of the shape is on the leader, the origin of the frame: it follows the leader when another is elected.
     val shape = formation.shapeAt(Position.origin)
     // The shared clock counts from DISTANT_PAST, and the whole network agrees on it: 1 degree per time unit.
 //        val clock = sharedClock(Instant.fromEpochMilliseconds((device.currentTime.toDouble() * 1000).toLong()))
