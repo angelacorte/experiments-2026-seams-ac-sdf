@@ -28,7 +28,6 @@ fun Aggregate<Int>.repulsionOnlyEntrypoint(
 ) = with(device) {
     val position = locationSensor.coordinates()
     // Global positions: the shape lies where shapes.yml puts it.
-    val shape = formation.shape
     val offsets = neighboring(position).neighbors.values.list.map { it - position }
-    applyVelocity(latticeVelocity(shape, position, offsets))
+    applyVelocity(latticeVelocity(formation.shape, position, offsets))
 }
