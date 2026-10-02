@@ -7,6 +7,7 @@ import it.unibo.alchemist.model.Position
 import it.unibo.collektive.alchemist.device.sensors.RelativePositionSensor
 import it.unibo.collektive.geometry.SpeedControl2D
 import it.unibo.collektive.geometry.Vector2D
+import it.unibo.collektive.geometry.zeroSpeed
 
 /**
  * Alchemist implementation of [RelativePositionSensor], reading the exact displacement from the environment.
@@ -23,8 +24,10 @@ class RelativePositionSensorProperty<T : Any, P : Position<P>>(
     override fun cloneOnNewNode(node: Node<T>): NodeProperty<T> = RelativePositionSensorProperty(environment, node)
 
     override fun relativeTo(neighbor: Int): Vector2D {
+        // The neighbor may have been removed from the environment: nothing to perceive.
+        val neighborNode = environment.nodes.firstOrNull { it.id == neighbor } ?: return zeroSpeed
         val self = environment.getPosition(node).coordinates
-        val other = environment.getPosition(environment.getNodeByID(neighbor)).coordinates
+        val other = environment.getPosition(neighborNode).coordinates
         return SpeedControl2D(self[0] - other[0], self[1] - other[1])
     }
 }
