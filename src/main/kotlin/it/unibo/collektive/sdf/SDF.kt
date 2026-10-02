@@ -58,9 +58,13 @@ fun SDF.translate(dx: Double, dy: Double): SDF = SDF { position -> this(Position
 /** [this] rotated by [angle] (radians, counterclockwise) around [pivot]. Rigid, so distances stay exact. */
 fun SDF.rotate(angle: Double, pivot: Position = Position.origin): SDF = SDF { position ->
     // Sample the original shape at the query point rotated back by -angle.
-    val dx = position.x - pivot.x
-    val dy = position.y - pivot.y
-    this(Position(pivot.x + dx * cos(angle) + dy * sin(angle), pivot.y - dx * sin(angle) + dy * cos(angle)))
+    val rotation = Position(position.x - pivot.x, position.y - pivot.y)
+    this(
+        Position(
+            pivot.x + rotation.x * cos(angle) + rotation.y * sin(angle),
+            pivot.y - rotation.x * sin(angle) + rotation.y * cos(angle),
+        ),
+    )
 }
 
 /** [this] uniformly scaled by [factor] around [pivot]; distances are rescaled too, so they stay exact. */
@@ -75,10 +79,9 @@ fun SDF.scale(factor: Double, pivot: Position = Position.origin): SDF {
  * The gradient of [sdf] at [currentPosition], by central differences of step [epsilon] (not divided by the step: only
  * its direction is meaningful). It points away from the shape.
  */
-fun gradientToSDF(sdf: SDF, currentPosition: Position, epsilon: Double): SpeedControl2D {
-    val dx = sdf(Position(currentPosition.x + epsilon, currentPosition.y)) -
-        sdf(Position(currentPosition.x - epsilon, currentPosition.y))
-    val dy = sdf(Position(currentPosition.x, currentPosition.y + epsilon)) -
-        sdf(Position(currentPosition.x, currentPosition.y - epsilon))
-    return SpeedControl2D(dx, dy)
-}
+fun gradientToSDF(sdf: SDF, currentPosition: Position, epsilon: Double): SpeedControl2D = SpeedControl2D(
+    sdf(Position(currentPosition.x + epsilon, currentPosition.y)) -
+        sdf(Position(currentPosition.x - epsilon, currentPosition.y)),
+    sdf(Position(currentPosition.x, currentPosition.y + epsilon)) -
+        sdf(Position(currentPosition.x, currentPosition.y - epsilon)),
+)
