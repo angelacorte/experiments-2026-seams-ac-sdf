@@ -229,17 +229,22 @@ experiments-2026-seams-ac-sdf/
 ├── gradle/                     # Gradle wrapper files
 ├── python                      # Plotting utilities
 ├── src/
-│   └── main/
-│       ├── kotlin/it/unibo/    # Kotlin source code for the experiments
-│       │   ├── alchemist/      # Alchemist extensions: GUI effects, movement actions and strategies
-│       │   └── collektive/
-│       │       ├── alchemist/device/  # Collektive integration for Alchemist: body frame and sensors
-│       │       ├── entrypoint/        # Entrypoints for the experiments
-│       │       ├── formation/         # Shape formation: lattice spacing, repulsion, and local border of the shape
-│       │       ├── geometry/          # Positions and vectors in the plane, with their operations
-│       │       ├── localization/      # GPS-free localization: anchor election, anchor frame, and frame alignment
-│       │       └── sdf/               # DSL for 2D Signed Distance Fields: primitives, shapes, and text (see its README)
-│       └── yaml/               # YAML files for the experiments specification
+│   ├── main/
+│   │   ├── kotlin/it/unibo/    # Kotlin source code for the experiments
+│   │   │   ├── alchemist/      # Alchemist extensions: GUI effects, movement actions and strategies
+│   │   │   └── collektive/
+│   │   │       ├── alchemist/device/  # Collektive integration for Alchemist: body frame, parameters, and sensors
+│   │   │       │   └── sensors/       # Location, relative position, and shape definition (ShapeProperty)
+│   │   │       ├── catalog/           # ShapeCatalog: builds the shapes defined in shapes.yml, by name
+│   │   │       ├── entrypoint/        # Entrypoints for the experiments
+│   │   │       ├── formation/         # Shape formation: lattice spacing, repulsion, and local border of the shape
+│   │   │       ├── geometry/          # Positions and vectors in the plane, with their operations
+│   │   │       ├── localization/      # GPS-free localization: anchor election, anchor frame, and frame alignment
+│   │   │       └── sdf/               # DSL for 2D Signed Distance Fields: primitives, shapes, and text (see its README)
+│   │   ├── resources/
+│   │   │   └── shapes.yml      # The shapes the experiments batch over: SDF type and constructor parameters, by name
+│   │   └── yaml/               # YAML files for the experiments specification
+│   └── test/kotlin/it/unibo/collektive/catalog/  # Checks that the scenarios share the shapes of shapes.yml
 ```
 
 #### Simulation entrypoint
