@@ -1,22 +1,24 @@
-# The shapes the scenarios batch over, by name: see it.unibo.collektive.entrypoint.ShapeKind for the parameters
-# of each kind (angles in degrees). Every shape contains the origin of its frame, which each scenario moves where the
-# shape belongs. The exports record only the name: to change a shape, prefer adding an entry over editing one.
-star: { kind: star, radius: 30, points: 5 }
-star8: { kind: star, radius: 30, points: 8, spikiness: 4 }
-hexagon: { kind: hexagon, radius: 30 }
-pentagon: { kind: polygon, radius: 30, sides: 5, rotation: 90 }
-square: { kind: square, side: 50 }
-triangle: { kind: triangle, halfBase: 30, height: 52 }
-ring: { kind: ring, radius: 25, halfWidth: 6 }
-crescent: { kind: crescent, radius: 30, offset: 20 }
-horseshoe: { kind: horseshoe, radius: 20, aperture: 45, armLength: 15, thickness: 6 }
-circular_sector: { kind: circular_sector, radius: 35, halfAperture: 60 }
-cut_disk: { kind: cut_disk, radius: 30, cutHeight: -10 }
-vesica: { kind: vesica, radius: 35, offset: 20 }
-rounded_x: { kind: rounded_x, width: 45, armHalfWidth: 6 }
-stairs: { kind: stairs, stepWidth: 15, stepHeight: 12, steps: 4 }
-question_mark: { kind: question_mark, radius: 20, thickness: 4 }
-spiral: { kind: spiral, spacing: 12, turns: 3, thickness: 4 }
-fibonacci_spiral: { kind: fibonacci_spiral, scale: 2.5, quarterTurns: 7, thickness: 4 }
-letter_h: { kind: text, text: H, height: 36, thickness: 4 }
-letters_hi: { kind: text, text: HI, height: 36, thickness: 4 }
+# The shapes the scenarios batch over, by name. Each entry has the `type` of an SDF (e.g., Star, from
+# it.unibo.collektive.sdf.shape, .primitive or .text) and the parameters of its constructor, by name:
+# positions as [x, y], angles in radians, optional parameters may be left out.
+# Every shape must contain the origin [0, 0], which each scenario moves where the shape belongs.
+# The exports record only the name: to change a shape, prefer adding an entry over editing one.
+star: { type: Star, center: [0, 0], radius: 30, pointCount: 5 }
+star8: { type: Star, center: [0, 0], radius: 30, pointCount: 8, spikiness: 4 }
+hexagon: { type: Hexagon, center: [0, 0], radius: 30 }
+pentagon: { type: RegularPolygon, center: [0, 0], radius: 30, sides: 5, rotation: 1.5707963 } # A vertex upwards
+square: { type: Square, center: [0, 0], side: 50 }
+triangle: { type: Triangle, a: [-30, -17.333], b: [30, -17.333], c: [0, 34.667] } # Centroid on the origin
+ring: { type: Ring, center: [25, 0], radius: 25, thickness: 6 } # The origin is on the band
+crescent: { type: Crescent, center: [20, 0], radius: 30, offset: 20 } # The origin is in the thick part
+horseshoe: { type: Horseshoe, center: [0, 20], radius: 20, aperture: 0.7853982, armLength: 15, thickness: 6 }
+circular_sector: { type: CircularSector, center: [0, -17.5], radius: 35, halfAperture: 1.0471976 }
+cut_disk: { type: CutDisk, center: [0, 0], radius: 30, cutHeight: -10 }
+vesica: { type: Vesica, center: [0, 0], radius: 35, offset: 20 }
+rounded_x: { type: RoundedX, center: [0, 0], width: 45, radius: 6 }
+stairs: { type: Stairs, origin: [-37.5, -18], stepWidth: 15, stepHeight: 12, steps: 4 } # Origin in the 3rd step
+question_mark: { type: QuestionMark, center: [0, 30], radius: 20, thickness: 4 } # Origin on the vertical stroke
+spiral: { type: Spiral, center: [0, 0], spacing: 12, turns: 3, thickness: 4 }
+fibonacci_spiral: { type: FibonacciSpiral, center: [0, 0], scale: 2.5, quarterTurns: 7, thickness: 4 }
+letter_h: { type: TextBlock, text: H, start: [-9, -18], glyphHeight: 36, thickness: 4 } # Origin on the crossbar
+letters_hi: { type: TextBlock, text: HI, start: [-9, -18], glyphHeight: 36, thickness: 4 }
