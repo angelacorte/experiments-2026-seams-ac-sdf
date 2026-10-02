@@ -48,7 +48,7 @@ class SpawnNearNodes<T, P : Position<P>>(
                 minX + randomGenerator.nextDouble() * width,
                 minY + randomGenerator.nextDouble() * height,
             )
-            if (existing.any { it.distanceTo(candidate) <= maxDistance }) {
+            if (existing.any { position -> position.distanceTo(candidate) <= maxDistance }) {
                 return candidate
             }
         }
