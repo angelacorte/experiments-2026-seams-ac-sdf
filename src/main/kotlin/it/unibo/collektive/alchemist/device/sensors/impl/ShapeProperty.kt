@@ -3,7 +3,7 @@ package it.unibo.collektive.alchemist.device.sensors.impl
 import it.unibo.alchemist.model.Node
 import it.unibo.alchemist.model.NodeProperty
 import it.unibo.collektive.alchemist.device.sensors.ShapeDefinition
-import it.unibo.collektive.entrypoint.ShapeCatalog
+import it.unibo.collektive.catalog.ShapeCatalog
 import it.unibo.collektive.sdf.SDF
 
 /**

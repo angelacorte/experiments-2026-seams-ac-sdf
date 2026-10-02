@@ -1,6 +1,6 @@
 package it.unibo.collektive.alchemist.device.sensors
 
-import it.unibo.collektive.entrypoint.ShapeCatalog
+import it.unibo.collektive.catalog.ShapeCatalog
 import it.unibo.collektive.sdf.SDF
 
 /** Something that resolves the shapes of the [ShapeCatalog] by the names used in the simulation files. */
