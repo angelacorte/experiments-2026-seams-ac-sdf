@@ -5,6 +5,7 @@
 # The other scenarios move the center of the shape (its `center`, `origin` or `start`, or the centroid of its
 # vertices) on the leader (relativeToLeader) or on the anchors' centroid (rangeOnly).
 # The exports record only the name: to change a shape, prefer adding an entry over editing one.
+circle: { type: Circle, center: [50, 50], radius: 30}
 star: { type: Star, center: [50, 50], radius: 50, pointCount: 5 }
 star8: { type: Star, center: [50, 50], radius: 30, pointCount: 8, spikiness: 4 }
 hexagon: { type: Hexagon, center: [50, 50], radius: 30 }
