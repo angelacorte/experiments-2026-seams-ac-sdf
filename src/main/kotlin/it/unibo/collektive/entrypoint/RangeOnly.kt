@@ -42,7 +42,7 @@ fun Aggregate<Int>.rangeOnlyEntrypoint(device: CollektiveDevice<*>, formation: S
     val isAnchor = role != AnchorRole.NONE
     device["leader"] = isAnchor
     val (frame, position) = localize(role, neighborDistances)
-    // The origin of the shape is the anchors' centroid, so the anchors lie inside it.
+    // The center of the shape is on the anchors' centroid: it follows the anchors when they change.
     val shape = formation.shapeAt(frame.centroid)
     val offsets = offsetsFromEstimates(position, neighborDistances)
     val control = position?.let { latticeVelocity(shape, it, offsets) }

@@ -5,7 +5,6 @@ import it.unibo.collektive.aggregate.api.Aggregate
 import it.unibo.collektive.aggregate.api.neighboring
 import it.unibo.collektive.aggregate.values
 import it.unibo.collektive.alchemist.device.applyVelocity
-import it.unibo.collektive.alchemist.device.parameter
 import it.unibo.collektive.alchemist.device.sensors.LocationSensor
 import it.unibo.collektive.alchemist.device.sensors.impl.ShapeProperty
 import it.unibo.collektive.formation.AdaptiveStep
@@ -13,7 +12,6 @@ import it.unibo.collektive.formation.LatticeNeighborhood
 import it.unibo.collektive.formation.RepulsionLaw
 import it.unibo.collektive.formation.SpacingRule
 import it.unibo.collektive.formation.latticeVelocity
-import it.unibo.collektive.geometry.Position
 import it.unibo.collektive.geometry.minus
 
 /**
@@ -29,8 +27,8 @@ fun Aggregate<Int>.repulsionOnlyEntrypoint(
     formation: ShapeProperty<*>,
 ) = with(device) {
     val position = locationSensor.coordinates()
-    // Global positions: the origin of the shape is a fixed point of the environment.
-    val shape = formation.shapeAt(Position(parameter("shapeCenterX"), parameter("shapeCenterY")))
+    // Global positions: the shape lies where shapes.yml puts it.
+    val shape = formation.shape
     val offsets = neighboring(position).neighbors.values.list.map { it - position }
     applyVelocity(latticeVelocity(shape, position, offsets))
 }
