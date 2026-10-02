@@ -11,6 +11,7 @@ alchemist-euclidean-geometry = { module = "it.unibo.alchemist:alchemist-euclidea
 collektive = { module = "it.unibo.collektive:collektive-dsl", version.ref = "collektive" }
 collektive-incarnation = { module = "it.unibo.collektive:alchemist-incarnation-collektive", version.ref = "collektive" }
 collektive-stdlib = { module = "it.unibo.collektive:collektive-stdlib", version.ref = "collektive" }
+snakeyaml = "org.yaml:snakeyaml:2.4"
 
 [bundles]
 alchemist = [
