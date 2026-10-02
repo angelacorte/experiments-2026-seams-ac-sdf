@@ -1,8 +1,7 @@
-package it.unibo.collektive.entrypoint
+package it.unibo.collektive.catalog
 
 import it.unibo.collektive.geometry.Position
 import it.unibo.collektive.sdf.SDF
-import it.unibo.collektive.sdf.translate
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KType
@@ -72,6 +71,3 @@ object ShapeCatalog {
         return Position(x, y)
     }
 }
-
-/** The shape moved so that the origin of its frame lies on [origin]. */
-fun SDF.placedAt(origin: Position): SDF = translate(origin.x, origin.y)
