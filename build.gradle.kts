@@ -21,6 +21,7 @@ sourceSets {
             implementation(libs.bundles.alchemist)
             implementation(libs.bundles.collektive)
             implementation(libs.snakeyaml)
+            implementation(kotlin("reflect"))
         }
         resources {
             srcDir("src/main/yaml")
