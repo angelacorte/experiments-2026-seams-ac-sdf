@@ -11,6 +11,9 @@ sealed interface RepulsionLaw {
     /** The push on the device of a neighbor at [offset] (`neighbor - self`), for the lattice [spacing]. */
     fun force(offset: Vector2D, spacing: Double): SpeedControl2D
 
+    /** The neighbors pushing the device, for the lattice [spacing]: the [ring][LatticeNeighborhood.ring]. */
+    fun pushers(neighborhood: LatticeNeighborhood, spacing: Double): List<Vector2D> = neighborhood.ring
+
     /**
      * Linear in the overlap, and zero beyond the spacing (see [softRepulsionForce]).
      *
@@ -27,6 +30,31 @@ sealed interface RepulsionLaw {
      */
     data class InverseSquare(val coefficient: Double) : RepulsionLaw {
         override fun force(offset: Vector2D, spacing: Double) = repulsionForce(offset, coefficient, spacing)
+    }
+
+    /**
+     * Attraction and repulsion, as in the physicomimetics of Spears et al.: linear in `distance - spacing` (pushing
+     * within the spacing, pulling beyond it) and zero beyond [REACH] spacings, so that only the first ring of a
+     * hexagonal lattice counts.
+     * The pull is the [attraction] fraction of the push: with a full one, a uniform crowd is in balance (push and pull
+     * cancel out up to [REACH]) and never spreads; below it, the border of a crowd is pushed out.
+     */
+    data class Spring(val stiffness: Double, val attraction: Double) : RepulsionLaw {
+        override fun force(offset: Vector2D, spacing: Double): SpeedControl2D {
+            val distance = offset.norm
+            if (distance == 0.0 || distance >= REACH * spacing) return zeroSpeed
+            val gain = if (distance > spacing) stiffness * attraction else stiffness
+            return offset * (gain * (distance - spacing) / distance)
+        }
+
+        /** All the neighbors within its [REACH], not only the ring. */
+        override fun pushers(neighborhood: LatticeNeighborhood, spacing: Double) = neighborhood.near(spacing)
+
+        /** Constants of [Spring]. */
+        companion object {
+            /** The reach of a neighbor, in spacings: below the second ring of a hexagonal lattice (`√3` spacings). */
+            const val REACH = 1.5
+        }
     }
 }
 

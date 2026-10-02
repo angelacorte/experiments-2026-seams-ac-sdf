@@ -9,6 +9,8 @@ import it.unibo.collektive.geometry.zeroSpeed
 import it.unibo.collektive.sdf.SDF
 import it.unibo.collektive.sdf.gradientToSDF
 
+private const val GRADIENT_STEP = 0.001 // Step of the central differences on the SDF, well below the lattice spacing
+
 /**
  * The border of a shape near a device, taken as a straight line.
  *
@@ -30,9 +32,9 @@ data class LocalBorder(val distance: Double, val outward: SpeedControl2D) {
 
     /** Factory for [LocalBorder]. */
     companion object {
-        /** The border of [shape] near [position], with the normal from central differences of step [gradientStep]. */
-        fun of(shape: SDF, position: Position, gradientStep: Double): LocalBorder {
-            val gradient = gradientToSDF(shape, position, gradientStep)
+        /** The border of [shape] near [position], with the normal from central differences on the SDF. */
+        fun of(shape: SDF, position: Position): LocalBorder {
+            val gradient = gradientToSDF(shape, position, GRADIENT_STEP)
             val outward = if (gradient.norm > 0.0) gradient * (1.0 / gradient.norm) else zeroSpeed
             return LocalBorder(shape(position), outward)
         }

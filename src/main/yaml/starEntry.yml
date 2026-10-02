@@ -1,0 +1,48 @@
+incarnation: collektive
+
+variables:
+  communicationRange: &communicationRange { formula: 18 } # Shared by the network model and the formation
+  maxSpacing: &maxSpacing { formula: 0.8 * communicationRange } # Largest spacing: below the range, so that no neighbor is pushed out of it
+
+network-model:
+  type: ConnectWithinDistance
+  parameters: [*communicationRange]
+
+_pool: &program
+  - time-distribution: 1
+    type: Event
+    actions:
+      - type: RunCollektiveProgram
+        parameters: [ it.unibo.collektive.entrypoint.StarEntryKt.starEntrypoint]
+      - type: SpeedToTarget
+        parameters: [ ]
+
+deployments:
+  - type: Rectangle
+    parameters: [300, 100, 0, 60, 100] # Beside the star, so that all devices must enter
+    contents:
+      - { molecule: shapeScale, concentration: 1.0 } # Scale of the star, around its center
+      # Entry: true keeps the pull of the SDF inside the shape until a device finds room, false stops it at the border
+      - { molecule: entering, concentration: true }
+    programs:
+      - *program
+    properties:
+      - type: it.unibo.collektive.alchemist.device.sensors.impl.LocationSensorProperty
+      - type: it.unibo.collektive.formation.LatticeParameters
+        parameters:
+          # SoftDisk (linear in the overlap, zero beyond the spacing), InverseSquare (never zero) or Spring (pull and push, zero beyond 1.5 spacings)
+          repulsion: { type: Spring, parameters: { stiffness: 0.2, attraction: 0.3 } } # Pull or push per unit of distance from the spacing; pull as a fraction of the push (below 1, or a crowd never spreads)
+          # repulsion: { type: SoftDisk, parameters: { stiffness: 0.2 } } # Push per unit of overlap
+          # repulsion: { type: InverseSquare, parameters: { coefficient: 0.03 } } # Push at the spacing, per unit of it
+          maxSpeed: 1.0
+          # Adaptive (driven by the pressure of the ring), Neighborhood (of all the neighbors within 1.5 spacings), Elected (computed by a leader from the area and the devices) or Fixed
+          spacing:
+            type: Neighborhood
+            parameters:
+              initial: 4.8 # ~sqrt(60 * 100 / 300 / 0.866): the spacing of the deployment, so that the attraction does not clump it first
+              rate: 0.05 # Fraction of the pressure error recovered at each round
+              pressureMargin: 0.1 # Target pressure, as a fraction of the ring radius (Adaptive) or of the spacing (Neighborhood, below 1/6)
+              max: *maxSpacing
+          # spacing: { type: Elected, parameters: { initial: 4.8, areaFrom: -200.0, areaTo: 300.0 } } # Square where the leader measures the area of the shape (it must contain it)
+          # spacing: { type: Fixed, parameters: { spacing: 4.0 } } # ~sqrt(area / devices / 0.866) fills the shape
+          step: { type: StepRule, parameters: { decrease: 0.5, increase: 1.2, minGain: 0.05 } } # Gain factor on an overshoot (the control reverses), while the control keeps its direction, and the smallest gain

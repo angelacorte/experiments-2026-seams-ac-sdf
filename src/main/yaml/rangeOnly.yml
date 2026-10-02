@@ -12,9 +12,10 @@ variables:
   nodes: &nodes
     type: ArbitraryVariable
     parameters: [ 100, [ 50, 100, 200, 300 ] ]
-  communication-range: &communicationRange # Shared by the network model and the formation
+  communicationRange: &communicationRange # Shared by the network model and the formation
     type: ArbitraryVariable
     parameters: [ 20, [ 10, 20, 30 ] ]
+  maxSpacing: &maxSpacing { formula: 0.8 * communicationRange } # Largest spacing: below the range, so that no neighbor is pushed out of it
   shape: &shape # Same list in every scenario: names from src/main/resources/shapes.yml
     type: ArbitraryVariable
     parameters: [ star, [ star, hexagon, ring, crescent, horseshoe ] ]
@@ -39,27 +40,7 @@ deployments:
       # Anchors
       - { molecule: leaderElectionBound, concentration: 200 } # Hops within which anchor 1 is elected
       - { molecule: minAnchorsHeight, concentration: 10.0 } # Min distance of anchor 3 from the line of anchors 1-2
-      # Lattice (as in repulsionOnly.yml; push per neighbor rescaled to the larger spacing)
-      - { molecule: ringSize, concentration: 6 } # Nearest neighbors forming the first ring (6 in a hexagonal lattice)
-      - { molecule: outsideRepulsionGain, concentration: 0.1 } # Repulsion scale outside the shape
-      - { molecule: sdfGradientStep, concentration: 0.001 } # Step of the finite differences on the SDF
-      - { molecule: maxSpeed, concentration: 1.0 }
-      # Repulsion: softDisk (linear in the overlap, zero beyond the spacing) or inverseSquare (never zero)
-      - { molecule: repulsion, concentration: softDisk }
-      - { molecule: softDiskStiffness, concentration: 0.05 } # softDisk: push per unit of overlap
-      - { molecule: inverseSquareCoefficient, concentration: 0.007 } # inverseSquare: push at the spacing, per unit of it
-      # Spacing: adaptive (driven by the pressure) or fixed
-      - { molecule: spacing, concentration: adaptive }
-      - { molecule: fixedSpacing, concentration: 16.0 } # fixed: ~sqrt(area / devices / 0.866) fills the shape
-      - { molecule: initialSpacing, concentration: 2.0 } # adaptive, and the rest of this group
-      - { molecule: spacingRate, concentration: 0.05 } # Fraction of the pressure error recovered at each round
-      - { molecule: pressureMargin, concentration: 0.5 } # Target pressure, as a fraction of the ring radius
-      - { molecule: communicationRange, concentration: *communicationRange }
-      - { molecule: maxSpacingFraction, concentration: 0.8 } # Largest spacing, as a fraction of the communication range
-      # Step size
-      - { molecule: stepDecrease, concentration: 0.5 } # Gain factor when the control reverses (an overshoot)
-      - { molecule: stepIncrease, concentration: 1.2 } # Gain factor while the control keeps its direction
-      - { molecule: minStepGain, concentration: 0.05 }
+      - { molecule: maxSpeed, concentration: &maxSpeed 1.0 } # Shared with the lattice
       # Steering without bearing (frame alignment from the own commands)
       - { molecule: forgettingFactor, concentration: 0.95 } # Past evidence kept at each round
       - { molecule: maxDisplacement, concentration: 5.0 } # Estimate changes above this are frame jumps
@@ -72,3 +53,18 @@ deployments:
       - type: it.unibo.collektive.alchemist.device.sensors.impl.ShapeProperty
         parameters: [ *shape ]
       - type: it.unibo.collektive.alchemist.device.BodyFrameProperty
+      # The lattice, as in repulsionOnly.yml (push per neighbor rescaled to the larger spacing)
+      - type: it.unibo.collektive.formation.LatticeParameters
+        parameters:
+          repulsion: { type: SoftDisk, parameters: { stiffness: 0.05 } } # Push per unit of overlap
+          # repulsion: { type: InverseSquare, parameters: { coefficient: 0.007 } } # Push at the spacing, per unit of it
+          maxSpeed: *maxSpeed
+          spacing:
+            type: Adaptive
+            parameters:
+              initial: 2.0
+              rate: 0.05 # Fraction of the pressure error recovered at each round
+              pressureMargin: 0.5 # Target pressure, as a fraction of the ring radius
+              max: *maxSpacing
+          # spacing: { type: Fixed, parameters: { spacing: 16.0 } } # ~sqrt(area / devices / 0.866) fills the shape
+          step: { type: StepRule, parameters: { decrease: 0.5, increase: 1.2, minGain: 0.05 } } # Gain factor on an overshoot (the control reverses), while the control keeps its direction, and the smallest gain

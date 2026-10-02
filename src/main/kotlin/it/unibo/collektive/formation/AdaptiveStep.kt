@@ -13,7 +13,11 @@ import kotlin.math.min
  * @property increase the factor applied to the gain while the control keeps its direction.
  * @property minGain the smallest gain, so that a device can always start moving again.
  */
-data class StepRule(val decrease: Double, val increase: Double, val minGain: Double)
+open class StepRule( // Open: Alchemist finds a final class twice, and cannot build it by `type`
+    val decrease: Double,
+    val increase: Double,
+    val minGain: Double,
+)
 
 /**
  * A step size that adapts to overshoots, as in Rprop:

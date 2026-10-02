@@ -24,6 +24,15 @@ fun interface SDF {
     fun isOutside(position: Position): Boolean = this(position) > 0.0
 }
 
+/** The area of [this] within the square from ([from], [from]) to ([to], [to]), counting the cells of side [step]. */
+fun SDF.area(from: Double, to: Double, step: Double): Double {
+    val cells = ((to - from) / step).toInt()
+    val inside = (0 until cells).sumOf { i ->
+        (0 until cells).count { j -> isInside(Position(from + (i + 0.5) * step, from + (j + 0.5) * step)) }
+    }
+    return inside * step * step
+}
+
 /** Union, `min(A, B)`: inside [this] or inside [other]. */
 infix fun SDF.or(other: SDF): SDF = SDF { position -> minOf(this(position), other(position)) }
 
