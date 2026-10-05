@@ -18,7 +18,7 @@ fun Aggregate<Int>.electAnchors(
     leaderElectionBound: Int,
     minAnchorsHeight: Double,
 ): AnchorRole {
-    val anchor1 = boundedElection(localId, leaderElectionBound)
+    val anchor1 = boundedElection(-localId, leaderElectionBound)
     // Anchor 1 also needs the distances among its neighbors.
     val ownDistances = neighborDistances.neighbors.toMap() // Read once: the neighbors view is a one-shot sequence.
     val distancesAmongNeighbors = neighboring(ownDistances).neighbors.toMap()

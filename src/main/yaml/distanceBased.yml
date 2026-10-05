@@ -58,7 +58,7 @@ deployments:
       # The lattice, as in repulsionOnly.yml (push per neighbor rescaled to the larger spacing)
       - type: it.unibo.collektive.coverage.LatticeParameters
         parameters:
-          repulsion: { type: Lloyd, parameters: { gain: 1.0, reach: *cellReach } } # Towards the centroid of the Voronoi cell within reach (half the range), clipped to the shape: ignores the spacing, and wants the fixed step below
+          repulsion: { type: Lloyd, parameters: { gain: 1.0, reach: *cellReach } } # Towards the centroid of the Voronoi cell within reach (half the range), clipped to the shape: ignores the spacing (Rprop step below damps its oscillations)
           maxSpeed: 1.0
           # Adaptive (driven by the pressure of the ring), Neighborhood (of all the neighbors within 1.5 spacings) or Fixed
           spacing:
@@ -69,8 +69,8 @@ deployments:
               pressureMargin: 0.5 # Target pressure, as a fraction of the ring radius
               max: *maxSpacing
           # spacing: { type: Fixed, parameters: { spacing: 4.0 } } # ~sqrt(area / devices / 0.866) fills the shape
-          # step: { type: StepRule, parameters: { decrease: 0.5, increase: 1.2, minGain: 0.05 } } # Gain factor on an overshoot (the control reverses), while the control keeps its direction, and the smallest gain
-          step: { type: StepRule, parameters: { decrease: 1.0, increase: 1.0, minGain: 1.0 } } # Fixed step, for Lloyd
+          step: { type: StepRule, parameters: { decrease: 0.5, increase: 1.2, minGain: 0.05 } } # Gain factor on an overshoot (the control reverses), while the control keeps its direction, and the smallest gain
+          # step: { type: StepRule, parameters: { decrease: 1.0, increase: 1.0, minGain: 1.0 } } # Fixed step, for Lloyd
 
 export:
   - type: CSVExporter

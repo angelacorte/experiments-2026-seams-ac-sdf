@@ -52,12 +52,20 @@ fun Aggregate<Int>.distanceBasedEntrypoint(device: CollektiveDevice<*>, formatio
     val alignment = evolve(FrameAlignment()) {
         it.learn(position, commanded, parameter("forgettingFactor"), parameter("maxDisplacement"))
     }
+    // The body frame never turns: once reliable, the alignment stays so (it keeps learning from the commands), even when
+    // the commands shrink near the lattice and the evidence fades.
+    val steering = evolve(false) {
+        it || alignment.isConfident(parameter("minMotionEnergy"), parameter("minConfidence"))
+    }
+    // Back and forth along a random direction, then another: the moves span the plane, and the device stays in place.
+    val probe = evolve(zeroSpeed to false) { (direction, out) ->
+        if (out) direction * -1.0 to false else randomGenerator.randomDirection() to true
+    }.first * parameter("explorationSpeed")
     val command = when {
-        control == null -> randomGenerator.randomDirection() * parameter("explorationSpeed")
+        control == null -> probe
         isAnchor -> zeroSpeed // The anchors are the reference frame: they stay still.
         // Explore until the alignment is reliable.
-        !alignment.isConfident(parameter("minMotionEnergy"), parameter("minConfidence")) ->
-            randomGenerator.randomDirection() * parameter("explorationSpeed")
+        !steering -> probe
         // Keep some random motion, so that the alignment can still tell rotation from reflection.
         else -> alignment.toBody(control) // + randomGenerator.randomDirection() * parameter("explorationNoise")
     }

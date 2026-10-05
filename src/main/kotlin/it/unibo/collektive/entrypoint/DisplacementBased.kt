@@ -15,9 +15,9 @@ import it.unibo.collektive.geometry.zeroSpeed
 import it.unibo.collektive.stdlib.consensus.boundedElection
 import it.unibo.collektive.stdlib.spreading.gradientCast
 
-// For bounded leader election
-private data class Rank(val centrality: Double, val id: Int) : Comparable<Rank> {
-    override fun compareTo(other: Rank) = compareValuesBy(this, other, Rank::centrality, Rank::id)
+// For bounded leader election: the device with the most neighbors wins, the id breaks ties
+private data class Rank(val neighbors: Int, val id: Int) : Comparable<Rank> {
+    override fun compareTo(other: Rank) = compareValuesBy(this, other, Rank::neighbors, Rank::id)
 }
 
 /**
@@ -43,7 +43,7 @@ fun Aggregate<Int>.displacementBasedEntrypoint(
     sensor: RelativePositionSensor,
     formation: ShapeProperty<*>,
 ) = with(device) {
-    val leaderBasedCentrality = boundedElection(localId, 200)
+    val leaderBasedCentrality = boundedElection(-localId, 200)
     val isLeader = leaderBasedCentrality == localId
     device["leader"] = isLeader
     val position = positionRelativeTo(isLeader, sensor)

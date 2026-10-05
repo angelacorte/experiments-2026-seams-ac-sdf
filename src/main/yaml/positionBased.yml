@@ -49,7 +49,7 @@ deployments:
           # repulsion: { type: SoftDisk, parameters: { stiffness: 0.2 } } # Push per unit of overlap
           # repulsion: { type: InverseSquare, parameters: { coefficient: 0.03 } } # Push at the spacing, per unit of it
           # repulsion: { type: Spring, parameters: { stiffness: 0.2, attraction: 0.5 } } # Pull or push per unit of distance from the spacing; pull as a fraction of the push (below 1, or a crowd never spreads)
-          repulsion: { type: Lloyd, parameters: { gain: 0.5, reach: *cellReach } } # Towards the centroid of the Voronoi cell within reach (half the range), clipped to the shape: ignores the spacing, and wants the fixed step below
+          repulsion: { type: Lloyd, parameters: { gain: 0.5, reach: *cellReach } } # Towards the centroid of the Voronoi cell within reach (half the range), clipped to the shape: ignores the spacing (Rprop step below damps its oscillations)
           maxSpeed: 1.0
           # Adaptive (driven by the pressure of the ring), Neighborhood (of all the neighbors within 1.5 spacings) or Fixed
           spacing:
@@ -60,8 +60,8 @@ deployments:
               pressureMargin: 0.5 # Target pressure, as a fraction of the ring radius
               max: *maxSpacing
           # spacing: { type: Fixed, parameters: { spacing: 4.0 } } # ~sqrt(area / devices / 0.866) fills the shape
-          # step: { type: StepRule, parameters: { decrease: 0.5, increase: 1.2, minGain: 0.05 } } # Gain factor on an overshoot (the control reverses), while the control keeps its direction, and the smallest gain
-          step: { type: StepRule, parameters: { decrease: 1.0, increase: 1.0, minGain: 1.0 } } # Fixed step, for Lloyd
+          step: { type: StepRule, parameters: { decrease: 0.5, increase: 1.2, minGain: 0.05 } } # Gain factor on an overshoot (the control reverses), while the control keeps its direction, and the smallest gain
+          # step: { type: StepRule, parameters: { decrease: 1.0, increase: 1.0, minGain: 1.0 } } # Fixed step, for Lloyd
 
 export:
   - type: CSVExporter
