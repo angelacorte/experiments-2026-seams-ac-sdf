@@ -1,3 +1,51 @@
+## [1.1.0](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/compare/1.0.0...1.1.0) (2026-10-05)
+
+### Features
+
+* add dynamic population experiments for the 3 configurations ([5a80715](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/5a80715a99c1390235799c29bcb840d0e2abfc66))
+* add exporter to dynamic population experiments ([83ee937](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/83ee9371779996cef1e271f40b63a17cb104e491))
+* add LeftOfShape class for random node deployment outside specified shape ([98ec9fa](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/98ec9faf34964c9cf35b3548a2545855e05e1237))
+* add python plotter ([affa1a8](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/affa1a8a7b50d9b8af5e7677f9e822cdaafa1ac8))
+* add random node deployment outside specified shape ([6c54974](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/6c54974f591fe1dc41581f956adb79aad38ba718))
+* add retention time ([f741315](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/f741315be73460c931ff8f309729efce6a229fec))
+* add retention to leader based positioning ([a1ffcd7](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/a1ffcd771a6b044452206e314fcf19c0bd823fe7))
+* better parameters for displacement based and distance based ([dec0853](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/dec085338da0e3e418e760ce322c60c15de59637))
+* **build:** add batch and termination parameters in build gradle ([dc47c05](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/dc47c0517629117aca0d0a9cb40d741d13d0695e))
+* introduce CoverageMetrics and Placement for reusing analysis ([77585f0](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/77585f018dde1c5a405666bfa6c1016b5f0143c4))
+* introduce shape translate in order to avoid leader far from the shape center ([c396a74](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/c396a74fb198204ff96763ed3fab6cee9fcdb711))
+* introduce ShapeStart deployment to chose where to spawn nodes and supporting batch on it ([ab9970a](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/ab9970ad9ef62b51e4fc6d4c3d7305a5f0202293))
+* setup docker configuration for simulation services and add cluster support ([003283b](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/003283b723c3478cf13c677adf38a84e857ce04d))
+* translate shape position based on leader ([36f20d0](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/36f20d0221e45af42ac769a045e66fcfe8717fbf))
+* update plotter to support different deployments for position based scenario ([b81a8c3](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/b81a8c3678cc15ce6c06d8896d6e162c18ae5cdd))
+* update population dynamics parameters and structure in YAML configurations ([d62b7a5](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/d62b7a5e2c728d9b941816ee287aed961a415783))
+
+### Dependency updates
+
+* **deps:** add python dependencies ([2508658](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/2508658be4508555bf3dfaa41532780530d14356))
+
+### Bug Fixes
+
+* add default max seed for local runs and add higher seed for cluster runs ([2c78a09](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/2c78a09beb88d1ca4088ce7a2ed8477312a0e797))
+* **build:** correct formatting in termination and launcher parameters ([b6c8cdc](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/b6c8cdccd8590c99701b214ec2faf2aa93a4c515))
+* typo in batch parameters ([ac42def](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/ac42def38ece9c45b4aa2d0cc033b5b60bd28526))
+* use formula for communication range ([14fcbe1](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/14fcbe16de628f9be6faf02d61a17c94bfbdc110))
+
+### General maintenance
+
+* add python cache to gitignore ([5073b63](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/5073b63061449e749e6f81b422113c94eff8ecdc))
+* **release:** update gradle.properties .env versions to 1.0.0 [skip ci] ([e2424d3](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/e2424d379f41780ed297444ad39cf4513fe68a25))
+* update gitignore ([b32fd35](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/b32fd356f1419adca71076947d64e22a6c2cc2ab))
+* update project structure in readme ([aa85bae](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/aa85baef1b0ae20269379e274bfc2103e94ad476))
+
+### Style improvements
+
+* adapt to ktlint ([5b0205c](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/5b0205c7c604bd2e0a6ba0434da1f618406f369f))
+* adapt to ktlint ([730b3b9](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/730b3b9079714af734023b41ee0da0ae736b8df6))
+
+### Refactoring
+
+* remove unused variables ([1f3986d](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/1f3986d72be635c625de6fb37188ac7032b71d97))
+
 ## 1.0.0 (2026-10-05)
 
 ### Features
