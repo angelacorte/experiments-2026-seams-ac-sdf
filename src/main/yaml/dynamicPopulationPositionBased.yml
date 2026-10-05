@@ -22,6 +22,9 @@ variables:
     max: *maxSeed
     step: 1
     default: 42
+  start: &start # Where the nodes start: left = entirely to the left of the shape (none inside), centered = square of side 100 around its center (the classic [0, 100]^2)
+    type: ArbitraryVariable
+    parameters: [ left, [ left, centered ] ]
 
 seeds:
   scenario: *seed
@@ -52,8 +55,8 @@ _pool: &program
         parameters: [ ]
 
 deployments:
-  - type: LeftOfShape # The nodes start in a rectangle entirely to the left of the shape (none inside it): [ count, shape, width, gap ]
-    parameters: [*nodes, *shape, 50, 10]
+  - type: ShapeStart # Where the nodes start (see ShapeStart): [ count, shape, start, width of the left strip, side of the centered square, gap ]
+    parameters: [*nodes, *shape, *start, 50, 100, 10]
     programs:
       - *program
     properties:
