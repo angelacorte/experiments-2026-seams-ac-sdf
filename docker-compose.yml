@@ -26,19 +26,19 @@ services:
   dynamicPopulationPositionBased:
     <<: *base-simulation-image
     environment:
-      - MAX_SEED=50
+      - MAX_SEED=${MAX_SEED:-5}
       - GRADLE_TASK=runDynamicPopulationPositionBasedBatch
 
   dynamicPopulationDisplacementBased:
     <<: *base-simulation-image
     environment:
-      - MAX_SEED=50
+      - MAX_SEED=${MAX_SEED:-5}
       - GRADLE_TASK=runDynamicPopulationDisplacementBasedBatch
 
   dynamicPopulationDistanceBased:
     <<: *base-simulation-image
     environment:
-      - MAX_SEED=50
+      - MAX_SEED=${MAX_SEED:-5}
       - GRADLE_TASK=runDynamicPopulationDistanceBasedBatch
 
   charts:
