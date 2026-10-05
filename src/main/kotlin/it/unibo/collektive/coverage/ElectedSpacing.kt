@@ -1,4 +1,4 @@
-package it.unibo.collektive.formation
+package it.unibo.collektive.coverage
 
 import it.unibo.collektive.aggregate.api.Aggregate
 import it.unibo.collektive.aggregate.api.neighboring

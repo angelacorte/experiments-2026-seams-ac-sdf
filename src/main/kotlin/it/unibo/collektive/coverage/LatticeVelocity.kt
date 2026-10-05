@@ -1,4 +1,4 @@
-package it.unibo.collektive.formation
+package it.unibo.collektive.coverage
 
 import it.unibo.alchemist.collektive.device.CollektiveDevice
 import it.unibo.alchemist.model.Node.Companion.asProperty

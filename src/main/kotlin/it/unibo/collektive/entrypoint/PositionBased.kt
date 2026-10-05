@@ -7,11 +7,11 @@ import it.unibo.collektive.aggregate.values
 import it.unibo.collektive.alchemist.device.applyVelocity
 import it.unibo.collektive.alchemist.device.sensors.LocationSensor
 import it.unibo.collektive.alchemist.device.sensors.impl.ShapeProperty
-import it.unibo.collektive.formation.AdaptiveStep
-import it.unibo.collektive.formation.LatticeNeighborhood
-import it.unibo.collektive.formation.RepulsionLaw
-import it.unibo.collektive.formation.SpacingRule
-import it.unibo.collektive.formation.latticeVelocity
+import it.unibo.collektive.coverage.AdaptiveStep
+import it.unibo.collektive.coverage.LatticeNeighborhood
+import it.unibo.collektive.coverage.RepulsionLaw
+import it.unibo.collektive.coverage.SpacingRule
+import it.unibo.collektive.coverage.latticeVelocity
 import it.unibo.collektive.geometry.minus
 
 /**

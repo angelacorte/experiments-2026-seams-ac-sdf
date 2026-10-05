@@ -1,4 +1,4 @@
-package it.unibo.collektive.formation
+package it.unibo.collektive.coverage
 
 import it.unibo.collektive.geometry.SpeedControl2D
 import it.unibo.collektive.geometry.Vector2D

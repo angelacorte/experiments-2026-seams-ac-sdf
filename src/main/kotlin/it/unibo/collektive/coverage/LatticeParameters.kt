@@ -1,4 +1,4 @@
-package it.unibo.collektive.formation
+package it.unibo.collektive.coverage
 
 import it.unibo.alchemist.model.Node
 import it.unibo.alchemist.model.NodeProperty

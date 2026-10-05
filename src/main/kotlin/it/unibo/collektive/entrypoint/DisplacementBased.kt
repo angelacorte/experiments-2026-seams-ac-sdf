@@ -7,7 +7,7 @@ import it.unibo.collektive.aggregate.values
 import it.unibo.collektive.alchemist.device.applyVelocity
 import it.unibo.collektive.alchemist.device.sensors.RelativePositionSensor
 import it.unibo.collektive.alchemist.device.sensors.impl.ShapeProperty
-import it.unibo.collektive.formation.latticeVelocity
+import it.unibo.collektive.coverage.latticeVelocity
 import it.unibo.collektive.geometry.Position
 import it.unibo.collektive.geometry.plus
 import it.unibo.collektive.geometry.times
