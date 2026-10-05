@@ -127,17 +127,15 @@ File(rootProject.rootDir.path + "/src/main/yaml")
                 "--verbosity",
                 "error",
                 "--override",
-                """    
+                """
                     terminate:
-                    type: AfterTime
-                    parameters: [ 1500 ]
-                  
+                      type: AfterTime
+                      parameters: [ 1500 ]
                     launcher:
-                    type: DefaultLauncher
-                    parameters: {
-                        batch: ["seed", "nodes", "communicationRange", "shape", "survivors", "spawnCount"],
-                        autoStart: true,
-                    }
+                      type: DefaultLauncher
+                      parameters:
+                        batch: [ "seed", "nodes", "communicationRange", "shape", "survivors", "spawnCount" ]
+                        autoStart: true
                     """.trimIndent(),
             )
         }
