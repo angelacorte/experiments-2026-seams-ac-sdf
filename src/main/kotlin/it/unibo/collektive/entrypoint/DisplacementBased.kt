@@ -38,7 +38,7 @@ fun Aggregate<Int>.positionRelativeTo(source: Boolean, sensor: RelativePositionS
  * GPS-free shape formation: a system-wide leader is elected and placed inside the shape (at the origin);
  * every other device estimates its position w.r.t. the leader and forms the lattice of [latticeVelocity] in the shape.
  */
-fun Aggregate<Int>.relativeToLeaderEntrypoint(
+fun Aggregate<Int>.displacementBasedEntrypoint(
     device: CollektiveDevice<*>,
     sensor: RelativePositionSensor,
     formation: ShapeProperty<*>,
