@@ -12,11 +12,9 @@ variables:
     step: 1
     default: 42
   nodes: &nodes
-    type: ArbitraryVariable
-    parameters: [ 300, [ 50, 100, 200, 300 ] ]
+    100
   communicationRange: &communicationRange # Shared by the network model and the formation
-    type: ArbitraryVariable
-    parameters: [ 10, [ 10, 20, 30 ] ]
+    30
   shape: &shape # Same list in every scenario: names from src/main/resources/shapes.yml
     type: ArbitraryVariable
     parameters: [ crescent, [ star, hexagon, ring, crescent, horseshoe ] ]
@@ -24,6 +22,12 @@ variables:
 network-model:
   type: ConnectWithinDistance
   parameters: [*communicationRange]
+
+
+seeds:
+  scenario: *seed
+  simulation: *seed
+
 
 _pool: &program
   - time-distribution: 1

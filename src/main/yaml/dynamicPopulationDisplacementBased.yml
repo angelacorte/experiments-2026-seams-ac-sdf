@@ -5,7 +5,7 @@ variables:
   cellReach: &cellReach { formula: 0.5 * communicationRange } # Reach of a Voronoi cell (Lloyd): half the range, so that the neighbors that shape it are in range
   spawnRangeFraction: &spawnRangeFraction # Fraction of the communication range within which nodes spawn
     0.8
-  killTime: &killTime 1000
+  killTime: &killTime 5000
   spawnTime: &spawnTime 700
   maxSeed: &maxSeed
     type: SystemEnvVariable
@@ -16,25 +16,25 @@ variables:
     step: 1
     default: 42
   nodes: &nodes
-    type: ArbitraryVariable
-    parameters: [ 100, [ 50, 100, 200, 300 ] ]
+    100
   communicationRange: &communicationRange # Shared by the network model and the formation
-    type: ArbitraryVariable
-    parameters: [ 20, [ 10, 20, 30 ] ]
+    formula: 30
   shape: &shape # Same list in every scenario: names from src/main/resources/shapes.yml
     type: ArbitraryVariable
     parameters: [ star, [ star, hexagon, ring, crescent, horseshoe ] ]
   # Population dynamics: start with *nodes, add spawnCount at spawnTime, keep only survivors at killTime
   spawnCount: &spawnCount
-    type: ArbitraryVariable
-    parameters: [ 50, [ 50, 100, 200 ] ]
+    400
   survivors: &survivors
-    type: ArbitraryVariable
-    parameters: [ 30, [ 10, 30, 50, 80 ] ]
+    50
+
+seeds:
+  scenario: *seed
+  simulation: *seed
 
 network-model:
-  type: ConnectWithinDistance
-  parameters: [ *communicationRange ]
+  type: AdaptiveRange
+  parameters: [*maxSpacing, 5, *communicationRange, 12, 6]
 
 environment:
   type: Continuous2DEnvironment
@@ -60,6 +60,7 @@ _pool: &program
 deployments:
   - type: Rectangle
     parameters: [*nodes, 0, 0, 100, 100]
+    nodes: 2.0
     programs:
       - *program
     properties:

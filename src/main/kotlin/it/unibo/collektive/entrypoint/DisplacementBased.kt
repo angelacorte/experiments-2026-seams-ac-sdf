@@ -43,7 +43,7 @@ fun Aggregate<Int>.displacementBasedEntrypoint(
     sensor: RelativePositionSensor,
     formation: ShapeProperty<*>,
 ) = with(device) {
-    val leaderBasedCentrality = boundedElection(-localId, 200)
+    val leaderBasedCentrality = boundedElection(-localId, 1500)
     val isLeader = leaderBasedCentrality == localId
     device["leader"] = isLeader
     val position = positionRelativeTo(isLeader, sensor)

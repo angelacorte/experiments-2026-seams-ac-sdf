@@ -22,8 +22,8 @@ variables:
     parameters: [ star, [ star, hexagon, ring, crescent, horseshoe ] ]
 
 network-model:
-  type: ConnectWithinDistance
-  parameters: [*communicationRange]
+  type: AdaptiveRange
+  parameters: [*maxSpacing, 1, *communicationRange, 12, 6]
 
 _pool: &program
   - time-distribution: 1
@@ -33,6 +33,11 @@ _pool: &program
         parameters: [ it.unibo.collektive.entrypoint.DisplacementBasedKt.displacementBasedEntrypoint ]
       - type: SpeedToTarget
         parameters: [ ]
+
+
+seeds:
+  scenario: *seed
+  simulation: *seed
 
 deployments:
   - type: Rectangle

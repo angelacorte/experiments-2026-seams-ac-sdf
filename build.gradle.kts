@@ -134,7 +134,7 @@ File(rootProject.rootDir.path + "/src/main/yaml")
                     launcher:
                       type: DefaultLauncher
                       parameters:
-                        batch: [ "seed", "nodes", "communicationRange", "shape", "survivors", "spawnCount" ]
+                        batch: [ "seed", "shape" ]
                         autoStart: true
                     """.trimIndent(),
             )

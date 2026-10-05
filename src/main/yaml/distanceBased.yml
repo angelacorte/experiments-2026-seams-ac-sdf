@@ -34,6 +34,12 @@ _pool: &program
       - type: SpeedToTarget
         parameters: [ ]
 
+
+seeds:
+  scenario: *seed
+  simulation: *seed
+
+
 deployments:
   - type: Rectangle
     parameters: [*nodes, 0, 0, 100, 100]
