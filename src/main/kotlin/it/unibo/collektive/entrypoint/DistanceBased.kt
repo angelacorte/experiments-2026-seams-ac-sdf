@@ -52,8 +52,8 @@ fun Aggregate<Int>.distanceBasedEntrypoint(device: CollektiveDevice<*>, formatio
     val alignment = evolve(FrameAlignment()) {
         it.learn(position, commanded, parameter("forgettingFactor"), parameter("maxDisplacement"))
     }
-    // The body frame never turns: once reliable, the alignment stays so (it keeps learning from the commands), even when
-    // the commands shrink near the lattice and the evidence fades.
+    // The body frame never turns: once reliable, the alignment stays so (it keeps learning from the commands),
+    // even when the commands shrink near the lattice and the evidence fades.
     val steering = evolve(false) {
         it || alignment.isConfident(parameter("minMotionEnergy"), parameter("minConfidence"))
     }

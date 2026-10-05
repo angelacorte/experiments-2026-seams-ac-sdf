@@ -3,8 +3,8 @@ package it.unibo.alchemist.model.deployments
 import it.unibo.alchemist.model.Environment
 import it.unibo.alchemist.model.Position
 import it.unibo.collektive.catalog.ShapeCatalog
-import org.apache.commons.math3.random.RandomGenerator
 import it.unibo.collektive.geometry.Position as Point
+import org.apache.commons.math3.random.RandomGenerator
 
 /**
  * Deploys [nodeCount] nodes uniformly at random in a rectangle placed with respect to the shape called [shape] in

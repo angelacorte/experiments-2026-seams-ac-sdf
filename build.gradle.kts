@@ -141,7 +141,7 @@ File(rootProject.rootDir.path + "/src/main/yaml")
                       parameters:
                         batch: [ $batchVariables ]
                         autoStart: true
-                    """.trimIndent(),
+                """.trimIndent(),
             )
         }
         runAllBatch.dependsOn(batch)
