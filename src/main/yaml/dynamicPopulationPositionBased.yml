@@ -63,8 +63,9 @@ _pool: &program
         parameters: [ ]
 
 deployments:
-  - type: Rectangle
-    parameters: [*nodes, 0, 0, 100, 100]
+  # The nodes start in a rectangle entirely to the left of the shape (none inside it): [ count, shape, width, gap ]
+  - type: LeftOfShape
+    parameters: [*nodes, *shape, 50, 10]
     programs:
       - *program
     properties:
