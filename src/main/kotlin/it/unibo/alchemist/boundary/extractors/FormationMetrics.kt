@@ -83,20 +83,21 @@ class FormationMetrics(private val placement: String) : AbstractDoubleExtractor(
         return measures.values + ("motion" to motion)
     }
 
-    private fun <T> placementOf(environment: Environment<T, *>, shape: ShapeProperty<*>): Placement? = when (placement) {
-        "global" -> Placement(Position.origin, X_AXIS, Y_AXIS, shape.center, shape)
-        // ponytail: with more leaders (a split network), the one with the highest id
-        "leader" -> environment.nodes.filter { it.getConcentration(LEADER) == true }.maxByOrNull { it.id }?.let {
-            val origin = environment.getPosition(it).coordinates
-            Placement(Position(origin[0], origin[1]), X_AXIS, Y_AXIS, Position.origin, shape)
-        }
-        else -> {
-            @Suppress("UNCHECKED_CAST") // The scenarios are all in the Euclidean plane
-            TrueAnchorFrame.of(environment as Environment<T, Euclidean2DPosition>)?.let {
-                Placement(Position(it.origin[0], it.origin[1]), it.xAxis, it.yAxis, it.centroid, shape)
+    private fun <T> placementOf(environment: Environment<T, *>, shape: ShapeProperty<*>): Placement? =
+        when (placement) {
+            "global" -> Placement(Position.origin, X_AXIS, Y_AXIS, shape.center, shape)
+            // ponytail: with more leaders (a split network), the one with the highest id
+            "leader" -> environment.nodes.filter { it.getConcentration(LEADER) == true }.maxByOrNull { it.id }?.let {
+                val origin = environment.getPosition(it).coordinates
+                Placement(Position(origin[0], origin[1]), X_AXIS, Y_AXIS, Position.origin, shape)
+            }
+            else -> {
+                @Suppress("UNCHECKED_CAST") // The scenarios are all in the Euclidean plane
+                TrueAnchorFrame.of(environment as Environment<T, Euclidean2DPosition>)?.let {
+                    Placement(Position(it.origin[0], it.origin[1]), it.xAxis, it.yAxis, it.centroid, shape)
+                }
             }
         }
-    }
 
     /** Constants of [FormationMetrics]. */
     companion object {
@@ -142,7 +143,12 @@ class ShapeSamples private constructor(val points: List<Position>, val depths: L
     /** The samples of [shape] within [WINDOW] of its [center]. */
     constructor(shape: SDF, center: Position) : this(sample(shape, center))
 
-    private constructor(samples: List<Pair<Position, Double>>) : this(samples.map { it.first }, samples.map { it.second })
+    private constructor(samples: List<Pair<Position, Double>>) : this(
+        samples.map {
+            it.first
+        },
+        samples.map { it.second },
+    )
 
     /** The number of samples. */
     val size: Int get() = points.size
@@ -157,7 +163,9 @@ class ShapeSamples private constructor(val points: List<Position>, val depths: L
         fun sample(shape: SDF, center: Position): List<Pair<Position, Double>> {
             val side = (2 * WINDOW / SAMPLE_STEP).toInt()
             return (0 until side * side)
-                .map { center.shifted((it / side + 0.5) * SAMPLE_STEP - WINDOW, (it % side + 0.5) * SAMPLE_STEP - WINDOW) }
+                .map {
+                    center.shifted((it / side + 0.5) * SAMPLE_STEP - WINDOW, (it % side + 0.5) * SAMPLE_STEP - WINDOW)
+                }
                 .mapNotNull { point -> (-shape(point)).takeIf { it >= 0.0 }?.let { point to it } }
                 .also { inside ->
                     val edge = WINDOW - 1
