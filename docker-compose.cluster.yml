@@ -1,0 +1,22 @@
+# Override for the cluster: the data go to the named volume instead of ./data, and no charts are made.
+# Enabled by COMPOSE_FILE in .env (see cluster.env), so on the cluster the command stays: docker compose up --build
+# (Compose merges the volumes by container path, so /experiment/data replaces the bind mount ./data.)
+services:
+  dynamicPopulationPositionBased:
+    volumes:
+      - angela.cortecchia-volume:/experiment/data
+  dynamicPopulationDisplacementBased:
+    volumes:
+      - angela.cortecchia-volume:/experiment/data
+  dynamicPopulationDistanceBased:
+    volumes:
+      - angela.cortecchia-volume:/experiment/data
+  # charts and finish only start with the "charts" profile, which the cluster does not enable
+  charts:
+    profiles: [ charts ]
+  finish:
+    profiles: [ charts ]
+
+volumes:
+  angela.cortecchia-volume:
+    external: true # the volume already exists on the cluster: without this, Compose would create <project>_angela.cortecchia-volume

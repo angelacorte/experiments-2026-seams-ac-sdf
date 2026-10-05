@@ -1,3 +1,15 @@
+# Common configuration of the simulation services: one image (docker/sim/Dockerfile), the Gradle task changes.
+x-simulation: &base-simulation-image
+  depends_on:
+    prepare:
+      condition: service_completed_successfully
+  image: angelacortecchia/${PROJECT_NAME:-experiments-2026-seams-ac-sdf}-sim:${VERSION:-latest}
+  build:
+    context: .
+    dockerfile: ./docker/sim/Dockerfile
+  volumes:
+    - ./data:/experiment/data
+
 services:
   prepare:
     image: alpine:3.24.2
@@ -10,31 +22,43 @@ services:
         chmod 777 /experiment/data
         mkdir -p /experiment/charts
         chmod 777 /experiment/charts
-  simulation:
+
+  dynamicPopulationPositionBased:
+    <<: *base-simulation-image
     environment:
-      CI: "false"
-    depends_on:
-      prepare:
-        condition: service_completed_successfully
-    image: angelacortecchia/${PROJECT_NAME:-unknown}-simulation:${VERSION:-latest}
-    build:
-      dockerfile: ./docker/sim/Dockerfile
-      context: .
-    volumes:
-     - ./data:/experiment/data
+      - MAX_SEED=50
+      - GRADLE_TASK=runDynamicPopulationPositionBasedBatch
+
+  dynamicPopulationDisplacementBased:
+    <<: *base-simulation-image
+    environment:
+      - MAX_SEED=50
+      - GRADLE_TASK=runDynamicPopulationDisplacementBasedBatch
+
+  dynamicPopulationDistanceBased:
+    <<: *base-simulation-image
+    environment:
+      - MAX_SEED=50
+      - GRADLE_TASK=runDynamicPopulationDistanceBasedBatch
+
   charts:
     depends_on:
       prepare:
         condition: service_completed_successfully
-      simulation:
+      dynamicPopulationDisplacementBased:
         condition: service_completed_successfully
-    image: angelacortecchia/${PROJECT_NAME:-unknown}-charts:${VERSION:-latest}
+      dynamicPopulationDistanceBased:
+        condition: service_completed_successfully
+      dynamicPopulationPositionBased:
+        condition: service_completed_successfully
+    image: angelacortecchia/${PROJECT_NAME:-experiments-2026-seams-ac-sdf}-charts:${VERSION:-latest}
     build:
-      dockerfile: ./docker/charts/Dockerfile
       context: .
+      dockerfile: ./docker/charts/Dockerfile
     volumes:
       - ./data:/experiment/data
       - ./charts:/experiment/charts
+
   finish:
     depends_on:
       charts:
