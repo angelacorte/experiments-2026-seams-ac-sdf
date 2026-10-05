@@ -16,7 +16,7 @@ import yaml
 
 import config
 
-CACHE_VERSION = 1
+CACHE_VERSION = 1  # Bump when parse_file changes
 _CACHE_FILE = config.CACHE_DIR / "parsed.pkl"
 _VARIABLE = re.compile(r"(?P<name>[A-Za-z._-]+) = (?P<value>[^,]*),?")
 _FLOAT = re.compile(r"^[-+]?\d*\.?\d+(?:[eE][-+]?\d+)?$")
@@ -93,7 +93,7 @@ def load(scenarios: dict[str, str] | None = None, use_cache: bool = True, verbos
                 parsed += 1
             frame = entry[1]
             if not frame.empty:
-                frames.append(frame.assign(scenario=scenario, label=label))
+                frames.append(frame.assign(scenario=scenario, label=label, file=key, mtime=signature[0]))
     removed = set(entries) - seen
     for key in removed:
         del entries[key]
@@ -107,10 +107,74 @@ def load(scenarios: dict[str, str] | None = None, use_cache: bool = True, verbos
         return pd.DataFrame()
     variables = list(dict.fromkeys(v for f in frames for v in f.attrs.get("variables", [])))
     data = pd.concat(frames, ignore_index=True)
-    data.attrs["configuration"] = [v for v in variables if v not in config.SEED_VARS]
+    configuration = [v for v in variables if v not in config.SEED_VARS]
+    for variable in configuration:
+        for scenario, defaults in config.VARIABLE_DEFAULTS.items():
+            if variable in defaults:
+                missing = (data["scenario"] == scenario) & data[variable].isna()
+                data.loc[missing, variable] = defaults[variable]
+        # Strings, so that grouping never trips on a mix of types or on NaN (a variable a scenario lacks reads "-")
+        data[variable] = data[variable].map(_text)
+    data = _drop_superseded(data, configuration, verbose)
+    data.attrs["configuration"] = configuration
     data["label"] = pd.Categorical(data["label"], categories=[l for s, l in scenarios.items()
                                                                 if s in set(data["scenario"])], ordered=True)
+    data["series"] = _series(data, scenarios, configuration)
     return data
+
+
+def _text(value) -> str:
+    if value is None or (isinstance(value, float) and np.isnan(value)):
+        return "-"
+    if isinstance(value, float) and value.is_integer():
+        return str(int(value))
+    return str(value)
+
+
+def _drop_superseded(data: pd.DataFrame, configuration: list[str], verbose: bool) -> pd.DataFrame:
+    """Keeps, for every scenario, configuration and seed, only the newest file (an old export repeated by a new one)."""
+    keys = ["scenario", *configuration, *[s for s in config.SEED_VARS if s in data.columns]]
+    files = data.drop_duplicates("file")[["file", "mtime", *keys]].sort_values("mtime")
+    kept = files.drop_duplicates(keys, keep="last")["file"]
+    if len(kept) < len(files):
+        if verbose:
+            superseded = sorted(set(files["file"]) - set(kept))
+            print(f"[loader] {len(superseded)} files superseded by newer runs, ignored: {', '.join(superseded)}")
+        data = data[data["file"].isin(set(kept))]
+    return data.reset_index(drop=True)
+
+
+def _ordered(variable: str, values) -> list[str]:
+    known = list(config.VALUE_LABELS.get(variable, {}))
+    return [v for v in known if v in values] + sorted(v for v in values if v not in known)
+
+
+def _series(data: pd.DataFrame, scenarios: dict[str, str], configuration: list[str]) -> pd.Categorical:
+    """The line each run belongs to: the scenario, split by the variables (but the facet one) that take more than one
+    value within it."""
+    splitting = [v for v in configuration if v != config.FACET_VARIABLE]
+    names = pd.Series(data["label"].astype(str), index=data.index)
+    order = []
+    for scenario, label in scenarios.items():
+        rows = data["scenario"] == scenario
+        if not rows.any():
+            continue
+        varying = [v for v in splitting if data.loc[rows, v].nunique() > 1]
+        if not varying:
+            order.append(label)
+            continue
+        combos = data.loc[rows, varying].drop_duplicates()
+        combos = combos.sort_values(varying, key=lambda column: column.map(
+            {value: i for i, value in enumerate(_ordered(column.name, set(column)))}))
+        for combo in combos.itertuples(index=False):
+            parts = [config.VALUE_LABELS.get(v, {}).get(value, f"{v}={value}") for v, value in zip(varying, combo)]
+            name = f"{label} ({', '.join(parts)})"
+            order.append(name)
+            match = rows.copy()
+            for v, value in zip(varying, combo):
+                match &= data[v] == value
+            names[match] = name
+    return pd.Categorical(names, categories=order, ordered=True)
 
 
 def configuration_columns(data: pd.DataFrame) -> list[str]:
@@ -120,7 +184,8 @@ def configuration_columns(data: pd.DataFrame) -> list[str]:
 
 def metric_columns(data: pd.DataFrame) -> list[str]:
     """The metrics in the data (every numeric column but the time and the variables of the header)."""
-    excluded = {config.TIME_COLUMN, "scenario", "label", *config.SEED_VARS, *configuration_columns(data)}
+    excluded = {config.TIME_COLUMN, "scenario", "label", "series", "file", "mtime", *config.SEED_VARS,
+                *configuration_columns(data)}
     numeric = [c for c in data.columns if c not in excluded and pd.api.types.is_numeric_dtype(data[c])]
     known = [m for m in config.METRICS if m in numeric]
     return known + [m for m in numeric if m not in known]

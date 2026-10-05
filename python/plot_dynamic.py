@@ -36,13 +36,12 @@ SPAWN_STYLE = "--"
 KILL_STYLE = ":"
 
 
-def scenario_palette() -> dict[str, tuple]:
-    """A viridis color for every configured scenario (fixed, so a scenario keeps its color when another arrives).
+def series_palette(data: pd.DataFrame) -> dict[str, tuple]:
+    """A viridis color for every line (scenario, or scenario split by a batched variable such as the start).
     The yellow end of viridis is left out, as it barely shows on white."""
-    labels = list(config.SCENARIOS.values())
+    names = list(data["series"].cat.categories)
     colors = sns.color_palette("viridis", as_cmap=True)
-    steps = [0.85 * i / max(len(labels) - 1, 1) for i in range(len(labels))]
-    return {label: colors(step) for label, step in zip(labels, steps)}
+    return {name: colors(0.85 * i / max(len(names) - 1, 1)) for i, name in enumerate(names)}
 
 
 def metric_label(metric: str) -> str:
@@ -84,13 +83,13 @@ def draw_events(ax, events: dict, annotate: bool) -> None:
 
 
 def scenario_handles(data: pd.DataFrame, palette: dict) -> list[Line2D]:
-    return [Line2D([], [], color=palette[label], lw=2, label=label) for label in data["label"].cat.categories]
+    return [Line2D([], [], color=palette[label], lw=2, label=label) for label in data["series"].cat.categories]
 
 
 def draw_metric(ax, frame: pd.DataFrame, metric: str, palette: dict, events: dict, annotate: bool) -> None:
     frame = frame.dropna(subset=[metric])
     if not frame.empty:
-        sns.lineplot(data=frame, x=config.TIME_COLUMN, y=metric, hue="label", palette=palette, errorbar=config.ERRORBAR,
+        sns.lineplot(data=frame, x=config.TIME_COLUMN, y=metric, hue="series", palette=palette, errorbar=config.ERRORBAR,
                      err_kws={"alpha": 0.2, "lw": 0}, lw=1.2, legend=False, ax=ax)
     draw_events(ax, events, annotate)
     if metric_log(metric):
@@ -110,7 +109,7 @@ def save(fig, path_without_suffix, formats) -> None:
 
 def plot_single(data, metric, shape, palette, events, formats) -> None:
     fig, ax = plt.subplots(figsize=(6.4, 3.6))
-    draw_metric(ax, data[data["shape"] == shape], metric, palette, events, annotate=True)
+    draw_metric(ax, data[data[config.FACET_VARIABLE] == shape], metric, palette, events, annotate=True)
     ax.set_title(f"{metric_label(metric)} — {shape}")
     ax.legend(handles=scenario_handles(data, palette) + event_handles(events), fontsize=7, loc="best", framealpha=0.9)
     save(fig, config.CHARTS_DIR / metric / f"{metric}_{shape}", formats)
@@ -122,7 +121,7 @@ def plot_grid(data, metric, shapes, palette, events, formats) -> None:
     fig, axes = plt.subplots(rows, columns, figsize=(3.2 * columns, 3.0 * rows), sharex=True, sharey=True,
                              squeeze=False)
     for index, (ax, shape) in enumerate(zip(axes.flat, shapes)):
-        draw_metric(ax, data[data["shape"] == shape], metric, palette, events, annotate=False)
+        draw_metric(ax, data[data[config.FACET_VARIABLE] == shape], metric, palette, events, annotate=False)
         ax.set_title(shape)
         if index % columns:
             ax.set_ylabel("")
@@ -144,7 +143,7 @@ def plot_overview(data, shape, metrics, palette, events, formats) -> None:
     columns = 4
     rows = math.ceil(len(metrics) / columns)
     fig, axes = plt.subplots(rows, columns, figsize=(4.0 * columns, 2.8 * rows), sharex=True, squeeze=False)
-    frame = data[data["shape"] == shape]
+    frame = data[data[config.FACET_VARIABLE] == shape]
     for ax, metric in zip(axes.flat, metrics):
         draw_metric(ax, frame, metric, palette, events, annotate=False)
         ax.set_title(metric_label(metric), fontsize=9)
@@ -182,7 +181,7 @@ def main() -> None:
     if data.empty:
         raise SystemExit(f"No data in {config.DATA_DIR}")
     metrics = [m for m in loader.metric_columns(data) if not args.metrics or m in args.metrics]
-    available_shapes = set(data["shape"].unique())
+    available_shapes = set(data[config.FACET_VARIABLE].unique())
     defined = loader.defined_shapes()
     undefined = available_shapes - set(defined)
     if undefined:
@@ -191,7 +190,7 @@ def main() -> None:
     if not shapes:
         raise SystemExit("No shape to plot")
     events = population_events(data)
-    palette = scenario_palette()
+    palette = series_palette(data)
 
     sns.set_theme(style="whitegrid", context="paper")
     if "single" in args.kind:
@@ -206,7 +205,7 @@ def main() -> None:
             plot_overview(data, shape, metrics, palette, events, args.format)
     write_summary(data, metrics)
     print(f"[plot] {len(metrics)} metrics x {len(shapes)} shapes, scenarios: "
-          f"{', '.join(data['label'].cat.categories)} -> {config.CHARTS_DIR}")
+          f"{', '.join(data['series'].cat.categories)} -> {config.CHARTS_DIR}")
 
 
 if __name__ == "__main__":

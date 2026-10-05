@@ -24,6 +24,23 @@ TIME_COLUMN = "time"
 # The exporter writes every 10 time units, with a tiny offset that changes between runs: times are snapped to this grid
 EXPORT_INTERVAL = 10.0
 
+# The variable of the header with one chart (or panel) per value. Every other variable of the header but the seeds
+# that takes more than one value within a scenario splits that scenario into more lines (e.g. the start of
+# dynamicPositionBased: "Position-based (left start)" and "Position-based (centered start)").
+FACET_VARIABLE = "shape"
+
+# Value of a variable for the files of a scenario whose header lacks it (exported before the variable existed):
+# the old dynamicPositionBased runs deployed the nodes to the left of the shape (LeftOfShape).
+# A run that a newer file repeats (same scenario, configuration and seed) is dropped in favor of the newer file.
+VARIABLE_DEFAULTS = {
+    "dynamicPositionBased": {"start": "left"},
+}
+
+# How the values of the variables that split a scenario read in the legend, in their order (by default "name=value")
+VALUE_LABELS = {
+    "start": {"left": "outside start", "centered": "centered start"},
+}
+
 # The shapes, in the order of the multi-shape figures: those of this file that have data (the others are skipped)
 SHAPES_FILE = ROOT / "src" / "main" / "resources" / "shapes.yml"
 # Panels per row in the multi-shape figures
