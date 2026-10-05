@@ -4,6 +4,7 @@ import it.unibo.alchemist.boundary.effects.TrueAnchorFrame
 import it.unibo.alchemist.model.Actionable
 import it.unibo.alchemist.model.Environment
 import it.unibo.alchemist.model.Time
+import it.unibo.collektive.catalog.TargetShape
 import it.unibo.collektive.geometry.Position
 import it.unibo.collektive.sdf.SDF
 import kotlin.math.abs
@@ -45,7 +46,7 @@ class FormationMetrics(private val placement: String) : AbstractDoubleExtractor(
         requireKnownPlacement(placement)
     }
 
-    private var samples: ShapeSamples? = null // Of the shape where shapes.yml puts it, computed once
+    private val samples = mutableMapOf<TargetShape, ShapeSamples>() // Of each shape where shapes.yml puts it, computed once
     private var previous: Pair<Double, Map<Int, Position>>? = null
 
     override val columnNames: List<String> = COLUMNS
@@ -60,7 +61,7 @@ class FormationMetrics(private val placement: String) : AbstractDoubleExtractor(
         val positions = environment.nodes.associate { node ->
             node.id to environment.getPosition(node).coordinates.let { Position(it[0], it[1]) }
         }
-        val canonical = samples ?: ShapeSamples(shape.shape, shape.center).also { samples = it }
+        val canonical = samples.getOrPut(shape) { ShapeSamples(shape.sdf, shape.center) }
         val measures = measureFormation(where.sdf, canonical.moved(where::toEnvironment), positions.values.toList())
         val now = time.toDouble()
         val motion = previous?.takeIf { (then, _) -> now > then }?.let { (then, before) ->

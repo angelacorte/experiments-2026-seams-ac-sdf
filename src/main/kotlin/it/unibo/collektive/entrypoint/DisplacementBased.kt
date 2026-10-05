@@ -12,7 +12,6 @@ import it.unibo.collektive.geometry.Position
 import it.unibo.collektive.geometry.plus
 import it.unibo.collektive.geometry.times
 import it.unibo.collektive.geometry.zeroSpeed
-import it.unibo.collektive.sdf.translate
 import it.unibo.collektive.stdlib.consensus.boundedElection
 import it.unibo.collektive.stdlib.spreading.gradientCast
 import it.unibo.collektive.stdlib.spreading.hopGradientCast
@@ -37,6 +36,15 @@ fun Aggregate<Int>.positionRelativeTo(source: Boolean, sensor: RelativePositionS
 }
 
 /**
+ * The name of the shape held by the [leader]: the `shape` molecule of the leader (the name of the [formation] when
+ * missing), spread to every device by its nearest leader, so that changing the molecule on the leader reshapes the swarm.
+ * Every device stores the shape it perceives in its `shape` molecule, at every round: a newly elected leader keeps the
+ * current shape, and the metrics measure the shape the devices actually form.
+ */
+fun Aggregate<Int>.leaderShape(device: CollektiveDevice<*>, leader: Boolean, formation: ShapeProperty<*>): String =
+    hopGradientCast(leader, device.getOrNull<String>("shape") ?: formation.name).also { device["shape"] = it }
+
+/**
  * GPS-free shape formation: a system-wide leader is elected and placed inside the shape (at the origin);
  * every other device estimates its position w.r.t. the leader and forms the lattice of [latticeVelocity] in the shape.
  */
@@ -49,10 +57,9 @@ fun Aggregate<Int>.displacementBasedEntrypoint(
     val isLeader = leaderBasedCentrality == localId
     device["leader"] = isLeader
     val position = positionRelativeTo(isLeader, sensor)
-    // The center of the shape is on the leader, the origin of the frame: it follows the leader when another is elected.
-    val initialShape = formation.shapeAt(Position.origin)
-    val leaderShape = initialShape.translate(initialShape(position), 0.0)
-    val shape = hopGradientCast(isLeader, leaderShape)
+    // The shape is the one held by the leader, centered on it (the origin of the frame): it follows the leader when
+    // another is elected.
+    val shape = formation.shapeAt(Position.origin, leaderShape(device, isLeader, formation))
     // The shared clock counts from DISTANT_PAST, and the whole network agrees on it: 1 degree per time unit.
 //        val clock = sharedClock(Instant.fromEpochMilliseconds((device.currentTime.toDouble() * 1000).toLong()))
     // .rotate(Math.toRadians((clock - DISTANT_PAST).toDouble(DurationUnit.SECONDS)) / 3.0)

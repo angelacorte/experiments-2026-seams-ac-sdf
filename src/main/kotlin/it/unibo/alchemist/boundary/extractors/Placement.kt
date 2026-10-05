@@ -5,12 +5,15 @@ import it.unibo.alchemist.model.Environment
 import it.unibo.alchemist.model.molecules.SimpleMolecule
 import it.unibo.alchemist.model.positions.Euclidean2DPosition
 import it.unibo.collektive.alchemist.device.sensors.impl.ShapeProperty
+import it.unibo.collektive.catalog.TargetShape
 import it.unibo.collektive.geometry.Position
 import it.unibo.collektive.geometry.SpeedControl2D
 import it.unibo.collektive.geometry.Vector2D
 import it.unibo.collektive.sdf.SDF
+import it.unibo.collektive.sdf.translate
 
 private val LEADER = SimpleMolecule("leader")
+private val SHAPE = SimpleMolecule("shape")
 private val X_AXIS = SpeedControl2D(1.0, 0.0)
 private val Y_AXIS = SpeedControl2D(0.0, 1.0)
 
@@ -22,13 +25,22 @@ internal fun requireKnownPlacement(placement: String) = require(placement in set
 /**
  * The shape of the devices in [environment] and where it lies, by [placement] (see [FormationMetrics]), or null until
  * the leader or the anchors are elected.
+ * The shape is the one in the `shape` molecule of the leader (the one the devices perceive, which may change during
+ * the simulation), or the one of its [ShapeProperty] when missing.
  */
-internal fun <T> shapeIn(environment: Environment<T, *>, placement: String): Pair<ShapeProperty<*>, Placement>? =
-    environment.nodes
+internal fun <T> shapeIn(environment: Environment<T, *>, placement: String): Pair<TargetShape, Placement>? {
+    // ponytail: with more leaders (a split network), the one with the highest id
+    val holder = environment.nodes.filter { it.getConcentration(LEADER) == true }.maxByOrNull { it.id }
+        ?: environment.nodes.firstOrNull()
+    val property = environment.nodes
         .firstNotNullOfOrNull { node -> node.properties.filterIsInstance<ShapeProperty<*>>().firstOrNull() }
-        ?.let { shape -> placementOf(environment, placement, shape)?.let { shape to it } }
+    return property?.let {
+        val shape = it.target(holder?.getConcentration(SHAPE) as? String ?: it.name)
+        placementOf(environment, placement, shape)?.let { where -> shape to where }
+    }
+}
 
-private fun <T> placementOf(environment: Environment<T, *>, placement: String, shape: ShapeProperty<*>): Placement? =
+private fun <T> placementOf(environment: Environment<T, *>, placement: String, shape: TargetShape): Placement? =
     when (placement) {
         "global" -> Placement(Position.origin, X_AXIS, Y_AXIS, shape.center, shape)
         // ponytail: with more leaders (a split network), the one with the highest id
@@ -53,9 +65,9 @@ internal class Placement(
     private val xAxis: Vector2D,
     private val yAxis: Vector2D,
     private val point: Position,
-    private val shape: ShapeProperty<*>,
+    private val shape: TargetShape,
 ) {
-    private val inFrame = shape.shapeAt(point)
+    private val inFrame = shape.sdf.translate(point.x - shape.center.x, point.y - shape.center.y)
 
     /** The shape, in the environment: rigid moves keep its distances exact. */
     val sdf = SDF { position ->

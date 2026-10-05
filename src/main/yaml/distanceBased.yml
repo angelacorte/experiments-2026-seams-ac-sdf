@@ -44,6 +44,7 @@ deployments:
   - type: Rectangle
     parameters: [*nodes, 0, 0, 100, 100]
     contents:
+      - { molecule: shape, concentration: *shape } # The shape the leader holds and spreads (the ShapeProperty one if missing)
       # Anchors
       - { molecule: leaderElectionBound, concentration: 200 } # Hops within which anchor 1 is elected
       - { molecule: minAnchorsHeight, concentration: 10.0 } # Min distance of anchor 3 from the line of anchors 1-2

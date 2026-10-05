@@ -42,6 +42,8 @@ seeds:
 deployments:
   - type: Rectangle
     parameters: [*nodes, 0, 0, 100, 100]
+    contents:
+      - { molecule: shape, concentration: *shape } # The shape the leader holds and spreads (the ShapeProperty one if missing)
     programs:
       - *program
     properties:

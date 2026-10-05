@@ -42,8 +42,9 @@ fun Aggregate<Int>.distanceBasedEntrypoint(device: CollektiveDevice<*>, formatio
     val isAnchor = role != AnchorRole.NONE
     device["leader"] = isAnchor
     val (frame, position) = localize(role, neighborDistances)
-    // The center of the shape is on the anchors' centroid: it follows the anchors when they change.
-    val shape = formation.shapeAt(frame.centroid)
+    // The shape is the one held by the leader (anchor 1), centered on the anchors' centroid: it follows the anchors
+    // when they change.
+    val shape = formation.shapeAt(frame.centroid, leaderShape(device, role == AnchorRole.ANCHOR_1, formation))
     val offsets = offsetsFromEstimates(position, neighborDistances)
     val control = position?.let { latticeVelocity(shape, it, offsets) }
     device["control"] = control ?: zeroSpeed // The ideal command, in the anchor frame
