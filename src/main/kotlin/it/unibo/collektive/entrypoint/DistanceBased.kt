@@ -32,7 +32,7 @@ import org.apache.commons.math3.random.RandomGenerator
  * body frame, move it among the anchors ([FrameAlignment]).
  * All the parameters are read from the simulation file (see `rangeOnly.yml`).
  */
-fun Aggregate<Int>.rangeOnlyEntrypoint(device: CollektiveDevice<*>, formation: ShapeProperty<*>) = with(device) {
+fun Aggregate<Int>.distanceBasedEntrypoint(device: CollektiveDevice<*>, formation: ShapeProperty<*>) = with(device) {
     val neighborDistances = distances()
     val role = electAnchors(
         neighborDistances,

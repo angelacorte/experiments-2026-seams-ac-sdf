@@ -14,7 +14,7 @@ import kotlin.test.assertTrue
 class YamlLoadCheck {
     @Test
     fun load() {
-        for (file in listOf("positionBased.yml", "rangeOnly.yml", "displacementBased.yml", "dynamicPopulation.yml")) {
+        for (file in listOf("positionBased.yml", "distanceBased.yml", "displacementBased.yml", "dynamicPopulation.yml")) {
             val simulation = LoadAlchemist.from(ClassLoader.getSystemResource(file))
                 .getDefault<Any?, Euclidean2DPosition>()
             val parameters: LatticeParameters<Any?> = simulation.environment.nodes.first().asProperty()
