@@ -20,6 +20,7 @@ import kotlin.math.sqrt
 
 private const val SAMPLE_STEP = 0.5 // Side of the cells that sample the shape
 private const val WINDOW = 100.0 // Half the side of the square, around the center of the shape, where it is sampled
+private const val COVER_QUANTILE = 0.95 // The quantile of the gaps in cover95
 private val LEADER = SimpleMolecule("leader")
 private val X_AXIS = SpeedControl2D(1.0, 0.0)
 private val Y_AXIS = SpeedControl2D(0.0, 1.0)
@@ -65,10 +66,10 @@ class FormationMetrics(private val placement: String) : AbstractDoubleExtractor(
         time: Time,
         step: Long,
     ): Map<String, Double> {
-        val shape = environment.nodes.firstNotNullOfOrNull { node ->
-            node.properties.filterIsInstance<ShapeProperty<*>>().firstOrNull()
-        } ?: return NOT_AVAILABLE
-        val where = placementOf(environment, shape) ?: return NOT_AVAILABLE
+        val (shape, where) = environment.nodes
+            .firstNotNullOfOrNull { node -> node.properties.filterIsInstance<ShapeProperty<*>>().firstOrNull() }
+            ?.let { shape -> placementOf(environment, shape)?.let { shape to it } }
+            ?: return NOT_AVAILABLE
         val positions = environment.nodes.associate { node ->
             node.id to environment.getPosition(node).coordinates.let { Position(it[0], it[1]) }
         }
@@ -179,7 +180,12 @@ class ShapeSamples private constructor(val points: List<Position>, val depths: L
     }
 }
 
-/** The metrics of [FormationMetrics] (all but the motion) as [values], and the share of each device (1 is fair). */
+/**
+ * The metrics of [FormationMetrics] (all but the motion), and the share of each device.
+ *
+ * @property values the metrics, by column name.
+ * @property shares the share of the shape of each device, in the order of the points (1 is fair).
+ */
 class FormationMeasures(val values: Map<String, Double>, val shares: List<Double>)
 
 /** The [FormationMeasures] of the devices at [points], for the [shape] sampled by [samples]. */
@@ -214,7 +220,7 @@ fun measureFormation(shape: SDF, samples: ShapeSamples, points: List<Position>):
             "inside" to inside.size.toDouble() / devices,
             "jain" to shares.sum().let { it * it } / (devices * shares.sumOf { it * it }),
             "shareCV" to sqrt(shares.sumOf { (it - mean) * (it - mean) } / devices) / mean,
-            "cover95" to gaps[(0.95 * (gaps.size - 1)).toInt()] / fill,
+            "cover95" to gaps[(COVER_QUANTILE * (gaps.size - 1)).toInt()] / fill,
             "coverMax" to gaps.last() / fill,
             "nnCV" to sqrt(nearest.sumOf { (it - nearestMean) * (it - nearestMean) } / nearest.size) / nearestMean,
             "minDist" to (nearest.minOrNull() ?: Double.NaN) / fill,
