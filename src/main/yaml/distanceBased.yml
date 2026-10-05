@@ -3,6 +3,9 @@ incarnation: collektive
 variables:
   maxSpacing: &maxSpacing { formula: 0.8 * communicationRange } # Largest spacing: below the range, so that no neighbor is pushed out of it
   cellReach: &cellReach { formula: 0.5 * communicationRange } # Reach of a Voronoi cell (Lloyd): half the range, so that the neighbors that shape it are in range
+  nodes: &nodes 100
+  communicationRange: &communicationRange # Shared by the network model and the formation
+    formula: 30
   maxSeed: &maxSeed
     type: SystemEnvVariable
     parameters: [ "MAX_SEED", 5 ] # default 5 if not specified
@@ -11,19 +14,17 @@ variables:
     max: *maxSeed
     step: 1
     default: 42
-  nodes: &nodes
-    type: ArbitraryVariable
-    parameters: [ 100, [ 50, 100, 200, 300 ] ]
-  communicationRange: &communicationRange # Shared by the network model and the formation
-    type: ArbitraryVariable
-    parameters: [ 30, [ 10, 20, 30 ] ]
   shape: &shape # Same list in every scenario: names from src/main/resources/shapes.yml
     type: ArbitraryVariable
     parameters: [ hexagon, [ star, hexagon, ring, crescent, horseshoe ] ]
 
+seeds:
+  scenario: *seed
+  simulation: *seed
+
 network-model:
-  type: ConnectWithinDistance
-  parameters: [*communicationRange]
+  type: AdaptiveRange
+  parameters: [*maxSpacing, 1, *communicationRange, 12, 6]
 
 _pool: &program
   - time-distribution: 1
@@ -33,12 +34,6 @@ _pool: &program
         parameters: [it.unibo.collektive.entrypoint.DistanceBasedKt.distanceBasedEntrypoint]
       - type: SpeedToTarget
         parameters: [ ]
-
-
-seeds:
-  scenario: *seed
-  simulation: *seed
-
 
 deployments:
   - type: Rectangle

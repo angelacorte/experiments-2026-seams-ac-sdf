@@ -179,12 +179,11 @@ curl https://raw.githubusercontent.com/domm99/experiments-acsos-2026-DPF-multi-o
 
 **NOTES:**
 - Due to Alchemist's limitations, the graphical interface will not appear if run on a docker container.
-- The tasks *in graphic mode* will run the experiments with the default parameters.
-- Graphic tasks run with the default parameters defined in the YAML.
+- The tasks *in graphic mode* will run the experiments with the default parameters defined in the YAML.
 
 **Note** that before each experiment command, it can be optionally set the `MAX_SEED` environment variable to a specific value to run the experiment,
 since that parameter is relevant only for batch experiments,
-it is suggested to not specify it or set it to `0` for the graphical experiments.
+it is suggested to **not** specify it or set it to `0` for the graphical experiments.
 
 Depending on the platform, there may be different ways to set the environment variable:
 - If you're using Bash compatible (Linux, Mac OS X, Git Bash, Cygwin): ```MAX_SEED=0 ./gradlew run<ExperimentName>Graphic```
