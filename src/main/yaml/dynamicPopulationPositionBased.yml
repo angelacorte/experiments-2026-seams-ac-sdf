@@ -57,6 +57,7 @@ _pool: &program
 deployments:
   - type: ShapeStart # Where the nodes start (see ShapeStart): [ count, shape, start, width of the left strip, side of the centered square, gap ]
     parameters: [*nodes, *shape, *start, 50, 100, 10]
+    nodes: 2.0 # retention time
     programs:
       - *program
     properties:

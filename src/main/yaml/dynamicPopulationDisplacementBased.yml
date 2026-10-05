@@ -54,7 +54,7 @@ _pool: &program
 deployments:
   - type: Rectangle
     parameters: [*nodes, 0, 0, 100, 100]
-    nodes: 2.0
+    nodes: 2.0 # retention time
     programs:
       - *program
     properties:
