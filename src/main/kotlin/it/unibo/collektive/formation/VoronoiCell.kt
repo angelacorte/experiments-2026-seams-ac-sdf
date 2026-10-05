@@ -34,7 +34,11 @@ fun voronoiCentroid(shape: SDF, position: Position, neighbors: List<Vector2D>, r
     )
     // From the nearest: once a bisector misses the cell, the farther ones miss it too
     val cell = neighbors.filter { it.norm > 0.0 }.sortedBy { it.norm }.fold(disk, Cell::cutBy)
-    val corners = cell.corners.takeIf { it.isNotEmpty() } ?: return zeroSpeed
+    return if (cell.corners.isEmpty()) zeroSpeed else cell.centroidIn(shape, position, reach)
+}
+
+/** The anti-aliased centroid of this (non-empty) cell of a device at [position], in [shape] (see [voronoiCentroid]). */
+private fun Cell.centroidIn(shape: SDF, position: Position, reach: Double): SpeedControl2D {
     val minX = corners.minOf { it.x }
     val minY = corners.minOf { it.y }
     val stepX = (corners.maxOf { it.x } - minX) / SAMPLES
@@ -44,7 +48,7 @@ fun voronoiCentroid(shape: SDF, position: Position, neighbors: List<Vector2D>, r
     val weighted = (0 until SAMPLES * SAMPLES)
         .map { SpeedControl2D(minX + (it / SAMPLES + 0.5) * stepX, minY + (it % SAMPLES + 0.5) * stepY) }
         .mapNotNull { point ->
-            val inCell = cell.depthOf(point, reach)
+            val inCell = depthOf(point, reach)
             // A pixel out of the cell spares the SDF
             inCell.takeIf { it > -pixel / 2 }?.let {
                 val depth = if (outside) inCell else minOf(inCell, -shape(position + point))
