@@ -3,10 +3,17 @@ incarnation: collektive
 variables:
   maxSpacing: &maxSpacing { formula: 0.8 * communicationRange } # Largest spacing: below the range, so that no neighbor is pushed out of it
   cellReach: &cellReach { formula: 0.5 * communicationRange } # Reach of a Voronoi cell (Lloyd): half the range, so that the neighbors that shape it are in range
-  spawnRangeFraction: &spawnRangeFraction # Fraction of the communication range within which nodes spawn
-    0.8
-  killTime: &killTime 5000
+  spawnRangeFraction: &spawnRangeFraction 0.8 # Fraction of the communication range within which nodes spawn
   spawnTime: &spawnTime 700
+  spawnCount: &spawnCount 400
+  killTime: &killTime 1000
+  survivors: &survivors 50
+  nodes: &nodes 100
+  communicationRange: &communicationRange
+    formula: 30
+  shape: &shape # Same list in every scenario: names from src/main/resources/shapes.yml
+    type: ArbitraryVariable
+    parameters: [ star, [ star, hexagon, ring, crescent, horseshoe ] ]
   maxSeed: &maxSeed
     type: SystemEnvVariable
     parameters: [ "MAX_SEED", 5 ] # default 5 if not specified
@@ -15,18 +22,6 @@ variables:
     max: *maxSeed
     step: 1
     default: 42
-  nodes: &nodes
-    100
-  communicationRange: &communicationRange # Shared by the network model and the formation
-    formula: 30
-  shape: &shape # Same list in every scenario: names from src/main/resources/shapes.yml
-    type: ArbitraryVariable
-    parameters: [ star, [ star, hexagon, ring, crescent, horseshoe ] ]
-  # Population dynamics: start with *nodes, add spawnCount at spawnTime, keep only survivors at killTime
-  spawnCount: &spawnCount
-    400
-  survivors: &survivors
-    50
 
 seeds:
   scenario: *seed
@@ -34,7 +29,7 @@ seeds:
 
 network-model:
   type: AdaptiveRange
-  parameters: [*maxSpacing, 5, *communicationRange, 12, 6]
+  parameters: [*maxSpacing, 1, *communicationRange, 12, 6]
 
 environment:
   type: Continuous2DEnvironment
@@ -44,8 +39,7 @@ environment:
     # (SpawnRandomNodes with [ time, count, x, y, width, height ] spawns in a fixed rectangle instead)
     - type: SpawnNearNodes
       parameters: [ *spawnTime, *spawnCount, *communicationRange, *spawnRangeFraction ]
-    # At killTime, random nodes are removed until only survivors are left
-    - type: KillRandomNodes
+    - type: KillRandomNodes # At killTime, random nodes are removed until only survivors are left
       parameters: [ *killTime, *survivors ]
 
 _pool: &program
@@ -64,23 +58,21 @@ deployments:
     programs:
       - *program
     properties:
+      - type: it.unibo.collektive.alchemist.device.sensors.impl.RelativePositionSensorProperty
       - type: it.unibo.collektive.alchemist.device.sensors.impl.ShapeProperty
         parameters: [ *shape ]
-      - type: it.unibo.collektive.alchemist.device.sensors.impl.RelativePositionSensorProperty
       # The lattice, as in repulsionOnly.yml (push per neighbor rescaled to the larger spacing)
       - type: it.unibo.collektive.coverage.LatticeParameters
         parameters:
           repulsion: { type: Lloyd, parameters: { gain: 1.0, reach: *cellReach } } # Towards the centroid of the Voronoi cell within reach (half the range), clipped to the shape: ignores the spacing, and wants the fixed step below
           maxSpeed: 1.0
-          # Adaptive (driven by the pressure of the ring), Neighborhood (of all the neighbors within 1.5 spacings) or Fixed
           spacing:
-            type: Adaptive
+            type: Adaptive # Adaptive (driven by the pressure of the ring), Neighborhood (of all the neighbors within 1.5 spacings) or Fixed
             parameters:
               initial: 2.0
               rate: 0.05 # Fraction of the pressure error recovered at each round
               pressureMargin: 0.5 # Target pressure, as a fraction of the ring radius
               max: *maxSpacing
-          # spacing: { type: Fixed, parameters: { spacing: 4.0 } } # ~sqrt(area / devices / 0.866) fills the shape
           step: { type: StepRule, parameters: { decrease: 0.5, increase: 1.2, minGain: 0.05 } } # Gain factor on an overshoot (the control reverses), while the control keeps its direction, and the smallest gain
           # step: { type: StepRule, parameters: { decrease: 1.0, increase: 1.0, minGain: 1.0 } } # Fixed step, for Lloyd
 
@@ -89,7 +81,6 @@ export:
     parameters: { fileNameRoot: "dynamicDisplacementBased", interval: 10.0, exportPath: "data/dynamicDisplacementBased" }
     data:
       - time
-      # How evenly the devices cover the shape (see FormationMetrics). The shape is centered on the leader, with the axes of the environment
       - type: FormationMetrics
         parameters: [ leader ]
       - type: CoverageMetrics

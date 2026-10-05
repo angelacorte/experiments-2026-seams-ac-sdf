@@ -3,10 +3,17 @@ incarnation: collektive
 variables:
   maxSpacing: &maxSpacing { formula: 0.8 * communicationRange } # Largest spacing: below the range, so that no neighbor is pushed out of it
   cellReach: &cellReach { formula: 0.5 * communicationRange } # Reach of a Voronoi cell (Lloyd): half the range, so that the neighbors that shape it are in range
-  spawnRangeFraction: &spawnRangeFraction # Fraction of the communication range within which nodes spawn
-    0.8
-  killTime: &killTime 1000
+  spawnRangeFraction: &spawnRangeFraction 0.8 # Fraction of the communication range within which nodes spawn
   spawnTime: &spawnTime 700
+  spawnCount: &spawnCount 400
+  killTime: &killTime 1000
+  survivors: &survivors 50
+  nodes: &nodes 100
+  communicationRange: &communicationRange
+    formula: 30
+  shape: &shape # Same list in every scenario: names from src/main/resources/shapes.yml
+    type: ArbitraryVariable
+    parameters: [ star, [ star, hexagon, ring, crescent, horseshoe ] ]
   maxSeed: &maxSeed
     type: SystemEnvVariable
     parameters: [ "MAX_SEED", 5 ] # default 5 if not specified
@@ -15,18 +22,14 @@ variables:
     max: *maxSeed
     step: 1
     default: 42
-  nodes: &nodes
-    100
-  communicationRange: &communicationRange # Shared by the network model and the formation
-    formula: 30
-  shape: &shape # Same list in every scenario: names from src/main/resources/shapes.yml
-    type: ArbitraryVariable
-    parameters: [ star, [ star, hexagon, ring, crescent, horseshoe ] ]
-  # Population dynamics: start with *nodes, add spawnCount at spawnTime, keep only survivors at killTime
-  spawnCount: &spawnCount
-    400
-  survivors: &survivors
-    50
+
+seeds:
+  scenario: *seed
+  simulation: *seed
+
+network-model:
+  type: AdaptiveRange
+  parameters: [*maxSpacing, 1, *communicationRange, 12, 6]
 
 environment:
   type: Continuous2DEnvironment
@@ -36,19 +39,8 @@ environment:
     # (SpawnRandomNodes with [ time, count, x, y, width, height ] spawns in a fixed rectangle instead)
     - type: SpawnNearNodes
       parameters: [ *spawnTime, *spawnCount, *communicationRange, *spawnRangeFraction ]
-    # At killTime, random nodes are removed until only survivors are left
-    - type: KillRandomNodes
+    - type: KillRandomNodes # At killTime, random nodes are removed until only survivors are left
       parameters: [ *killTime, *survivors ]
-
-network-model:
-  type: AdaptiveRange
-  parameters: [*maxSpacing, 1, *communicationRange, 12, 6]
-
-
-seeds:
-  scenario: *seed
-  simulation: *seed
-
 
 _pool: &program
   - time-distribution: 1
@@ -60,32 +52,25 @@ _pool: &program
         parameters: [ ]
 
 deployments:
-  # The nodes start in a rectangle entirely to the left of the shape (none inside it): [ count, shape, width, gap ]
-  - type: LeftOfShape
+  - type: LeftOfShape # The nodes start in a rectangle entirely to the left of the shape (none inside it): [ count, shape, width, gap ]
     parameters: [*nodes, *shape, 50, 10]
     programs:
       - *program
     properties:
+      - type: it.unibo.collektive.alchemist.device.sensors.impl.LocationSensorProperty
       - type: it.unibo.collektive.alchemist.device.sensors.impl.ShapeProperty
         parameters: [ *shape ]
-      - type: it.unibo.collektive.alchemist.device.sensors.impl.LocationSensorProperty
       - type: it.unibo.collektive.coverage.LatticeParameters
         parameters:
-          # SoftDisk (linear in the overlap, zero beyond the spacing), InverseSquare (never zero), Spring (pull and push, zero beyond 1.5 spacings) or Lloyd (Voronoi centroid)
-          # repulsion: { type: SoftDisk, parameters: { stiffness: 0.2 } } # Push per unit of overlap
-          # repulsion: { type: InverseSquare, parameters: { coefficient: 0.03 } } # Push at the spacing, per unit of it
-          # repulsion: { type: Spring, parameters: { stiffness: 0.2, attraction: 0.5 } } # Pull or push per unit of distance from the spacing; pull as a fraction of the push (below 1, or a crowd never spreads)
           repulsion: { type: Lloyd, parameters: { gain: 0.5, reach: *cellReach } } # Towards the centroid of the Voronoi cell within reach (half the range), clipped to the shape: ignores the spacing, and wants the fixed step below
           maxSpeed: 1.0
-          # Adaptive (driven by the pressure of the ring), Neighborhood (of all the neighbors within 1.5 spacings) or Fixed
           spacing:
-            type: Adaptive
+            type: Adaptive # Adaptive (driven by the pressure of the ring), Neighborhood (of all the neighbors within 1.5 spacings) or Fixed
             parameters:
               initial: 2.0
               rate: 0.05 # Fraction of the pressure error recovered at each round
               pressureMargin: 0.5 # Target pressure, as a fraction of the ring radius
               max: *maxSpacing
-          # spacing: { type: Fixed, parameters: { spacing: 4.0 } } # ~sqrt(area / devices / 0.866) fills the shape
           step: { type: StepRule, parameters: { decrease: 0.5, increase: 1.2, minGain: 0.05 } } # Gain factor on an overshoot (the control reverses), while the control keeps its direction, and the smallest gain
           # step: { type: StepRule, parameters: { decrease: 1.0, increase: 1.0, minGain: 1.0 } } # Fixed step, for Lloyd
 
@@ -94,7 +79,6 @@ export:
     parameters: { fileNameRoot: "dynamicPositionBased", interval: 10.0, exportPath: "data/dynamicPositionBased" }
     data:
       - time
-      # How evenly the devices cover the shape (see FormationMetrics). Global positions: the shape lies where shapes.yml puts it
       - type: FormationMetrics
         parameters: [ global ]
       - type: CoverageMetrics
