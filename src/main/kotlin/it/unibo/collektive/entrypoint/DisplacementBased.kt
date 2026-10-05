@@ -12,8 +12,10 @@ import it.unibo.collektive.geometry.Position
 import it.unibo.collektive.geometry.plus
 import it.unibo.collektive.geometry.times
 import it.unibo.collektive.geometry.zeroSpeed
+import it.unibo.collektive.sdf.translate
 import it.unibo.collektive.stdlib.consensus.boundedElection
 import it.unibo.collektive.stdlib.spreading.gradientCast
+import it.unibo.collektive.stdlib.spreading.hopGradientCast
 
 // For bounded leader election: the device with the most neighbors wins, the id breaks ties
 private data class Rank(val neighbors: Int, val id: Int) : Comparable<Rank> {
@@ -48,7 +50,9 @@ fun Aggregate<Int>.displacementBasedEntrypoint(
     device["leader"] = isLeader
     val position = positionRelativeTo(isLeader, sensor)
     // The center of the shape is on the leader, the origin of the frame: it follows the leader when another is elected.
-    val shape = formation.shapeAt(Position.origin)
+    val initialShape = formation.shapeAt(Position.origin)
+    val leaderShape = initialShape.translate(initialShape(position), 0.0)
+    val shape = hopGradientCast(isLeader, leaderShape)
     // The shared clock counts from DISTANT_PAST, and the whole network agrees on it: 1 degree per time unit.
 //        val clock = sharedClock(Instant.fromEpochMilliseconds((device.currentTime.toDouble() * 1000).toLong()))
     // .rotate(Math.toRadians((clock - DISTANT_PAST).toDouble(DurationUnit.SECONDS)) / 3.0)
