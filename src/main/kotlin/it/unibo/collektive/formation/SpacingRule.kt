@@ -61,8 +61,11 @@ sealed interface SpacingRule {
      * [LatticeNeighborhood.pressure]), zero when none is, so that the spacing grows until the neighbors come within
      * reach, and keeps squeezing the devices with fewer neighbors than a hexagon.
      *
+     * @property initial the spacing at the start.
+     * @property rate the fraction of the pressure error recovered at each round.
      * @property pressureMargin the target pressure, as a fraction of the spacing: below `1 / RING_SIZE`, or a lone
      * pair of devices is squeezed together.
+     * @property max the largest spacing, below the communication range so that no neighbor is pushed out of it.
      */
     data class Neighborhood(val initial: Double, val rate: Double, val pressureMargin: Double, val max: Double) :
         SpacingRule {
