@@ -43,7 +43,7 @@ deployments:
       - type: it.unibo.collektive.alchemist.device.sensors.impl.ShapeProperty
         parameters: [ *shape ]
       - type: it.unibo.collektive.alchemist.device.sensors.impl.LocationSensorProperty
-      - type: it.unibo.collektive.formation.LatticeParameters
+      - type: it.unibo.collektive.coverage.LatticeParameters
         parameters:
           # SoftDisk (linear in the overlap, zero beyond the spacing), InverseSquare (never zero), Spring (pull and push, zero beyond 1.5 spacings) or Lloyd (Voronoi centroid)
           # repulsion: { type: SoftDisk, parameters: { stiffness: 0.2 } } # Push per unit of overlap

@@ -56,7 +56,7 @@ deployments:
         parameters: [ *shape ]
       - type: it.unibo.collektive.alchemist.device.BodyFrameProperty
       # The lattice, as in repulsionOnly.yml (push per neighbor rescaled to the larger spacing)
-      - type: it.unibo.collektive.formation.LatticeParameters
+      - type: it.unibo.collektive.coverage.LatticeParameters
         parameters:
           repulsion: { type: Lloyd, parameters: { gain: 1.0, reach: *cellReach } } # Towards the centroid of the Voronoi cell within reach (half the range), clipped to the shape: ignores the spacing, and wants the fixed step below
           maxSpeed: 1.0
@@ -78,5 +78,5 @@ export:
     data:
       - time
       # How evenly the devices cover the shape (see FormationMetrics). The shape is centered on the anchors, in their frame (turned, maybe mirrored)
-      - type: it.unibo.alchemist.boundary.extractors.FormationMetrics
+      - type: FormationMetrics
         parameters: [ anchors ]

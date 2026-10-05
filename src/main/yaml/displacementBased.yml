@@ -50,7 +50,7 @@ deployments:
         parameters: [ *shape ]
       - type: it.unibo.collektive.alchemist.device.sensors.impl.RelativePositionSensorProperty
       # The lattice, as in repulsionOnly.yml (push per neighbor rescaled to the larger spacing)
-      - type: it.unibo.collektive.formation.LatticeParameters
+      - type: it.unibo.collektive.coverage.LatticeParameters
         parameters:
           repulsion: { type: Lloyd, parameters: { gain: 1.0, reach: *cellReach } } # Towards the centroid of the Voronoi cell within reach (half the range), clipped to the shape: ignores the spacing, and wants the fixed step below
           maxSpeed: 1.0

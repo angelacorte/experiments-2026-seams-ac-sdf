@@ -82,7 +82,7 @@ deployments:
       - type: it.unibo.collektive.alchemist.device.sensors.impl.LocationSensorProperty
       - type: it.unibo.collektive.alchemist.device.sensors.impl.RelativePositionSensorProperty
       # The lattice, as in repulsionOnly.yml (push per neighbor rescaled to the larger spacing)
-      - type: it.unibo.collektive.formation.LatticeParameters
+      - type: it.unibo.collektive.coverage.LatticeParameters
         parameters:
           repulsion: { type: SoftDisk, parameters: { stiffness: 0.05 } } # Push per unit of overlap
           # repulsion: { type: InverseSquare, parameters: { coefficient: 0.007 } } # Push at the spacing, per unit of it
