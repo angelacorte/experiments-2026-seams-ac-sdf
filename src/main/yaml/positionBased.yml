@@ -30,7 +30,7 @@ _pool: &program
     type: Event
     actions:
       - type: RunCollektiveProgram
-        parameters: [ it.unibo.collektive.entrypoint.RepulsionOnlyKt.repulsionOnlyEntrypoint]
+        parameters: [ it.unibo.collektive.entrypoint.PositionBasedKt.positionBasedEntrypoint]
       - type: SpeedToTarget
         parameters: [ ]
 
@@ -65,7 +65,7 @@ deployments:
 
 export:
   - type: CSVExporter
-    parameters: { fileNameRoot: "repulsionOnly", interval: 10.0, exportPath: "data" }
+    parameters: { fileNameRoot: "positionBased", interval: 10.0, exportPath: "data/positionBased" }
     data:
       - time
       # How evenly the devices cover the shape (see FormationMetrics). Global positions: the shape lies where shapes.yml puts it

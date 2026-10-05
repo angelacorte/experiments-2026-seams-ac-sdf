@@ -21,7 +21,7 @@ import it.unibo.collektive.geometry.minus
  * ([SpacingRule]), with a step size that adapts to overshoots ([AdaptiveStep]).
  * All the parameters, modes included, are read from the simulation file (see `repulsionOnly.yml`).
  */
-fun Aggregate<Int>.repulsionOnlyEntrypoint(
+fun Aggregate<Int>.positionBasedEntrypoint(
     device: CollektiveDevice<*>,
     locationSensor: LocationSensor,
     formation: ShapeProperty<*>,
