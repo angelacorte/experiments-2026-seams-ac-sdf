@@ -2,15 +2,17 @@ package it.unibo.collektive.formation
 
 import it.unibo.collektive.geometry.SpeedControl2D
 import it.unibo.collektive.geometry.Vector2D
+import it.unibo.collektive.geometry.dot
 import it.unibo.collektive.geometry.plus
 import it.unibo.collektive.geometry.zeroSpeed
 
 /**
  * The lattice around a device, as offsets `neighbor - self`.
  *
+ * @property neighbors the offsets of the real neighbors.
  * @param border the border of the shape near the device.
  */
-class LatticeNeighborhood(private val neighbors: List<Vector2D>, border: LocalBorder) {
+class LatticeNeighborhood(val neighbors: List<Vector2D>, border: LocalBorder) {
     private val mirrors: List<Vector2D> = when {
         border.isInside -> {
             val reach = neighbors.maxOfOrNull { it.norm } ?: 0.0
@@ -20,6 +22,7 @@ class LatticeNeighborhood(private val neighbors: List<Vector2D>, border: LocalBo
     }
 
     private val all = neighbors + mirrors
+    private val walls = mirrors.toHashSet()
 
     /** Whether the device has no (real) neighbors. */
     val isEmpty: Boolean get() = neighbors.isEmpty()
@@ -40,9 +43,16 @@ class LatticeNeighborhood(private val neighbors: List<Vector2D>, border: LocalBo
      */
     fun pressure(spacing: Double): Double = near(spacing).sumOf { spacing - it.norm } / RING_SIZE
 
-    /** The push on the device of the [pushers][RepulsionLaw.pushers] of the [law], for the lattice [spacing]. */
-    fun repulsion(spacing: Double, law: RepulsionLaw): SpeedControl2D =
-        law.pushers(this, spacing).fold(zeroSpeed) { total, offset -> total + law.force(offset, spacing) }
+    /**
+     * The push on the device of the [pushers][RepulsionLaw.Pairwise.pushers] of the [law], for the lattice [spacing].
+     * A mirror image is a wall: it pushes the device off the border, and never pulls it there (as the attraction of a
+     * [RepulsionLaw.Spring] would, gluing the devices to the border).
+     */
+    fun repulsion(spacing: Double, law: RepulsionLaw.Pairwise): SpeedControl2D =
+        law.pushers(this, spacing).fold(zeroSpeed) { total, offset ->
+            val force = law.force(offset, spacing)
+            if (offset in walls && (force dot offset) > 0.0) total else total + force
+        }
 
     /** Constants of [LatticeNeighborhood]. */
     companion object {

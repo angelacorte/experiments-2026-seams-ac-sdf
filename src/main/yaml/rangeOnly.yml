@@ -14,11 +14,12 @@ variables:
     parameters: [ 100, [ 50, 100, 200, 300 ] ]
   communicationRange: &communicationRange # Shared by the network model and the formation
     type: ArbitraryVariable
-    parameters: [ 20, [ 10, 20, 30 ] ]
+    parameters: [ 30, [ 10, 20, 30 ] ]
   maxSpacing: &maxSpacing { formula: 0.8 * communicationRange } # Largest spacing: below the range, so that no neighbor is pushed out of it
+  cellReach: &cellReach { formula: 0.5 * communicationRange } # Reach of a Voronoi cell (Lloyd): half the range, so that the neighbors that shape it are in range
   shape: &shape # Same list in every scenario: names from src/main/resources/shapes.yml
     type: ArbitraryVariable
-    parameters: [ star, [ star, hexagon, ring, crescent, horseshoe ] ]
+    parameters: [ hexagon, [ star, hexagon, ring, crescent, horseshoe ] ]
 
 network-model:
   type: ConnectWithinDistance
@@ -42,11 +43,12 @@ deployments:
       - { molecule: minAnchorsHeight, concentration: 10.0 } # Min distance of anchor 3 from the line of anchors 1-2
       - { molecule: maxSpeed, concentration: &maxSpeed 1.0 } # Shared with the lattice
       # Steering without bearing (frame alignment from the own commands)
-      - { molecule: forgettingFactor, concentration: 0.95 } # Past evidence kept at each round
+      - { molecule: forgettingFactor, concentration: 0.9 } # Past evidence kept at each round (0.9 beat 0.95 in every run of the sweep, 0.99 is worse)
       - { molecule: maxDisplacement, concentration: 5.0 } # Estimate changes above this are frame jumps
-      - { molecule: minMotionEnergy, concentration: 5.0 } # Motion needed before steering
-      - { molecule: minConfidence, concentration: 0.1 } # Direction spread needed before steering
-      - { molecule: explorationNoise, concentration: 0.1 } # Random motion kept while steering
+      - { molecule: explorationSpeed, concentration: 1.0 } # Speed of the random moves, before localizing and while learning to steer (0.3 strands devices outside: see data/localization-report.html)
+      - { molecule: minMotionEnergy, concentration: 5.0 } # Motion needed before steering: grows with the square of the exploration speed
+      - { molecule: minConfidence, concentration: 0.1 } # Direction spread needed before steering (0.4 leaves many devices outside)
+      - { molecule: explorationNoise, concentration: 0.0 } # Random motion kept while steering
     programs:
       - *program
     properties:
@@ -56,9 +58,9 @@ deployments:
       # The lattice, as in repulsionOnly.yml (push per neighbor rescaled to the larger spacing)
       - type: it.unibo.collektive.formation.LatticeParameters
         parameters:
-          repulsion: { type: SoftDisk, parameters: { stiffness: 0.05 } } # Push per unit of overlap
-          # repulsion: { type: InverseSquare, parameters: { coefficient: 0.007 } } # Push at the spacing, per unit of it
-          maxSpeed: *maxSpeed
+          repulsion: { type: Lloyd, parameters: { gain: 1.0, reach: *cellReach } } # Towards the centroid of the Voronoi cell within reach (half the range), clipped to the shape: ignores the spacing, and wants the fixed step below
+          maxSpeed: 1.0
+          # Adaptive (driven by the pressure of the ring), Neighborhood (of all the neighbors within 1.5 spacings) or Fixed
           spacing:
             type: Adaptive
             parameters:
@@ -66,5 +68,15 @@ deployments:
               rate: 0.05 # Fraction of the pressure error recovered at each round
               pressureMargin: 0.5 # Target pressure, as a fraction of the ring radius
               max: *maxSpacing
-          # spacing: { type: Fixed, parameters: { spacing: 16.0 } } # ~sqrt(area / devices / 0.866) fills the shape
-          step: { type: StepRule, parameters: { decrease: 0.5, increase: 1.2, minGain: 0.05 } } # Gain factor on an overshoot (the control reverses), while the control keeps its direction, and the smallest gain
+          # spacing: { type: Fixed, parameters: { spacing: 4.0 } } # ~sqrt(area / devices / 0.866) fills the shape
+          # step: { type: StepRule, parameters: { decrease: 0.5, increase: 1.2, minGain: 0.05 } } # Gain factor on an overshoot (the control reverses), while the control keeps its direction, and the smallest gain
+          step: { type: StepRule, parameters: { decrease: 1.0, increase: 1.0, minGain: 1.0 } } # Fixed step, for Lloyd
+
+export:
+  - type: CSVExporter
+    parameters: { fileNameRoot: "rangeOnly", interval: 10.0, exportPath: "data" }
+    data:
+      - time
+      # How evenly the devices cover the shape (see FormationMetrics). The shape is centered on the anchors, in their frame (turned, maybe mirrored)
+      - type: it.unibo.alchemist.boundary.extractors.FormationMetrics
+        parameters: [ anchors ]

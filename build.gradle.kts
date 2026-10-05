@@ -35,6 +35,9 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+    maxHeapSize = "4g" // FairnessExperiment runs several simulations at once
+    // The JDK parser: an older one on the classpath cannot read logback-test.xml, and logback then logs DEBUG
+    systemProperty("javax.xml.parsers.SAXParserFactory", "com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl")
     testLogging { showStandardStreams = true }
 }
 

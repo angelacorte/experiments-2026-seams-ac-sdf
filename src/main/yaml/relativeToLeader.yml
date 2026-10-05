@@ -16,6 +16,7 @@ variables:
     type: ArbitraryVariable
     parameters: [ 20, [ 10, 20, 30 ] ]
   maxSpacing: &maxSpacing { formula: 0.8 * communicationRange } # Largest spacing: below the range, so that no neighbor is pushed out of it
+  cellReach: &cellReach { formula: 0.5 * communicationRange } # Reach of a Voronoi cell (Lloyd): half the range, so that the neighbors that shape it are in range
   shape: &shape # Same list in every scenario: names from src/main/resources/shapes.yml
     type: ArbitraryVariable
     parameters: [ star, [ star, hexagon, ring, crescent, horseshoe ] ]
@@ -51,15 +52,25 @@ deployments:
       # The lattice, as in repulsionOnly.yml (push per neighbor rescaled to the larger spacing)
       - type: it.unibo.collektive.formation.LatticeParameters
         parameters:
-          repulsion: { type: SoftDisk, parameters: { stiffness: 0.05 } } # Push per unit of overlap
-          # repulsion: { type: InverseSquare, parameters: { coefficient: 0.007 } } # Push at the spacing, per unit of it
+          repulsion: { type: Lloyd, parameters: { gain: 1.0, reach: *cellReach } } # Towards the centroid of the Voronoi cell within reach (half the range), clipped to the shape: ignores the spacing, and wants the fixed step below
           maxSpeed: 1.0
+          # Adaptive (driven by the pressure of the ring), Neighborhood (of all the neighbors within 1.5 spacings) or Fixed
           spacing:
             type: Adaptive
             parameters:
               initial: 2.0
               rate: 0.05 # Fraction of the pressure error recovered at each round
-              pressureMargin: 2 # Target pressure, as a fraction of the ring radius
+              pressureMargin: 0.5 # Target pressure, as a fraction of the ring radius
               max: *maxSpacing
-          # spacing: { type: Fixed, parameters: { spacing: 15.2 } } # ~sqrt(area / devices / 0.866) fills the shape
-          step: { type: StepRule, parameters: { decrease: 0.5, increase: 1.2, minGain: 0.05 } } # Gain factor on an overshoot (the control reverses), while the control keeps its direction, and the smallest gain
+          # spacing: { type: Fixed, parameters: { spacing: 4.0 } } # ~sqrt(area / devices / 0.866) fills the shape
+          # step: { type: StepRule, parameters: { decrease: 0.5, increase: 1.2, minGain: 0.05 } } # Gain factor on an overshoot (the control reverses), while the control keeps its direction, and the smallest gain
+          step: { type: StepRule, parameters: { decrease: 1.0, increase: 1.0, minGain: 1.0 } } # Fixed step, for Lloyd
+
+export:
+  - type: CSVExporter
+    parameters: { fileNameRoot: "relativeToLeader", interval: 10.0, exportPath: "data" }
+    data:
+      - time
+      # How evenly the devices cover the shape (see FormationMetrics). The shape is centered on the leader, with the axes of the environment
+      - type: it.unibo.alchemist.boundary.extractors.FormationMetrics
+        parameters: [ leader ]

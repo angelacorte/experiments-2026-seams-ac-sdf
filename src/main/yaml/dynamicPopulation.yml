@@ -96,3 +96,12 @@ deployments:
               max: *maxSpacing
           # spacing: { type: Fixed, parameters: { spacing: 16.0 } } # ~sqrt(area / devices / 0.866) fills the shape
           step: { type: StepRule, parameters: { decrease: 0.5, increase: 1.2, minGain: 0.05 } } # Gain factor on an overshoot (the control reverses), while the control keeps its direction, and the smallest gain
+
+export:
+  - type: CSVExporter
+    parameters: { fileNameRoot: "dynamicPopulation", interval: 10.0, exportPath: "data" }
+    data:
+      - time
+      # How evenly the devices cover the shape (see FormationMetrics). The shape is centered on the leader, with the axes of the environment
+      - type: it.unibo.alchemist.boundary.extractors.FormationMetrics
+        parameters: [ leader ]

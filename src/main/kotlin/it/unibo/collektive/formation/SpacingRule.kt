@@ -45,8 +45,12 @@ sealed interface SpacingRule {
      * @property initial the spacing until the elected one reaches the device.
      * @property areaFrom the lower corner (on both axes) of the square where the area of the shape is measured.
      * @property areaTo the upper corner (on both axes) of that square.
+     * @property margin the spacing in excess of the filling one, as a fraction of it, so that the lattice stays
+     * squeezed and its pressure closes the holes. A [RepulsionLaw.Spring] needs one (0.25): its attraction holds the
+     * crowd at about 0.8 spacings, which with none fills only two thirds of the shape.
      */
-    data class Elected(val initial: Double, val areaFrom: Double, val areaTo: Double) : SpacingRule {
+    data class Elected(val initial: Double, val areaFrom: Double, val areaTo: Double, val margin: Double) :
+        SpacingRule {
         context(aggregate: Aggregate<Int>)
         override fun current(shape: SDF, neighborhood: LatticeNeighborhood) = aggregate.electedSpacing(shape, this)
     }

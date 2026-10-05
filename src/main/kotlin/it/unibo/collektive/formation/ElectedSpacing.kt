@@ -15,9 +15,9 @@ private const val ELECTION_BOUND = 200 // Hops: beyond the diameter of the netwo
 private const val AREA_SAMPLES = 400
 
 /**
- * The spacing of the hexagonal lattice that fills the [shape] with all the devices, `sqrt(2 area / (√3 devices))`
- * (see [SpacingRule.Elected]): a leader is elected, counts the devices along a spanning tree towards itself, computes
- * the spacing from the area of the shape (which every device knows) and spreads it to all along a gradient.
+ * The spacing of the hexagonal lattice that fills the [shape] with all the devices, increased by the margin of the
+ * [rule] (see [SpacingRule.Elected]): a leader is elected, counts the devices along a spanning tree towards itself,
+ * computes the spacing from the area of the shape (which every device knows) and spreads it to all along a gradient.
  * Until the spacing reaches a device, it keeps the initial one of the [rule].
  * The gradients are Bellman-Ford ones, carrying a single value: the fast-repair ones of the library carry whole paths,
  * and slow the simulation down about 15 times.
@@ -35,7 +35,7 @@ fun Aggregate<Int>.electedSpacing(shape: SDF, rule: SpacingRule.Elected): Double
     val spacing = when {
         isLeader -> {
             val area = shape.area(rule.areaFrom, rule.areaTo, (rule.areaTo - rule.areaFrom) / AREA_SAMPLES)
-            sqrt(2 * area / (sqrt(3.0) * devices))
+            (1 + rule.margin) * sqrt(2 * area / (sqrt(3.0) * devices))
         }
         else -> rule.initial
     }

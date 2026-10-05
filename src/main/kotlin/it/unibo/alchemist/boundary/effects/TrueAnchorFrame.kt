@@ -13,9 +13,9 @@ import kotlin.math.hypot
  * it tells where the coordinates of the nodes lie in the environment.
  */
 internal class TrueAnchorFrame private constructor(
-    private val origin: DoubleArray,
-    private val xAxis: Vector2D,
-    private val yAxis: Vector2D,
+    val origin: DoubleArray,
+    val xAxis: Vector2D,
+    val yAxis: Vector2D,
     anchor2: DoubleArray,
     anchor3: DoubleArray,
 ) {

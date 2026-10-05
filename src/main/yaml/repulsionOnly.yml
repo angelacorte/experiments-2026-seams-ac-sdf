@@ -11,14 +11,15 @@ variables:
     default: 42
   nodes: &nodes
     type: ArbitraryVariable
-    parameters: [ 100, [ 50, 100, 200, 300 ] ]
+    parameters: [ 300, [ 50, 100, 200, 300 ] ]
   communicationRange: &communicationRange # Shared by the network model and the formation
     type: ArbitraryVariable
-    parameters: [ 20, [ 10, 20, 30 ] ]
+    parameters: [ 10, [ 10, 20, 30 ] ]
   maxSpacing: &maxSpacing { formula: 0.8 * communicationRange } # Largest spacing: below the range, so that no neighbor is pushed out of it
+  cellReach: &cellReach { formula: 0.5 * communicationRange } # Reach of a Voronoi cell (Lloyd): half the range, so that the neighbors that shape it are in range
   shape: &shape # Same list in every scenario: names from src/main/resources/shapes.yml
     type: ArbitraryVariable
-    parameters: [ star, [ star, hexagon, ring, crescent, horseshoe ] ]
+    parameters: [ crescent, [ star, hexagon, ring, crescent, horseshoe ] ]
 
 network-model:
   type: ConnectWithinDistance
@@ -44,10 +45,11 @@ deployments:
       - type: it.unibo.collektive.alchemist.device.sensors.impl.LocationSensorProperty
       - type: it.unibo.collektive.formation.LatticeParameters
         parameters:
-          # SoftDisk (linear in the overlap, zero beyond the spacing), InverseSquare (never zero) or Spring (pull and push, zero beyond 1.5 spacings)
-          repulsion: { type: SoftDisk, parameters: { stiffness: 0.2 } } # Push per unit of overlap
+          # SoftDisk (linear in the overlap, zero beyond the spacing), InverseSquare (never zero), Spring (pull and push, zero beyond 1.5 spacings) or Lloyd (Voronoi centroid)
+          # repulsion: { type: SoftDisk, parameters: { stiffness: 0.2 } } # Push per unit of overlap
           # repulsion: { type: InverseSquare, parameters: { coefficient: 0.03 } } # Push at the spacing, per unit of it
           # repulsion: { type: Spring, parameters: { stiffness: 0.2, attraction: 0.5 } } # Pull or push per unit of distance from the spacing; pull as a fraction of the push (below 1, or a crowd never spreads)
+          repulsion: { type: Lloyd, parameters: { gain: 0.5, reach: *cellReach } } # Towards the centroid of the Voronoi cell within reach (half the range), clipped to the shape: ignores the spacing, and wants the fixed step below
           maxSpeed: 1.0
           # Adaptive (driven by the pressure of the ring), Neighborhood (of all the neighbors within 1.5 spacings) or Fixed
           spacing:
@@ -58,4 +60,14 @@ deployments:
               pressureMargin: 0.5 # Target pressure, as a fraction of the ring radius
               max: *maxSpacing
           # spacing: { type: Fixed, parameters: { spacing: 4.0 } } # ~sqrt(area / devices / 0.866) fills the shape
-          step: { type: StepRule, parameters: { decrease: 0.5, increase: 1.2, minGain: 0.05 } } # Gain factor on an overshoot (the control reverses), while the control keeps its direction, and the smallest gain
+          # step: { type: StepRule, parameters: { decrease: 0.5, increase: 1.2, minGain: 0.05 } } # Gain factor on an overshoot (the control reverses), while the control keeps its direction, and the smallest gain
+          step: { type: StepRule, parameters: { decrease: 1.0, increase: 1.0, minGain: 1.0 } } # Fixed step, for Lloyd
+
+export:
+  - type: CSVExporter
+    parameters: { fileNameRoot: "repulsionOnly", interval: 10.0, exportPath: "data" }
+    data:
+      - time
+      # How evenly the devices cover the shape (see FormationMetrics). Global positions: the shape lies where shapes.yml puts it
+      - type: it.unibo.alchemist.boundary.extractors.FormationMetrics
+        parameters: [ global ]

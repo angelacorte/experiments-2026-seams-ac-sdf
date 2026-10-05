@@ -53,11 +53,11 @@ fun Aggregate<Int>.rangeOnlyEntrypoint(device: CollektiveDevice<*>, formation: S
         it.learn(position, commanded, parameter("forgettingFactor"), parameter("maxDisplacement"))
     }
     val command = when {
-        control == null -> randomGenerator.randomDirection()
+        control == null -> randomGenerator.randomDirection() * parameter("explorationSpeed")
         isAnchor -> zeroSpeed // The anchors are the reference frame: they stay still.
         // Explore until the alignment is reliable.
         !alignment.isConfident(parameter("minMotionEnergy"), parameter("minConfidence")) ->
-            randomGenerator.randomDirection()
+            randomGenerator.randomDirection() * parameter("explorationSpeed")
         // Keep some random motion, so that the alignment can still tell rotation from reflection.
         else -> alignment.toBody(control) // + randomGenerator.randomDirection() * parameter("explorationNoise")
     }
