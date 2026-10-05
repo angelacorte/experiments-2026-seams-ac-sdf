@@ -1,0 +1,110 @@
+incarnation: collektive
+
+variables:
+  maxSeed: &maxSeed
+    type: SystemEnvVariable
+    parameters: [ "MAX_SEED", 5 ] # default 5 if not specified
+  seed: &seed
+    min: 0
+    max: *maxSeed
+    step: 1
+    default: 42
+  nodes: &nodes
+    type: ArbitraryVariable
+    parameters: [ 100, [ 50, 100, 200, 300 ] ]
+  communicationRange: &communicationRange # Shared by the network model and the formation
+    type: ArbitraryVariable
+    parameters: [ 20, [ 10, 20, 30 ] ]
+  maxSpacing: &maxSpacing { formula: 0.8 * communicationRange } # Largest spacing: below the range, so that no neighbor is pushed out of it
+  cellReach: &cellReach { formula: 0.5 * communicationRange } # Reach of a Voronoi cell (Lloyd): half the range, so that the neighbors that shape it are in range
+  shape: &shape # Same list in every scenario: names from src/main/resources/shapes.yml
+    type: ArbitraryVariable
+    parameters: [ star, [ star, hexagon, ring, crescent, horseshoe ] ]
+  # Population dynamics: start with *nodes, add spawnCount at spawnTime, keep only survivors at killTime
+  spawnTime: &spawnTime
+    type: ArbitraryVariable
+    parameters: [ 500, [ 250, 500, 1000 ] ]
+  spawnCount: &spawnCount
+    type: ArbitraryVariable
+    parameters: [ 150, [ 50, 150, 300 ] ]
+  spawnRangeFraction: &spawnRangeFraction # Fraction of the communication range within which nodes spawn
+    type: ArbitraryVariable
+    parameters: [ 0.8, [ 0.5, 0.8, 1.0 ] ]
+  killTime: &killTime
+    type: ArbitraryVariable
+    parameters: [ 1000, [ 750, 1000, 1500 ] ]
+  survivors: &survivors
+    type: ArbitraryVariable
+    parameters: [ 30, [ 10, 30, 50 ] ]
+
+environment:
+  type: Continuous2DEnvironment
+  global-programs:
+    # At spawnTime, spawnCount new nodes appear at random within spawnRangeFraction * communicationRange
+    # of the nodes already present, so that each one has at least a neighbor
+    # (SpawnRandomNodes with [ time, count, x, y, width, height ] spawns in a fixed rectangle instead)
+    - type: SpawnNearNodes
+      parameters: [ *spawnTime, *spawnCount, *communicationRange, *spawnRangeFraction ]
+    # At killTime, random nodes are removed until only survivors are left
+    - type: KillRandomNodes
+      parameters: [ *killTime, *survivors ]
+
+network-model:
+  type: ConnectWithinDistance
+  parameters: [*communicationRange]
+
+_pool: &program
+  - time-distribution: 1
+    type: Event
+    actions:
+      - type: RunCollektiveProgram
+        parameters: [ it.unibo.collektive.entrypoint.PositionBasedKt.positionBasedEntrypoint]
+      - type: SpeedToTarget
+        parameters: [ ]
+
+deployments:
+  - type: Rectangle
+    parameters: [*nodes, 0, 0, 100, 100]
+    contents:
+      # Anchors
+      - { molecule: leaderElectionBound, concentration: 200 } # Hops within which anchor 1 is elected
+      - { molecule: minAnchorsHeight, concentration: 10.0 } # Min distance of anchor 3 from the line of anchors 1-2
+      - { molecule: maxSpeed, concentration: &maxSpeed 1.0 } # Shared with the lattice
+      # Steering without bearing (frame alignment from the own commands)
+      - { molecule: forgettingFactor, concentration: 0.9 } # Past evidence kept at each round (0.9 beat 0.95 in every run of the sweep, 0.99 is worse)
+      - { molecule: maxDisplacement, concentration: 5.0 } # Estimate changes above this are frame jumps
+      - { molecule: explorationSpeed, concentration: 1.0 } # Speed of the random moves, before localizing and while learning to steer (0.3 strands devices outside: see data/localization-report.html)
+      - { molecule: minMotionEnergy, concentration: 5.0 } # Motion needed before steering: grows with the square of the exploration speed
+      - { molecule: minConfidence, concentration: 0.1 } # Direction spread needed before steering (0.4 leaves many devices outside)
+      - { molecule: explorationNoise, concentration: 0.0 } # Random motion kept while steering
+    programs:
+      - *program
+    properties:
+      - type: it.unibo.collektive.alchemist.device.sensors.impl.ShapeProperty
+        parameters: [ *shape ]
+      - type: it.unibo.collektive.alchemist.device.BodyFrameProperty
+      # The lattice, as in repulsionOnly.yml (push per neighbor rescaled to the larger spacing)
+      - type: it.unibo.collektive.coverage.LatticeParameters
+        parameters:
+          repulsion: { type: Lloyd, parameters: { gain: 1.0, reach: *cellReach } } # Towards the centroid of the Voronoi cell within reach (half the range), clipped to the shape: ignores the spacing, and wants the fixed step below
+          maxSpeed: 1.0
+          # Adaptive (driven by the pressure of the ring), Neighborhood (of all the neighbors within 1.5 spacings) or Fixed
+          spacing:
+            type: Adaptive
+            parameters:
+              initial: 2.0
+              rate: 0.05 # Fraction of the pressure error recovered at each round
+              pressureMargin: 0.5 # Target pressure, as a fraction of the ring radius
+              max: *maxSpacing
+          # spacing: { type: Fixed, parameters: { spacing: 4.0 } } # ~sqrt(area / devices / 0.866) fills the shape
+          # step: { type: StepRule, parameters: { decrease: 0.5, increase: 1.2, minGain: 0.05 } } # Gain factor on an overshoot (the control reverses), while the control keeps its direction, and the smallest gain
+          step: { type: StepRule, parameters: { decrease: 1.0, increase: 1.0, minGain: 1.0 } } # Fixed step, for Lloyd
+
+export:
+  - type: CSVExporter
+    parameters: { fileNameRoot: "dynamicDistanceBased", interval: 10.0, exportPath: "data/dynamicDistanceBased" }
+    data:
+      - time
+      # How evenly the devices cover the shape (see FormationMetrics). The shape is centered on the anchors, in their frame (turned, maybe mirrored)
+      - type: FormationMetrics
+        parameters: [ anchors ]
