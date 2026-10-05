@@ -57,7 +57,7 @@ _pool: &program
     type: Event
     actions:
       - type: RunCollektiveProgram
-        parameters: [it.unibo.collektive.entrypoint.RelativeToLeaderKt.relativeToLeaderEntrypoint]
+        parameters: [ it.unibo.collektive.entrypoint.PositionBasedKt.positionBasedEntrypoint]
       - type: SpeedToTarget
         parameters: [ ]
 
