@@ -23,7 +23,7 @@ variables:
   # Population dynamics: start with *nodes, add spawnCount at spawnTime, keep only survivors at killTime
   spawnTime: &spawnTime
     type: ArbitraryVariable
-    parameters: [ 500, [ 250, 500, 1000 ] ]
+    parameters: [ 700, [ 250, 500, 1000 ] ]
   spawnCount: &spawnCount
     type: ArbitraryVariable
     parameters: [ 150, [ 50, 150, 300 ] ]
@@ -58,7 +58,7 @@ _pool: &program
     type: Event
     actions:
       - type: RunCollektiveProgram
-        parameters: [ it.unibo.collektive.entrypoint.PositionBasedKt.positionBasedEntrypoint]
+        parameters: [it.unibo.collektive.entrypoint.DistanceBasedKt.distanceBasedEntrypoint]
       - type: SpeedToTarget
         parameters: [ ]
 
@@ -108,3 +108,9 @@ export:
       # How evenly the devices cover the shape (see FormationMetrics). The shape is centered on the anchors, in their frame (turned, maybe mirrored)
       - type: FormationMetrics
         parameters: [ anchors ]
+      - type: CoverageMetrics
+        parameters: [ anchors ]
+
+#termination:
+#  type: AfterTme
+#  parameters: [ 1500 ]
