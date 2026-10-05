@@ -49,6 +49,9 @@ sealed interface RepulsionLaw {
      * hexagonal lattice counts.
      * The pull is the [attraction] fraction of the push: with a full one, a uniform crowd is in balance (push and pull
      * cancel out up to [REACH]) and never spreads; below it, the border of a crowd is pushed out.
+     *
+     * @property stiffness how strongly the push (and the pull) grows with `distance - spacing`.
+     * @property attraction the pull, as a fraction of the push.
      */
     data class Spring(val stiffness: Double, val attraction: Double) : Pairwise {
         override fun force(offset: Vector2D, spacing: Double): SpeedControl2D {
