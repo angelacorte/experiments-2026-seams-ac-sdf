@@ -37,7 +37,8 @@ fun Aggregate<Int>.positionRelativeTo(source: Boolean, sensor: RelativePositionS
 
 /**
  * The name of the shape held by the [leader]: the `shape` molecule of the leader (the name of the [formation] when
- * missing), spread to every device by its nearest leader, so that changing the molecule on the leader reshapes the swarm.
+ * missing), spread to every device by its nearest leader,
+ * so that changing the molecule on the leader reshapes the swarm.
  * Every device stores the shape it perceives in its `shape` molecule, at every round: a newly elected leader keeps the
  * current shape, and the metrics measure the shape the devices actually form.
  */

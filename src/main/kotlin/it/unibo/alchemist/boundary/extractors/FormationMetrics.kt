@@ -46,7 +46,8 @@ class FormationMetrics(private val placement: String) : AbstractDoubleExtractor(
         requireKnownPlacement(placement)
     }
 
-    private val samples = mutableMapOf<TargetShape, ShapeSamples>() // Of each shape where shapes.yml puts it, computed once
+    // Of each shape where shapes.yml puts it, computed once
+    private val samples = mutableMapOf<TargetShape, ShapeSamples>()
     private var previous: Pair<Double, Map<Int, Position>>? = null
 
     override val columnNames: List<String> = COLUMNS
