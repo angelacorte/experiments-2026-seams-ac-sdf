@@ -1,3 +1,17 @@
+## [1.3.0](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/compare/1.2.0...1.3.0) (2026-10-06)
+
+### Features
+
+* better positioning for distance base ([ac2a336](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/ac2a3363f5434a78df57170bfd7b17b129b61fa2))
+
+### Bug Fixes
+
+* **ci:** add login to dockerhub ([10452e5](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/10452e529448aab5dcf1bc546e3524fd65fec1f8))
+
+### General maintenance
+
+* **release:** update gradle.properties .env versions to 1.2.0 [skip ci] ([0fa2e05](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/0fa2e05fd87b0630af031b472bb9c0def8482946))
+
 ## [1.2.0](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/compare/1.1.0...1.2.0) (2026-10-06)
 
 ### Features
