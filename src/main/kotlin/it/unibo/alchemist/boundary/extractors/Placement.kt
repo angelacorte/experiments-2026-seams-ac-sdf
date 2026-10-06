@@ -14,6 +14,7 @@ import it.unibo.collektive.sdf.translate
 
 private val LEADER = SimpleMolecule("leader")
 private val SHAPE = SimpleMolecule("shape")
+private val SHAPE_CENTER = SimpleMolecule("shapeCenter")
 private val X_AXIS = SpeedControl2D(1.0, 0.0)
 private val Y_AXIS = SpeedControl2D(0.0, 1.0)
 
@@ -26,7 +27,8 @@ internal fun requireKnownPlacement(placement: String) = require(placement in set
  * The shape of the devices in [environment] and where it lies, by [placement] (see [FormationMetrics]), or null until
  * the leader or the anchors are elected.
  * The shape is the one in the `shape` molecule of the leader (the one the devices perceive, which may change during
- * the simulation), or the one of its [ShapeProperty] when missing.
+ * the simulation), or the one of its [ShapeProperty] when missing; without global positions, the devices place the
+ * point in its `shapeCenter` molecule (the center of the shape when missing) on the leader or on the anchors' centroid.
  */
 internal fun <T> shapeIn(environment: Environment<T, *>, placement: String): Pair<TargetShape, Placement>? {
     // ponytail: with more leaders (a split network), the one with the highest id
@@ -36,38 +38,44 @@ internal fun <T> shapeIn(environment: Environment<T, *>, placement: String): Pai
         .firstNotNullOfOrNull { node -> node.properties.filterIsInstance<ShapeProperty<*>>().firstOrNull() }
     return property?.let {
         val shape = it.target(holder?.getConcentration(SHAPE) as? String ?: it.name)
-        placementOf(environment, placement, shape)?.let { where -> shape to where }
+        val center = holder?.getConcentration(SHAPE_CENTER) as? Position ?: shape.center
+        placementOf(environment, placement, shape, center)?.let { where -> shape to where }
     }
 }
 
-private fun <T> placementOf(environment: Environment<T, *>, placement: String, shape: TargetShape): Placement? =
-    when (placement) {
-        "global" -> Placement(Position.origin, X_AXIS, Y_AXIS, shape.center, shape)
-        // ponytail: with more leaders (a split network), the one with the highest id
-        "leader" -> environment.nodes.filter { it.getConcentration(LEADER) == true }.maxByOrNull { it.id }?.let {
-            val origin = environment.getPosition(it).coordinates
-            Placement(Position(origin[0], origin[1]), X_AXIS, Y_AXIS, Position.origin, shape)
-        }
-        else -> {
-            @Suppress("UNCHECKED_CAST") // The scenarios are all in the Euclidean plane
-            TrueAnchorFrame.of(environment as Environment<T, Euclidean2DPosition>)?.let {
-                Placement(Position(it.origin[0], it.origin[1]), it.xAxis, it.yAxis, it.centroid, shape)
-            }
+private fun <T> placementOf(
+    environment: Environment<T, *>,
+    placement: String,
+    shape: TargetShape,
+    center: Position,
+): Placement? = when (placement) {
+    "global" -> Placement(Position.origin, X_AXIS, Y_AXIS, shape.center, shape)
+    // ponytail: with more leaders (a split network), the one with the highest id
+    "leader" -> environment.nodes.filter { it.getConcentration(LEADER) == true }.maxByOrNull { it.id }?.let {
+        val origin = environment.getPosition(it).coordinates
+        Placement(Position(origin[0], origin[1]), X_AXIS, Y_AXIS, Position.origin, shape, center)
+    }
+    else -> {
+        @Suppress("UNCHECKED_CAST") // The scenarios are all in the Euclidean plane
+        TrueAnchorFrame.of(environment as Environment<T, Euclidean2DPosition>)?.let {
+            Placement(Position(it.origin[0], it.origin[1]), it.xAxis, it.yAxis, it.centroid, shape, center)
         }
     }
+}
 
 /**
- * Where the shape lies in the environment: the center of the shape of `shapes.yml` on [point] of the frame with
- * [origin] and axes [xAxis] and [yAxis] (orthonormal, possibly mirrored).
+ * Where the shape lies in the environment: the point [center] of the shape of `shapes.yml` (by default, its center) on
+ * [point] of the frame with [origin] and axes [xAxis] and [yAxis] (orthonormal, possibly mirrored).
  */
 internal class Placement(
     private val origin: Position,
     private val xAxis: Vector2D,
     private val yAxis: Vector2D,
     private val point: Position,
-    private val shape: TargetShape,
+    shape: TargetShape,
+    private val center: Position = shape.center,
 ) {
-    private val inFrame = shape.sdf.translate(point.x - shape.center.x, point.y - shape.center.y)
+    private val inFrame = shape.sdf.translate(point.x - center.x, point.y - center.y)
 
     /** The shape, in the environment: rigid moves keep its distances exact. */
     val sdf = SDF { position ->
@@ -78,8 +86,8 @@ internal class Placement(
 
     /** The environment position of [position] of the shape of `shapes.yml`. */
     fun toEnvironment(position: Position): Position {
-        val x = position.x - shape.center.x + point.x
-        val y = position.y - shape.center.y + point.y
+        val x = position.x - center.x + point.x
+        val y = position.y - center.y + point.y
         return Position(origin.x + x * xAxis.x + y * yAxis.x, origin.y + x * xAxis.y + y * yAxis.y)
     }
 }

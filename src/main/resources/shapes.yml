@@ -25,3 +25,4 @@ spiral: { type: Spiral, center: [50, 50], spacing: 12, turns: 3, thickness: 4 }
 fibonacci_spiral: { type: FibonacciSpiral, center: [50, 50], scale: 5.5, quarterTurns: 7, thickness: 4 }
 letter_h: { type: TextBlock, text: H, start: [41, 32], glyphHeight: 36, thickness: 4 } # Bottom-left of the H
 letters_hi: { type: TextBlock, text: HI, start: [41, 32], glyphHeight: 36, thickness: 4 }
+letters_seams: { type: TextBlock, text: SEAMS, start: [41, 32], glyphHeight: 36, thickness: 4 }

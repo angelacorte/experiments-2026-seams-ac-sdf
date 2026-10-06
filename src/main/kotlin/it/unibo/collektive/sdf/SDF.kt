@@ -2,6 +2,7 @@ package it.unibo.collektive.sdf
 
 import it.unibo.collektive.geometry.Position
 import it.unibo.collektive.geometry.SpeedControl2D
+import it.unibo.collektive.geometry.times
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
@@ -94,3 +95,30 @@ fun gradientToSDF(sdf: SDF, currentPosition: Position, epsilon: Double): SpeedCo
     sdf(Position(currentPosition.x, currentPosition.y + epsilon)) -
         sdf(Position(currentPosition.x, currentPosition.y - epsilon)),
 )
+
+/**
+ * A point deep inside [this], found from [start] following the [gradientToSDF] (of step [epsilon]), without sampling:
+ * down to the border (sphere tracing), if [start] is outside, then inward while the distance from the border grows,
+ * halving the step until below [epsilon]. It is a local maximum of the depth (a point of the medial axis), so it
+ * lies inside the shape, but it is the deepest one only for convex shapes. At most [maxSteps] moves per phase.
+ */
+fun SDF.deepestPointFrom(start: Position, epsilon: Double = 1e-3, maxSteps: Int = 10_000): Position {
+    // Where the gradient vanishes (e.g., at the center of a ring), any direction: the +x axis.
+    fun Position.inward(length: Double): Position = gradientToSDF(this@deepestPointFrom, this, epsilon)
+        .let { if (it.norm > 0.0) it * (1 / it.norm) else SpeedControl2D(-1.0, 0.0) }
+        .let { Position(x - it.x * length, y - it.y * length) }
+    // Sphere tracing: the border is at least this(point) away, towards the gradient.
+    var point = start
+    var moves = 0
+    while (this(point) > 0.0 && moves++ < maxSteps) {
+        point = point.inward(this(point) + epsilon)
+    }
+    // Gradient ascent of the depth, with a step that halves when it stops growing.
+    var step = maxOf(-this(point), 1.0)
+    moves = 0
+    while (step >= epsilon && moves++ < maxSteps) {
+        val next = point.inward(step)
+        if (this(next) < this(point)) point = next else step /= 2
+    }
+    return point
+}

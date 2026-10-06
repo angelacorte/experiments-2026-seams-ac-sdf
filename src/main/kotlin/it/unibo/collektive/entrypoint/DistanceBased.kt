@@ -45,9 +45,7 @@ fun Aggregate<Int>.distanceBasedEntrypoint(device: CollektiveDevice<*>, formatio
     device["leader"] = isAnchor
     device["anchor"] = role.name // Tells the anchors apart, for the metrics: they need not be neighbors
     val (frame, position) = localize(role, neighborDistances)
-    // The shape is the one held by the leader (anchor 1), centered on the anchors' centroid: it follows the anchors
-    // when they change.
-    val shape = formation.shapeAt(frame.centroid, leaderShape(device, role == AnchorRole.ANCHOR_1, formation))
+    val shape = leaderShape(device, role == AnchorRole.ANCHOR_1, formation, frame.centroid)
     val offsets = offsetsFromEstimates(position, neighborDistances)
     val control = position?.let { latticeVelocity(shape, it, offsets) }
     device["control"] = control ?: zeroSpeed // The ideal command, in the anchor frame
@@ -56,24 +54,17 @@ fun Aggregate<Int>.distanceBasedEntrypoint(device: CollektiveDevice<*>, formatio
     val alignment = evolve(FrameAlignment()) {
         it.learn(position, commanded, parameter("forgettingFactor"), parameter("maxDisplacement"))
     }
-    // The body frame never turns: once reliable, the alignment stays so (it keeps learning from the commands),
-    // even when the commands shrink near the lattice and the evidence fades.
     val steering = evolve(false) {
         it || alignment.isConfident(parameter("minMotionEnergy"), parameter("minConfidence"))
     }
-    // Back and forth along a random direction, then another: the moves span the plane, and the device stays in place.
     val probe = evolve(zeroSpeed to false) { (direction, out) ->
         if (out) direction * -1.0 to false else randomGenerator.randomDirection() to true
     }.first * parameter("explorationSpeed")
     val unlocalized = evolve(0) { if (control == null) it + 1 else 0 } // Rounds since the device lost the frame
     val command = when {
-        // Until the anchors are chosen and the frame they fix gets here, the whole system stays still; a device that
-        // waits too long is cut off from the anchors, and explores to find them.
         control == null -> if (unlocalized > parameter("maxFrameWait")) probe else zeroSpeed
         isAnchor -> zeroSpeed // The anchors are the reference frame: they stay still.
-        // Explore until the alignment is reliable.
         !steering -> probe
-        // Keep some random motion, so that the alignment can still tell rotation from reflection.
         else -> alignment.toBody(control) // + randomGenerator.randomDirection() * parameter("explorationNoise")
     }
     val maxSpeed = parameter("maxSpeed")
