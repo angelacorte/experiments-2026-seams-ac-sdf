@@ -1,3 +1,13 @@
+## [1.2.0](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/compare/1.1.0...1.2.0) (2026-10-06)
+
+### Features
+
+* improve anchor election using multihop selection ([c6d63e7](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/c6d63e7d3e970eb14dfb55a04ae0085be12d45b7))
+
+### General maintenance
+
+* **release:** update gradle.properties .env versions to 1.1.0 [skip ci] ([1a6acf8](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/1a6acf8a68f9b8ddf2ae783fdfdbb2c731d13cd0))
+
 ## [1.1.0](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/compare/1.0.0...1.1.0) (2026-10-05)
 
 ### Features
