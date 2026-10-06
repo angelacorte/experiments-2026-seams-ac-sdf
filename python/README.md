@@ -29,6 +29,32 @@ python process.py --help                  # all the options
 | `snapshots` (S) | `plot_positions_snapshots.py` | `data/positions/<folder>/` | `charts/positions/` |
 | `gifs` (G) | `plot_positions_gif.py` | `data/positions/<folder>/` | `charts/positions/` |
 
+### One simulation
+
+The plotters (letters) and the simulations (filters) are chosen separately: `--scenario` picks the folder of
+`data/positions`, `--where` the values of the variables in the header of the run (`seed`, `shape`, and `start` where
+the scenario has it). With `seed` in `--where` that seed is used, otherwise the first seed of each configuration.
+
+```bash
+# only the GIFs of one simulation
+python process.py G --scenario positionBased --where shape=star seed=42
+
+# snapshots and GIFs of the same simulation
+python process.py S G --scenario positionBased --where shape=star seed=42
+
+# one simulation of a batch, only the GIF with the shape in the background, up to t = 1000
+python process.py G --scenario dynamicPositionBased --where shape=star start=left seed=3 --shape-overlay on --until 1000
+
+# the snapshots of one simulation at chosen instants
+python process.py S --scenario dynamicDisplacementBased --where shape=ring seed=0 --times 0 690 710 990 1010 1500
+
+# the same simulation for two shapes, every seed
+python process.py S G --scenario dynamicDistanceBased --where shape=star,ring --all-seeds
+```
+
+The values of `--where` accept `3` as well as `3.0`. The metrics (`M`) ignore `--where`: they are averages over the
+seeds that compare the scenarios, so a single simulation is shown by the snapshots and the GIFs.
+
 ### Options of `process.py`
 
 Each option goes only to the plotters that accept it.

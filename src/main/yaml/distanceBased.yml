@@ -89,6 +89,6 @@ export:
       - type: FormationMetrics
         parameters: [ anchors ]
   - type: it.unibo.alchemist.boundary.exporters.DevicePositionsExporter
-    parameters: { fileNameRoot: *filename, interval: 2.0, exportPath: *positionsPath, placement: global }
+    parameters: { fileNameRoot: *filename, interval: 2.0, exportPath: *positionsPath, placement: anchors }
     data:
       - time

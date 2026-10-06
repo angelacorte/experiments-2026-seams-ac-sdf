@@ -236,7 +236,7 @@ def load_run(scenario: str, path: Path, use_cache: bool = True) -> Run:
                 stored_signature, run = pickle.load(file)
             if stored_signature == signature:
                 return run
-        except (OSError, pickle.UnpicklingError, EOFError, AttributeError, ImportError):
+        except Exception:  # Unreadable, or written by another version of pandas: parse again
             pass
     raw_devices = _read(path, DEVICE_COLUMNS)
     interval = export_interval(raw_devices) if not raw_devices.empty else config.EXPORT_INTERVAL
@@ -307,19 +307,11 @@ def parse_filters(items: list[str] | None) -> dict[str, list[str]]:
 
 
 def population_events(scenario: str) -> dict | None:
-    """The population events (spawn and kill) of the yaml that exports in data/positions/<scenario>, or None when it
+    """The population events (spawn and kill) of the yaml of the runs in data/positions/<scenario>, or None when it
     has none (e.g. positionBased.yml)."""
-    import yaml
+    import loader
 
-    for path in sorted(config.YAML_DIR.glob("*.yml")):
-        text = path.read_text()
-        if f"data/positions/{scenario}" not in text:
-            continue
-        try:
-            variables = (yaml.safe_load(text) or {}).get("variables", {})
-        except yaml.YAMLError:
-            return None
-        keys = ["nodes", "spawnTime", "spawnCount", "killTime", "survivors"]
-        values = {k: variables.get(k) for k in keys}
-        return values if all(isinstance(v, (int, float)) for v in values.values()) else None
-    return None
+    variables = loader.yaml_variables(scenario) or {}
+    keys = ["nodes", "spawnTime", "spawnCount", "killTime", "survivors"]
+    values = {k: variables.get(k) for k in keys}
+    return values if all(isinstance(v, (int, float)) for v in values.values()) else None

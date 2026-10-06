@@ -75,6 +75,6 @@ export:
       - type: it.unibo.alchemist.boundary.extractors.FormationMetrics
         parameters: [ leader ]
   - type: it.unibo.alchemist.boundary.exporters.DevicePositionsExporter
-    parameters: { fileNameRoot: *filename, interval: 2.0, exportPath: *positionsPath, placement: global }
+    parameters: { fileNameRoot: *filename, interval: 2.0, exportPath: *positionsPath, placement: leader }
     data:
       - time

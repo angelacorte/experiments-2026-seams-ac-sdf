@@ -64,7 +64,7 @@ def _load_cache() -> dict:
             cache = pickle.load(file)
         if cache.get("version") == CACHE_VERSION:
             return cache
-    except (OSError, pickle.UnpicklingError, EOFError, AttributeError, ImportError):
+    except Exception:  # Unreadable, or written by another version of pandas: parse again
         pass
     return {"version": CACHE_VERSION, "files": {}}
 
@@ -191,22 +191,39 @@ def metric_columns(data: pd.DataFrame) -> list[str]:
     return known + [m for m in numeric if m not in known]
 
 
-def population_events(scenario: str) -> dict:
-    """nodes, spawnTime, spawnCount, killTime, survivors from the yaml whose export writes in data/<scenario>."""
-    values = dict(config.DEFAULT_POPULATION)
+def _text(value) -> str:
+    """The text of a yaml value: a string, or the string of a formula like `{ formula: "'name'" }`."""
+    if isinstance(value, dict):
+        value = value.get("formula", "")
+    return str(value).strip().strip("'\"")
+
+
+def yaml_variables(name: str) -> dict | None:
+    """The variables of the yaml whose exports are named [name] (its `filename` variable, or the fileNameRoot or the
+    last folder of the exportPath of one of its exporters), or None."""
     for path in sorted(config.YAML_DIR.glob("*.yml")):
-        text = path.read_text()
-        if f'"{scenario}"' not in text and f"data/{scenario}" not in text:
-            continue
         try:
-            variables = (yaml.safe_load(text) or {}).get("variables", {})
+            document = yaml.safe_load(path.read_text()) or {}
         except yaml.YAMLError:
-            break
-        for key in values:
-            value = variables.get(key)
-            if isinstance(value, (int, float)):
-                values[key] = value
-        break
+            continue
+        variables = document.get("variables", {}) or {}
+        names = {_text(variables.get("filename", ""))}
+        for exporter in document.get("export", []) or []:
+            parameters = exporter.get("parameters", {}) if isinstance(exporter, dict) else {}
+            if isinstance(parameters, dict):
+                names.add(_text(parameters.get("fileNameRoot", "")))
+                names.add(_text(parameters.get("exportPath", "")).rstrip("/").split("/")[-1])
+        if name in names:
+            return variables
+    return None
+
+
+def population_events(scenario: str) -> dict:
+    """nodes, spawnTime, spawnCount, killTime, survivors from the yaml of [scenario] (the defaults when missing)."""
+    values = dict(config.DEFAULT_POPULATION)
+    for key, value in (yaml_variables(scenario) or {}).items():
+        if key in values and isinstance(value, (int, float)):
+            values[key] = value
     return values
 
 
