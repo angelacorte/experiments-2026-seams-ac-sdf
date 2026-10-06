@@ -43,6 +43,19 @@ internal fun <T> shapeIn(environment: Environment<T, *>, placement: String): Pai
     }
 }
 
+/**
+ * The name of the shape of the devices in [environment]: the `shape` molecule of the leader (see [shapeIn]), or the one
+ * of its [ShapeProperty] when missing.
+ */
+internal fun <T> shapeNameIn(environment: Environment<T, *>): String? {
+    val holder = environment.nodes.filter { it.getConcentration(LEADER) == true }.maxByOrNull { it.id }
+        ?: environment.nodes.firstOrNull()
+    return holder?.getConcentration(SHAPE) as? String
+        ?: environment.nodes.firstNotNullOfOrNull { node ->
+            node.properties.filterIsInstance<ShapeProperty<*>>().firstOrNull()
+        }?.name
+}
+
 private fun <T> placementOf(
     environment: Environment<T, *>,
     placement: String,
