@@ -1,3 +1,19 @@
+## [1.4.0](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/compare/1.3.0...1.4.0) (2026-10-06)
+
+### Features
+
+* add node position exporter ([7b534ef](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/7b534efffd4404b36e8a6ed26cf26f3f116df691))
+* add node position exporter to yamls ([ec49949](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/ec49949d39ac7a580f818a9cedaedbf89d897ea5))
+* add node position plotters and script to run all plots ([80d2be8](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/80d2be8d47d7f950c5742c65556b1a7a3c568c7f))
+
+### Bug Fixes
+
+* update docker command for charts generation ([715df71](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/715df714a3084e8a8f43b558b35782fe3e0f9164))
+
+### General maintenance
+
+* **release:** update gradle.properties .env versions to 1.3.0 [skip ci] ([157de51](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/157de5113fa48671fbf5a7fecbe2d5855c580658))
+
 ## [1.3.0](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/compare/1.2.0...1.3.0) (2026-10-06)
 
 ### Features
