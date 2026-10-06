@@ -9,4 +9,5 @@ COPY src/main/resources/shapes.yml src/main/resources/shapes.yml
 COPY requirements.txt ./
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
-CMD ["python", "python/plot_dynamic.py"]
+COPY process.py ./
+CMD ["python", "process.py"]
