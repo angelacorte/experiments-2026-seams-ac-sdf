@@ -227,7 +227,7 @@ experiments-2026-seams-ac-sdf/
 ├── docker/                     # Dockerfiles to build the containers (simulations and charts)
 ├── effects/                    # JSON specification for Alchemist's GUI visualization
 ├── gradle/                     # Gradle wrapper files
-├── python/                     # Plotting utilities (config, loader, plot_dynamic)
+├── python/                     # Plotters (metrics, snapshots, GIFs) and their shared modules, launched by process.py
 ├── src/
 │   └── main/
 │       ├── kotlin/it/unibo/    # Kotlin source code for the experiments
@@ -248,6 +248,7 @@ experiments-2026-seams-ac-sdf/
 │       └── yaml/               # YAML files for the experiments specification
 ├── build.gradle.kts            # Gradle build, generates the simulation tasks from the YAML files
 ├── docker-compose.yml          # Runs the simulations and the charts in containers
+├── process.py                  # Runs all the plotters (or some: python process.py --help)
 ```
 
 #### Simulation entrypoint
@@ -320,7 +321,9 @@ For the current project status, result reproduction means:
     ```
 4. Run the script to process the data and generate the charts (this process may take some time):
     ```bash
-    python TODO
+    python process.py                 # all the plotters
+    python process.py metrics         # or some of them: metrics, snapshots, gifs (M, S, G)
+    python process.py --help          # filters (e.g. --where shape=star) and the other options
     ```
 5. The charts will be generated in the `charts` folder.
 6. If you want to regenerate the charts, you can run the script again.
