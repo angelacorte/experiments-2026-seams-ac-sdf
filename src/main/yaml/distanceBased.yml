@@ -1,6 +1,8 @@
 incarnation: collektive
 
 variables:
+  filename: &filename { formula: "'distanceBased'" } # Root of the exported file names, shared by all the exporters
+  dataPath: &dataPath { formula: "'data/' + filename" } # Where the metrics are exported
   maxSpacing: &maxSpacing { formula: 0.8 * communicationRange } # Largest spacing: below the range, so that no neighbor is pushed out of it
   cellReach: &cellReach { formula: 0.5 * communicationRange } # Reach of a Voronoi cell (Lloyd): half the range, so that the neighbors that shape it are in range
   nodes: &nodes 100
@@ -79,7 +81,7 @@ deployments:
 
 export:
   - type: CSVExporter
-    parameters: { fileNameRoot: "distanceBased", interval: 10.0, exportPath: "data/distanceBased" }
+    parameters: { fileNameRoot: *filename, interval: 10.0, exportPath: *dataPath }
     data:
       - time
       # How evenly the devices cover the shape (see FormationMetrics). The shape is centered on the anchors, in their frame (turned, maybe mirrored)

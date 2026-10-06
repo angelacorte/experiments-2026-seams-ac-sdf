@@ -1,6 +1,9 @@
 incarnation: collektive
 
 variables:
+  filename: &filename { formula: "'dynamicPositionBased'" } # Root of the exported file names, shared by all the exporters
+  dataPath: &dataPath { formula: "'data/' + filename" } # Where the metrics are exported
+  positionsPath: &positionsPath { formula: "'data/positions/' + filename" } # Where the node positions are exported (for the plots)
   maxSpacing: &maxSpacing { formula: 0.8 * communicationRange } # Largest spacing: below the range, so that no neighbor is pushed out of it
   cellReach: &cellReach { formula: 0.5 * communicationRange } # Reach of a Voronoi cell (Lloyd): half the range, so that the neighbors that shape it are in range
   spawnRangeFraction: &spawnRangeFraction 0.8 # Fraction of the communication range within which nodes spawn
@@ -80,10 +83,16 @@ deployments:
 
 export:
   - type: CSVExporter
-    parameters: { fileNameRoot: "dynamicPositionBased", interval: 10.0, exportPath: "data/dynamicPositionBased" }
+    parameters: { fileNameRoot: *filename, interval: 10.0, exportPath: *dataPath }
     data:
       - time
       - type: FormationMetrics
         parameters: [ global ]
       - type: CoverageMetrics
         parameters: [ global ]
+  # The position of every device, with the SDF there and the leader/anchors, for the snapshots and the GIFs
+  # (python): in data/positions/dynamicPositionBased, with the same file names as the metrics
+  - type: it.unibo.alchemist.boundary.exporters.DevicePositionsExporter
+    parameters: { fileNameRoot: *filename, interval: 2.0, exportPath: *positionsPath, placement: global }
+    data:
+      - time
