@@ -13,7 +13,7 @@ variables:
     formula: 30
   shape: &shape # Same list in every scenario: names from src/main/resources/shapes.yml
     type: ArbitraryVariable
-    parameters: [ star, [ star, hexagon, ring, crescent, horseshoe ] ]
+    parameters: [ ring, [ star, hexagon, ring, crescent, horseshoe ] ]
   maxSeed: &maxSeed
     type: SystemEnvVariable
     parameters: [ "MAX_SEED", 5 ] # default 5 if not specified
@@ -59,7 +59,10 @@ deployments:
       - { molecule: shape, concentration: *shape } # The shape the leader holds and spreads (the ShapeProperty one if missing)
       # Anchors
       - { molecule: leaderElectionBound, concentration: 200 } # Hops within which anchor 1 is elected
-      - { molecule: minAnchorsHeight, concentration: 10.0 } # Min distance of anchor 3 from the line of anchors 1-2
+      - { molecule: minAnchorsHeight, concentration: 8.0 } # Min distance of anchor 3 from the line of anchors 1-2 (below the height of the triangle, ~0.87 * anchorsSize)
+      - { molecule: anchorsSize, concentration: 8.0 } # Side of the triangle of the anchors (path distances): small enough to fit in the shape
+      - { molecule: anchorPatience, concentration: 10 } # Rounds without the report of an anchor before anchor 1 replaces it
+      - { molecule: maxFrameWait, concentration: 50 } # Rounds a device stays still waiting for the frame, then it explores (cut off from the anchors)
       - { molecule: maxSpeed, concentration: &maxSpeed 1.0 } # Shared with the lattice
       # Steering without bearing (frame alignment from the own commands)
       - { molecule: forgettingFactor, concentration: 0.9 } # Past evidence kept at each round (0.9 beat 0.95 in every run of the sweep, 0.99 is worse)

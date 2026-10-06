@@ -54,17 +54,11 @@ fun Aggregate<Int>.displacementBasedEntrypoint(
     sensor: RelativePositionSensor,
     formation: ShapeProperty<*>,
 ) = with(device) {
-    val leaderBasedCentrality = boundedElection(-localId, 1500)
+    val leaderBasedCentrality = boundedElection(-localId, 200)
     val isLeader = leaderBasedCentrality == localId
     device["leader"] = isLeader
     val position = positionRelativeTo(isLeader, sensor)
-    // The shape is the one held by the leader, centered on it (the origin of the frame): it follows the leader when
-    // another is elected.
     val shape = formation.shapeAt(Position.origin, leaderShape(device, isLeader, formation))
-    // The shared clock counts from DISTANT_PAST, and the whole network agrees on it: 1 degree per time unit.
-//        val clock = sharedClock(Instant.fromEpochMilliseconds((device.currentTime.toDouble() * 1000).toLong()))
-    // .rotate(Math.toRadians((clock - DISTANT_PAST).toDouble(DurationUnit.SECONDS)) / 3.0)
-    // The offsets are the perceived (dx, dy), not the neighbors' (possibly stale) estimated positions.
     val offsets = mapNeighborhood { sensor.relativeTo(it) * -1.0 }.neighbors.values.list
     applyVelocity(
         when {

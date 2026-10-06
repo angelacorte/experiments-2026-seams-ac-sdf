@@ -29,7 +29,7 @@ import org.apache.commons.math3.random.RandomGenerator
  * Range-only shape formation: devices sense only the distances to their neighbors (no bearing, no shared orientation).
  * Three anchors fix a frame ([electAnchors]), every device estimates its position in it ([localize]), forms the
  * lattice of [latticeVelocity] in that frame, and learns how to steer in it from how its own commands, given in its
- * body frame, move it among the anchors ([FrameAlignment]).
+ * body frame, move it among the anchors ([FrameAlignment]). The system stays still until the anchors are chosen.
  * All the parameters are read from the simulation file (see `rangeOnly.yml`).
  */
 fun Aggregate<Int>.distanceBasedEntrypoint(device: CollektiveDevice<*>, formation: ShapeProperty<*>) = with(device) {
@@ -38,9 +38,12 @@ fun Aggregate<Int>.distanceBasedEntrypoint(device: CollektiveDevice<*>, formatio
         neighborDistances,
         leaderElectionBound = parameter("leaderElectionBound").toInt(),
         minAnchorsHeight = parameter("minAnchorsHeight"),
+        anchorsSize = parameter("anchorsSize"),
+        anchorPatience = parameter("anchorPatience").toInt(),
     )
     val isAnchor = role != AnchorRole.NONE
     device["leader"] = isAnchor
+    device["anchor"] = role.name // Tells the anchors apart, for the metrics: they need not be neighbors
     val (frame, position) = localize(role, neighborDistances)
     // The shape is the one held by the leader (anchor 1), centered on the anchors' centroid: it follows the anchors
     // when they change.
@@ -62,8 +65,11 @@ fun Aggregate<Int>.distanceBasedEntrypoint(device: CollektiveDevice<*>, formatio
     val probe = evolve(zeroSpeed to false) { (direction, out) ->
         if (out) direction * -1.0 to false else randomGenerator.randomDirection() to true
     }.first * parameter("explorationSpeed")
+    val unlocalized = evolve(0) { if (control == null) it + 1 else 0 } // Rounds since the device lost the frame
     val command = when {
-        control == null -> probe
+        // Until the anchors are chosen and the frame they fix gets here, the whole system stays still; a device that
+        // waits too long is cut off from the anchors, and explores to find them.
+        control == null -> if (unlocalized > parameter("maxFrameWait")) probe else zeroSpeed
         isAnchor -> zeroSpeed // The anchors are the reference frame: they stay still.
         // Explore until the alignment is reliable.
         !steering -> probe

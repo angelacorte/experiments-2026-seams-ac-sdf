@@ -29,7 +29,7 @@ seeds:
 
 network-model:
   type: AdaptiveRange
-  parameters: [*maxSpacing, 1, *communicationRange, 12, 6]
+  parameters: [*maxSpacing, 5, *communicationRange, 12, 2]
 
 environment:
   type: Continuous2DEnvironment
