@@ -3,6 +3,7 @@ incarnation: collektive
 variables:
   filename: &filename { formula: "'distanceBased'" } # Root of the exported file names, shared by all the exporters
   dataPath: &dataPath { formula: "'data/' + filename" } # Where the metrics are exported
+  positionsPath: &positionsPath { formula: "'data/positions/' + filename" } # Where the node positions are exported (for the plots)
   maxSpacing: &maxSpacing { formula: 0.8 * communicationRange } # Largest spacing: below the range, so that no neighbor is pushed out of it
   cellReach: &cellReach { formula: 0.5 * communicationRange } # Reach of a Voronoi cell (Lloyd): half the range, so that the neighbors that shape it are in range
   nodes: &nodes 100
@@ -87,3 +88,7 @@ export:
       # How evenly the devices cover the shape (see FormationMetrics). The shape is centered on the anchors, in their frame (turned, maybe mirrored)
       - type: FormationMetrics
         parameters: [ anchors ]
+  - type: it.unibo.alchemist.boundary.exporters.DevicePositionsExporter
+    parameters: { fileNameRoot: *filename, interval: 2.0, exportPath: *positionsPath, placement: global }
+    data:
+      - time
