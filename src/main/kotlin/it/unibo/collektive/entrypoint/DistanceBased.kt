@@ -29,7 +29,7 @@ import org.apache.commons.math3.random.RandomGenerator
  * Range-only shape formation: devices sense only the distances to their neighbors (no bearing, no shared orientation).
  * Three anchors fix a frame ([electAnchors]), every device estimates its position in it ([localize]), forms the
  * lattice of [latticeVelocity] in that frame, and learns how to steer in it from how its own commands, given in its
- * body frame, move it among the anchors ([FrameAlignment]).
+ * body frame, move it among the anchors ([FrameAlignment]). The system stays still until the anchors are chosen.
  * All the parameters are read from the simulation file (see `rangeOnly.yml`).
  */
 fun Aggregate<Int>.distanceBasedEntrypoint(device: CollektiveDevice<*>, formation: ShapeProperty<*>) = with(device) {
@@ -38,12 +38,14 @@ fun Aggregate<Int>.distanceBasedEntrypoint(device: CollektiveDevice<*>, formatio
         neighborDistances,
         leaderElectionBound = parameter("leaderElectionBound").toInt(),
         minAnchorsHeight = parameter("minAnchorsHeight"),
+        anchorsSize = parameter("anchorsSize"),
+        anchorPatience = parameter("anchorPatience").toInt(),
     )
     val isAnchor = role != AnchorRole.NONE
     device["leader"] = isAnchor
+    device["anchor"] = role.name // Tells the anchors apart, for the metrics: they need not be neighbors
     val (frame, position) = localize(role, neighborDistances)
-    // The center of the shape is on the anchors' centroid: it follows the anchors when they change.
-    val shape = formation.shapeAt(frame.centroid)
+    val shape = leaderShape(device, role == AnchorRole.ANCHOR_1, formation, frame.centroid)
     val offsets = offsetsFromEstimates(position, neighborDistances)
     val control = position?.let { latticeVelocity(shape, it, offsets) }
     device["control"] = control ?: zeroSpeed // The ideal command, in the anchor frame
@@ -52,13 +54,17 @@ fun Aggregate<Int>.distanceBasedEntrypoint(device: CollektiveDevice<*>, formatio
     val alignment = evolve(FrameAlignment()) {
         it.learn(position, commanded, parameter("forgettingFactor"), parameter("maxDisplacement"))
     }
+    val steering = evolve(false) {
+        it || alignment.isConfident(parameter("minMotionEnergy"), parameter("minConfidence"))
+    }
+    val probe = evolve(zeroSpeed to false) { (direction, out) ->
+        if (out) direction * -1.0 to false else randomGenerator.randomDirection() to true
+    }.first * parameter("explorationSpeed")
+    val unlocalized = evolve(0) { if (control == null) it + 1 else 0 } // Rounds since the device lost the frame
     val command = when {
-        control == null -> randomGenerator.randomDirection() * parameter("explorationSpeed")
+        control == null -> if (unlocalized > parameter("maxFrameWait")) probe else zeroSpeed
         isAnchor -> zeroSpeed // The anchors are the reference frame: they stay still.
-        // Explore until the alignment is reliable.
-        !alignment.isConfident(parameter("minMotionEnergy"), parameter("minConfidence")) ->
-            randomGenerator.randomDirection() * parameter("explorationSpeed")
-        // Keep some random motion, so that the alignment can still tell rotation from reflection.
+        !steering -> probe
         else -> alignment.toBody(control) // + randomGenerator.randomDirection() * parameter("explorationNoise")
     }
     val maxSpeed = parameter("maxSpeed")

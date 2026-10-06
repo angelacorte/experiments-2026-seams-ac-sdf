@@ -4,12 +4,8 @@ import it.unibo.alchemist.boundary.effects.TrueAnchorFrame
 import it.unibo.alchemist.model.Actionable
 import it.unibo.alchemist.model.Environment
 import it.unibo.alchemist.model.Time
-import it.unibo.alchemist.model.molecules.SimpleMolecule
-import it.unibo.alchemist.model.positions.Euclidean2DPosition
-import it.unibo.collektive.alchemist.device.sensors.impl.ShapeProperty
+import it.unibo.collektive.catalog.TargetShape
 import it.unibo.collektive.geometry.Position
-import it.unibo.collektive.geometry.SpeedControl2D
-import it.unibo.collektive.geometry.Vector2D
 import it.unibo.collektive.sdf.SDF
 import kotlin.math.abs
 import kotlin.math.atan2
@@ -21,9 +17,6 @@ import kotlin.math.sqrt
 private const val SAMPLE_STEP = 0.5 // Side of the cells that sample the shape
 private const val WINDOW = 100.0 // Half the side of the square, around the center of the shape, where it is sampled
 private const val COVER_QUANTILE = 0.95 // The quantile of the gaps in cover95
-private val LEADER = SimpleMolecule("leader")
-private val X_AXIS = SpeedControl2D(1.0, 0.0)
-private val Y_AXIS = SpeedControl2D(0.0, 1.0)
 
 /**
  * How evenly the devices cover their shape, measured in the environment from their true positions (which they never
@@ -50,12 +43,11 @@ private val Y_AXIS = SpeedControl2D(0.0, 1.0)
  */
 class FormationMetrics(private val placement: String) : AbstractDoubleExtractor() {
     init {
-        require(placement in setOf("global", "leader", "anchors")) {
-            "Unknown placement $placement: global, leader or anchors"
-        }
+        requireKnownPlacement(placement)
     }
 
-    private var samples: ShapeSamples? = null // Of the shape where shapes.yml puts it, computed once
+    // Of each shape where shapes.yml puts it, computed once
+    private val samples = mutableMapOf<TargetShape, ShapeSamples>()
     private var previous: Pair<Double, Map<Int, Position>>? = null
 
     override val columnNames: List<String> = COLUMNS
@@ -66,14 +58,11 @@ class FormationMetrics(private val placement: String) : AbstractDoubleExtractor(
         time: Time,
         step: Long,
     ): Map<String, Double> {
-        val (shape, where) = environment.nodes
-            .firstNotNullOfOrNull { node -> node.properties.filterIsInstance<ShapeProperty<*>>().firstOrNull() }
-            ?.let { shape -> placementOf(environment, shape)?.let { shape to it } }
-            ?: return NOT_AVAILABLE
+        val (shape, where) = shapeIn(environment, placement) ?: return NOT_AVAILABLE
         val positions = environment.nodes.associate { node ->
             node.id to environment.getPosition(node).coordinates.let { Position(it[0], it[1]) }
         }
-        val canonical = samples ?: ShapeSamples(shape.shape, shape.center).also { samples = it }
+        val canonical = samples.getOrPut(shape) { ShapeSamples(shape.sdf, shape.center) }
         val measures = measureFormation(where.sdf, canonical.moved(where::toEnvironment), positions.values.toList())
         val now = time.toDouble()
         val motion = previous?.takeIf { (then, _) -> now > then }?.let { (then, before) ->
@@ -84,22 +73,6 @@ class FormationMetrics(private val placement: String) : AbstractDoubleExtractor(
         return measures.values + ("motion" to motion)
     }
 
-    private fun <T> placementOf(environment: Environment<T, *>, shape: ShapeProperty<*>): Placement? =
-        when (placement) {
-            "global" -> Placement(Position.origin, X_AXIS, Y_AXIS, shape.center, shape)
-            // ponytail: with more leaders (a split network), the one with the highest id
-            "leader" -> environment.nodes.filter { it.getConcentration(LEADER) == true }.maxByOrNull { it.id }?.let {
-                val origin = environment.getPosition(it).coordinates
-                Placement(Position(origin[0], origin[1]), X_AXIS, Y_AXIS, Position.origin, shape)
-            }
-            else -> {
-                @Suppress("UNCHECKED_CAST") // The scenarios are all in the Euclidean plane
-                TrueAnchorFrame.of(environment as Environment<T, Euclidean2DPosition>)?.let {
-                    Placement(Position(it.origin[0], it.origin[1]), it.xAxis, it.yAxis, it.centroid, shape)
-                }
-            }
-        }
-
     /** Constants of [FormationMetrics]. */
     companion object {
         /** The columns, as described in [FormationMetrics]. */
@@ -108,34 +81,6 @@ class FormationMetrics(private val placement: String) : AbstractDoubleExtractor(
             "motion",
         )
         private val NOT_AVAILABLE = COLUMNS.associateWith { Double.NaN }
-    }
-}
-
-/**
- * Where the shape lies in the environment: the center of the shape of `shapes.yml` on [point] of the frame with
- * [origin] and axes [xAxis] and [yAxis] (orthonormal, possibly mirrored).
- */
-private class Placement(
-    private val origin: Position,
-    private val xAxis: Vector2D,
-    private val yAxis: Vector2D,
-    private val point: Position,
-    private val shape: ShapeProperty<*>,
-) {
-    private val inFrame = shape.shapeAt(point)
-
-    /** The shape, in the environment: rigid moves keep its distances exact. */
-    val sdf = SDF { position ->
-        val dx = position.x - origin.x
-        val dy = position.y - origin.y
-        inFrame(Position(dx * xAxis.x + dy * xAxis.y, dx * yAxis.x + dy * yAxis.y))
-    }
-
-    /** The environment position of [position] of the shape of `shapes.yml`. */
-    fun toEnvironment(position: Position): Position {
-        val x = position.x - shape.center.x + point.x
-        val y = position.y - shape.center.y + point.y
-        return Position(origin.x + x * xAxis.x + y * yAxis.x, origin.y + x * xAxis.y + y * yAxis.y)
     }
 }
 

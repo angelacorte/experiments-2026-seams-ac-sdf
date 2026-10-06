@@ -10,3 +10,6 @@ timeprocessed
 .kotlin
 .DS_Store
 /node_modules/
+/data/
+python/.cache/
+__pycache__/

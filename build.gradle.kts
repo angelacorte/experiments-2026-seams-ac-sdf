@@ -123,9 +123,25 @@ File(rootProject.rootDir.path + "/src/main/yaml")
             description = "Launches batch experiments for $capitalizedName"
             maxHeapSize = "${minOf(heap.toInt(), Runtime.getRuntime().availableProcessors() * taskSize)}m"
             File("data").mkdirs()
+            // seed and shape in every scenario, plus the optional variables that this file defines (e.g., start)
+            val optionalBatchVariables = listOf("start").filter { variable ->
+                Regex("""^\s+$variable:""", RegexOption.MULTILINE).containsMatchIn(it.readText())
+            }
+            val batchVariables = (listOf("seed", "shape") + optionalBatchVariables).joinToString { "\"$it\"" }
             args(
                 "--verbosity",
                 "error",
+                "--override",
+                """
+                    terminate:
+                      type: AfterTime
+                      parameters: [ 1500 ]
+                    launcher:
+                      type: DefaultLauncher
+                      parameters:
+                        batch: [ $batchVariables ]
+                        autoStart: true
+                """.trimIndent(),
             )
         }
         runAllBatch.dependsOn(batch)
