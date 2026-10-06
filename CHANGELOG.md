@@ -1,3 +1,17 @@
+## [1.4.1](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/compare/1.4.0...1.4.1) (2026-10-06)
+
+### Bug Fixes
+
+* missing exporter ([727db88](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/727db880a4d9f53c5be340a352ab6c1d410009b0))
+
+### General maintenance
+
+* **release:** update gradle.properties .env versions to 1.4.0 [skip ci] ([e710ad5](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/e710ad509302b89a2c711f72d90de09f4b206362))
+
+### Refactoring
+
+* improve yaml variable handling and population events retrieval ([f5a6a5a](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/f5a6a5afa353cb6267d81273739270d9c2f86f6c))
+
 ## [1.4.0](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/compare/1.3.0...1.4.0) (2026-10-06)
 
 ### Features
