@@ -19,7 +19,7 @@ import it.unibo.collektive.geometry.minus
  * the SDF pulls devices towards the shape, while the repulsion of the nearest neighbors ([LatticeNeighborhood],
  * with a [RepulsionLaw]) spreads them out in a lattice whose spacing is fixed or adapts to the room available
  * ([SpacingRule]), with a step size that adapts to overshoots ([AdaptiveStep]).
- * All the parameters, modes included, are read from the simulation file (see `repulsionOnly.yml`).
+ * All the parameters, modes included, are read from the simulation file (see `positionBased.yml`).
  */
 fun Aggregate<Int>.positionBasedEntrypoint(
     device: CollektiveDevice<*>,

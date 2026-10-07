@@ -27,7 +27,7 @@ seeds:
 
 network-model:
   type: AdaptiveRange
-  parameters: [*maxSpacing, 1, *communicationRange, 12, 6]
+  parameters: [*maxSpacing, 5, *communicationRange, 12, 6]
 
 _pool: &program
   - time-distribution: 1
@@ -49,6 +49,7 @@ deployments:
       - { molecule: anchorsSize, concentration: 5.0 } # Side of the triangle of the anchors (path distances): small enough to fit in the shape
       - { molecule: anchorPatience, concentration: 10 } # Rounds without the report of an anchor before anchor 1 replaces it
       - { molecule: maxFrameWait, concentration: 50 } # Rounds a device stays still waiting for the frame, then it explores (cut off from the anchors)
+      - { molecule: minNeighbors, concentration: 3 } # Fewer neighbors than this: the device goes back towards the nearest one (the links drop before the range, see AdaptiveRange)
       - { molecule: maxSpeed, concentration: &maxSpeed 1.0 } # Shared with the lattice
       # Steering without bearing (frame alignment from the own commands)
       - { molecule: forgettingFactor, concentration: 0.9 } # Past evidence kept at each round (0.9 beat 0.95 in every run of the sweep, 0.99 is worse)
@@ -67,7 +68,7 @@ deployments:
       - type: it.unibo.collektive.coverage.LatticeParameters
         parameters:
           repulsion: { type: Lloyd, parameters: { gain: 1.0, reach: *cellReach } } # Towards the centroid of the Voronoi cell within reach (half the range), clipped to the shape: ignores the spacing (Rprop step below damps its oscillations)
-          maxSpeed: 1.0
+          maxSpeed: 0.5
           # Adaptive (driven by the pressure of the ring), Neighborhood (of all the neighbors within 1.5 spacings) or Fixed
           spacing:
             type: Adaptive

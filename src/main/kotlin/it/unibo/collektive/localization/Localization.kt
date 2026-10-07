@@ -2,7 +2,16 @@ package it.unibo.collektive.localization
 
 import it.unibo.collektive.aggregate.Field
 import it.unibo.collektive.aggregate.api.Aggregate
+import it.unibo.collektive.aggregate.api.mapNeighborhood
+import it.unibo.collektive.aggregate.api.neighboring
+import it.unibo.collektive.aggregate.values
+import it.unibo.collektive.alchemist.device.sensors.RelativePositionSensor
 import it.unibo.collektive.geometry.Position
+import it.unibo.collektive.geometry.Vector2D
+import it.unibo.collektive.geometry.minus
+import it.unibo.collektive.geometry.plus
+import it.unibo.collektive.geometry.times
+import it.unibo.collektive.geometry.zeroSpeed
 import it.unibo.collektive.stdlib.spreading.distanceTo
 import it.unibo.collektive.stdlib.spreading.gradientCast
 import kotlin.Double.Companion.NaN
@@ -35,4 +44,30 @@ fun Aggregate<Int>.localize(role: AnchorRole, neighborDistances: Field<Int, Doub
     )
     val frame = AnchorFrame(anchor1ToAnchor2, anchor1ToAnchor3, anchor2ToAnchor3)
     return Localization(frame, frame.trilaterate(distanceToAnchor1, distanceToAnchor2, distanceToAnchor3))
+}
+
+/**
+ * The offsets of the neighbors (`neighbor - self`), in the anchor frame: the direction comes from the estimated
+ * [position]s, the length from the measured [neighborDistances]. Empty until the device is localized.
+ */
+fun Aggregate<Int>.offsetsFromEstimates(position: Position?, neighborDistances: Field<Int, Double>): List<Vector2D> =
+    neighboring(position).alignedMapValues(neighborDistances) { neighborPosition, measuredDistance ->
+        when {
+            position == null || neighborPosition == null -> null
+            else -> (neighborPosition - position).let { it * (measuredDistance / it.norm) }
+        }
+    }.neighbors.values.list.filterNotNull().filter { it.norm.isFinite() }
+
+/**
+ * Computes the position of the device in the frame of the [source] (which sits at the origin),
+ * accumulating the (dx, dy) perceived by [sensor] along the shortest path towards the source.
+ */
+fun Aggregate<Int>.positionRelativeTo(source: Boolean, sensor: RelativePositionSensor): Position {
+    val (_, relative) = gradientCast(
+        source = source,
+        local = localId to zeroSpeed,
+        metric = mapNeighborhood { sensor.relativeTo(it).norm },
+        accumulateData = { _, _, (neighbor, position) -> localId to position + sensor.relativeTo(neighbor) },
+    )
+    return Position(relative.x, relative.y)
 }

@@ -27,7 +27,7 @@ seeds:
 
 network-model:
   type: AdaptiveRange
-  parameters: [*maxSpacing, 1, *communicationRange, 12, 6]
+  parameters: [*maxSpacing, 5, *communicationRange, 12, 6]
 
 _pool: &program
   - time-distribution: 1

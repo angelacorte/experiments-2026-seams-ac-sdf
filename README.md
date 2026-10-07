@@ -242,6 +242,7 @@ experiments-2026-seams-ac-sdf/
 │       │       ├── entrypoint/        # Entrypoints for the experiments (position, distance, and displacement based)
 │       │       ├── geometry/          # Positions and vectors in the plane, with their operations
 │       │       ├── localization/      # GPS-free localization: anchor election, anchor frame, and frame alignment
+│       │       ├── library/           # Aggregate building blocks shared by the entrypoints (e.g., the shape spread by the leader)
 │       │       └── sdf/               # DSL for 2D Signed Distance Fields: primitives, shapes, and text (see its README)
 │       ├── resources/
 │       │   └── shapes.yml      # The shapes the experiments batch over: SDF type and constructor parameters, by name
@@ -322,7 +323,7 @@ For the current project status, result reproduction means:
 4. Run the script to process the data and generate the charts (this process may take some time):
     ```bash
     python process.py                 # all the plotters
-    python process.py metrics         # or some of them: metrics, snapshots, gifs (M, S, G)
+    python process.py metrics         # or some of them: metrics, snapshots, gifs, fairness (M, S, G, F)
     python process.py --help          # filters (e.g. --where shape=star) and the other options
     ```
 5. The charts will be generated in the `charts` folder.

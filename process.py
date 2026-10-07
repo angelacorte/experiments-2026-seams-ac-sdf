@@ -1,7 +1,7 @@
 """Runs all the plotters, or some of them, in parallel.
 
-    python process.py                         # all: metrics, snapshots, gifs
-    python process.py metrics snapshots       # some (also by initial: M S G)
+    python process.py                         # all: metrics, snapshots, gifs, fairness
+    python process.py metrics snapshots       # some (also by initial: M S G F)
     python process.py S G --where shape=star  # options are passed to the plotters that accept them
     python process.py S --times 0 700 1500    # instants of the snapshots (default: one every 50)
     python process.py S --every 100           # one snapshot every 100
@@ -12,6 +12,7 @@ Plotters (all in python/, each can also be run alone, see its --help):
 - metrics   (M) plot_dynamic.py            metrics over time, a line per scenario   -> charts/dynamic/
 - snapshots (S) plot_positions_snapshots.py devices at some instants, by SDF         -> charts/positions/
 - gifs      (G) plot_positions_gif.py       devices over time, by SDF                -> charts/positions/
+- fairness  (F) plot_positions_fairness.py  shape split among the devices, by share  -> charts/positions/
 """
 
 import argparse
@@ -25,9 +26,11 @@ PYTHON = ROOT / "python"
 PLOTTERS = {  # name -> (initial, script, options it accepts, default extra arguments)
     "metrics": ("M", "plot_dynamic.py", {"format", "no_cache"}, []),
     "snapshots": ("S", "plot_positions_snapshots.py",
-                  {"scenario", "where", "all_seeds", "shape_overlay", "format", "no_cache", "every", "range"}, ["--combined"]),
+                  {"scenario", "where", "all_seeds", "shape_overlay", "format", "no_cache", "every", "range", "times"}, ["--combined"]),
     "gifs": ("G", "plot_positions_gif.py",
              {"scenario", "where", "all_seeds", "shape_overlay", "no_cache", "range", "fps", "frame_step"}, []),
+    "fairness": ("F", "plot_positions_fairness.py",
+                 {"scenario", "where", "all_seeds", "format", "no_cache", "every", "range", "times"}, []),
 }
 
 
@@ -39,7 +42,7 @@ def selected(requested: list[str]) -> list[str]:
     for item in requested:
         name = by_key.get(item.lower()) or by_key.get(item.upper())
         if name is None:
-            raise SystemExit(f"Unknown plotter {item!r}: use {', '.join(PLOTTERS)} (or M, S, G)")
+            raise SystemExit(f"Unknown plotter {item!r}: use {', '.join(PLOTTERS)} (or M, S, G, F)")
         if name not in chosen:
             chosen.append(name)
     return chosen
@@ -48,7 +51,7 @@ def selected(requested: list[str]) -> list[str]:
 def arguments(name: str, args: argparse.Namespace) -> list[str]:
     _, _, accepted, extra = PLOTTERS[name]
     result = list(extra)
-    if name == "snapshots" and args.times:
+    if "times" in accepted and args.times:
         result = [str(t) for t in args.times] + result
     if "every" in accepted and args.every:
         result += ["--every", str(args.every)]
@@ -77,9 +80,9 @@ def arguments(name: str, args: argparse.Namespace) -> list[str]:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("plotters", nargs="*", help="metrics, snapshots, gifs (or M, S, G); default: all")
-    parser.add_argument("--times", nargs="+", type=float, help="instants of the snapshots (default: one every 50)")
-    parser.add_argument("--every", type=float, help="without --times, one snapshot every N time units (default 50)")
+    parser.add_argument("plotters", nargs="*", help="metrics, snapshots, gifs, fairness (or M, S, G, F); default: all")
+    parser.add_argument("--times", nargs="+", type=float, help="instants of the snapshots and of the fairness charts")
+    parser.add_argument("--every", type=float, help="without --times, one snapshot (or fairness chart) every N time units")
     parser.add_argument("--from", dest="start", type=float, help="first instant of the gifs (and of the snapshots)")
     parser.add_argument("--until", type=float, help="last instant of the gifs (and of the snapshots)")
     parser.add_argument("--fps", type=int, help="frames per second of the gifs (default 10)")

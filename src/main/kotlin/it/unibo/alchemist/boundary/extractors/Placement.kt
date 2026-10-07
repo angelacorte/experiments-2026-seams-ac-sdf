@@ -2,6 +2,7 @@ package it.unibo.alchemist.boundary.extractors
 
 import it.unibo.alchemist.boundary.effects.TrueAnchorFrame
 import it.unibo.alchemist.model.Environment
+import it.unibo.alchemist.model.Node
 import it.unibo.alchemist.model.molecules.SimpleMolecule
 import it.unibo.alchemist.model.positions.Euclidean2DPosition
 import it.unibo.collektive.alchemist.device.sensors.impl.ShapeProperty
@@ -24,6 +25,18 @@ internal fun requireKnownPlacement(placement: String) = require(placement in set
 }
 
 /**
+ * The device holding the shape that is placed, by [placement]: anchor 1 of the anchors that fix the frame (see
+ * [TrueAnchorFrame.anchorsIn]: not one that leads alone, whose frame is not fixed), otherwise the leader; any device
+ * until they are elected.
+ */
+@Suppress("UNCHECKED_CAST") // The scenarios are all in the Euclidean plane
+private fun <T> holderIn(environment: Environment<T, *>, placement: String): Node<T>? = when (placement) {
+    "anchors" -> TrueAnchorFrame.anchorsIn(environment as Environment<T, Euclidean2DPosition>)?.first()
+    // ponytail: with more leaders (a split network), the one with the highest id
+    else -> environment.nodes.filter { it.getConcentration(LEADER) == true }.maxByOrNull { it.id }
+} ?: environment.nodes.firstOrNull()
+
+/**
  * The shape of the devices in [environment] and where it lies, by [placement] (see [FormationMetrics]), or null until
  * the leader or the anchors are elected.
  * The shape is the one in the `shape` molecule of the leader (the one the devices perceive, which may change during
@@ -31,30 +44,26 @@ internal fun requireKnownPlacement(placement: String) = require(placement in set
  * point in its `shapeCenter` molecule (the center of the shape when missing) on the leader or on the anchors' centroid.
  */
 internal fun <T> shapeIn(environment: Environment<T, *>, placement: String): Pair<TargetShape, Placement>? {
-    // ponytail: with more leaders (a split network), the one with the highest id
-    val holder = environment.nodes.filter { it.getConcentration(LEADER) == true }.maxByOrNull { it.id }
-        ?: environment.nodes.firstOrNull()
+    val holder = holderIn(environment, placement)
     val property = environment.nodes
         .firstNotNullOfOrNull { node -> node.properties.filterIsInstance<ShapeProperty<*>>().firstOrNull() }
     return property?.let {
         val shape = it.target(holder?.getConcentration(SHAPE) as? String ?: it.name)
         val center = holder?.getConcentration(SHAPE_CENTER) as? Position ?: shape.center
+        if (center.x.isNaN() || center.y.isNaN()) return null // Anchor 1 does not know the whole frame yet
         placementOf(environment, placement, shape, center)?.let { where -> shape to where }
     }
 }
 
 /**
- * The name of the shape of the devices in [environment]: the `shape` molecule of the leader (see [shapeIn]), or the one
- * of its [ShapeProperty] when missing.
+ * The name of the shape of the devices in [environment]: the `shape` molecule of the leader, by [placement] (see
+ * [shapeIn]), or the one of its [ShapeProperty] when missing.
  */
-internal fun <T> shapeNameIn(environment: Environment<T, *>): String? {
-    val holder = environment.nodes.filter { it.getConcentration(LEADER) == true }.maxByOrNull { it.id }
-        ?: environment.nodes.firstOrNull()
-    return holder?.getConcentration(SHAPE) as? String
+internal fun <T> shapeNameIn(environment: Environment<T, *>, placement: String): String? =
+    holderIn(environment, placement)?.getConcentration(SHAPE) as? String
         ?: environment.nodes.firstNotNullOfOrNull { node ->
             node.properties.filterIsInstance<ShapeProperty<*>>().firstOrNull()
         }?.name
-}
 
 private fun <T> placementOf(
     environment: Environment<T, *>,

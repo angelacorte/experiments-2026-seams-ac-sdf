@@ -78,7 +78,7 @@ class DevicePositionsExporter<T, P : Position<P>>(
         val now = time.toDouble()
         val placed = shapeIn(environment, placement)
         placed?.let { (shape, where) ->
-            val name = shapeNameIn(environment) ?: "shape"
+            val name = shapeNameIn(environment, placement) ?: "shape"
             if (rastered.add(name)) writeRaster(name, shape)
             val o = where.toEnvironment(Coordinates(0.0, 0.0))
             val a = where.toEnvironment(Coordinates(1.0, 0.0))

@@ -13,3 +13,4 @@ timeprocessed
 /data/
 python/.cache/
 __pycache__/
+/data-old/

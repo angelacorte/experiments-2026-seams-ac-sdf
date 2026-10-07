@@ -28,6 +28,7 @@ python process.py --help                  # all the options
 | `metrics` (M) | `plot_dynamic.py` | `data/<scenario>/` | `charts/dynamic/` |
 | `snapshots` (S) | `plot_positions_snapshots.py` | `data/positions/<folder>/` | `charts/positions/` |
 | `gifs` (G) | `plot_positions_gif.py` | `data/positions/<folder>/` | `charts/positions/` |
+| `fairness` (F) | `plot_positions_fairness.py` | `data/positions/<folder>/` | `charts/positions/` |
 
 ### One simulation
 
@@ -61,16 +62,16 @@ Each option goes only to the plotters that accept it.
 
 | Option | Plotters | Meaning |
 |---|---|---|
-| `--times T ...` | snapshots | these instants (the nearest exports) |
-| `--every N` | snapshots | without `--times`, one snapshot every N time units (default 50) |
-| `--from T`, `--until T` | gifs, snapshots | first and last instant |
+| `--times T ...` | snapshots, fairness | these instants (the nearest exports) |
+| `--every N` | snapshots, fairness | without `--times`, one chart every N time units (default 50, fairness 20) |
+| `--from T`, `--until T` | gifs, snapshots, fairness | first and last instant |
 | `--fps N` | gifs | frames per second (default 10) |
 | `--frame-step N` | gifs | one frame every N exports (default 1) |
-| `--scenario F ...` | snapshots, gifs | only these folders of `data/positions` |
-| `--where NAME=V[,V] ...` | snapshots, gifs | only the runs whose header variables match, e.g. `shape=star,ring start=left` |
-| `--all-seeds` | snapshots, gifs | every seed (default: the first seed of each configuration) |
+| `--scenario F ...` | snapshots, gifs, fairness | only these folders of `data/positions` |
+| `--where NAME=V[,V] ...` | snapshots, gifs, fairness | only the runs whose header variables match, e.g. `shape=star,ring start=left` |
+| `--all-seeds` | snapshots, gifs, fairness | every seed (default: the first seed of each configuration) |
 | `--shape-overlay off\|on\|both` | snapshots, gifs | shape in the background: without, with, or both versions (default) |
-| `--format F ...` | metrics, snapshots | file formats (default `pdf png`) |
+| `--format F ...` | metrics, snapshots, fairness | file formats (default `pdf png`) |
 | `--no-cache` | all | parse the data again |
 | `--sequential` | all | one plotter at a time, instead of in parallel |
 
@@ -142,6 +143,23 @@ python python/plot_positions_gif.py --from 600 --until 1200 --fps 15 --where sha
 One frame per export (`--frame-step N` to keep one every N). GIFs:
 `charts/positions/<folder>/<run>/gif/<run>[_shape].gif`.
 
+### Fairness
+
+```bash
+python python/plot_positions_fairness.py                  # one every 20 time units up to t = 200
+python python/plot_positions_fairness.py 0 50 100 --where shape=star
+```
+
+The shape split among the devices, as `FormationMetrics` measures it: each part is the piece of the shape nearer to
+that device than to any other (the Voronoi cell, clipped to the shape), colored by its share over the fair share (the
+area of the shape over the number of devices), on a log scale: gray-white when fair, red when larger (too few devices
+around), blue when smaller (too many). The devices outside the shape that own no part of it are hollow. The title
+tells Jain's fairness index of the shares, the `jain` of the metrics. By default only the first instants (up to
+t = 200). `python python/test_fairness.py` checks the shares and the index.
+
+Charts: `charts/positions/<folder>/<run>/<fmt>/<run>_fairness_t<time>.<fmt>`, and `<run>_fairness.<fmt>` with all the
+instants in one figure, 6 per row.
+
 ## Data
 
 ### Metrics: `data/<scenario>/<root>_<variables>.csv`
@@ -205,3 +223,5 @@ A new scenario of the metrics needs a line in `SCENARIOS`; a new folder of `data
 | `render.py` | drawing of one frame: devices, leader, anchors, shape, colorbar, legend |
 | `plot_positions_snapshots.py` | snapshots |
 | `plot_positions_gif.py` | GIFs |
+| `plot_positions_fairness.py` | shape split among the devices, by share |
+| `test_fairness.py` | check of the shares and of Jain's index |
