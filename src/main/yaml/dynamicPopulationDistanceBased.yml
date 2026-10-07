@@ -1,14 +1,22 @@
 incarnation: collektive
 
 variables:
-  filename: &filename { formula: "'distanceBased'" } # Root of the exported file names, shared by all the exporters
+  filename: &filename { formula: "'dynamicDistanceBased'" } # Root of the exported file names, shared by all the exporters
   dataPath: &dataPath { formula: "'data/' + filename" } # Where the metrics are exported
   positionsPath: &positionsPath { formula: "'data/positions/' + filename" } # Where the node positions are exported (for the plots)
   maxSpacing: &maxSpacing { formula: 0.8 * communicationRange } # Largest spacing: below the range, so that no neighbor is pushed out of it
   cellReach: &cellReach { formula: 0.5 * communicationRange } # Reach of a Voronoi cell (Lloyd): half the range, so that the neighbors that shape it are in range
+  spawnRangeFraction: &spawnRangeFraction 0.8 # Fraction of the communication range within which nodes spawn
+  spawnTime: &spawnTime 700
+  spawnCount: &spawnCount 400
+  killTime: &killTime 1000
+  survivors: &survivors 50
   nodes: &nodes 100
-  communicationRange: &communicationRange # Shared by the network model and the formation
+  communicationRange: &communicationRange
     formula: 30
+  shape: &shape # Same list in every scenario: names from src/main/resources/shapes.yml
+    type: ArbitraryVariable
+    parameters: [ ring, [ star, hexagon, ring, crescent, circle ] ]
   maxSeed: &maxSeed
     type: SystemEnvVariable
     parameters: [ "MAX_SEED", 5 ] # default 5 if not specified
@@ -17,9 +25,6 @@ variables:
     max: *maxSeed
     step: 1
     default: 42
-  shape: &shape # Same list in every scenario: names from src/main/resources/shapes.yml
-    type: ArbitraryVariable
-    parameters: [ hexagon, [ star, hexagon, ring, crescent, horseshoe ] ]
 
 seeds:
   scenario: *seed
@@ -28,6 +33,17 @@ seeds:
 network-model:
   type: AdaptiveRange
   parameters: [*maxSpacing, 1, *communicationRange, 12, 6]
+
+environment:
+  type: Continuous2DEnvironment
+  global-programs:
+    # At spawnTime, spawnCount new nodes appear at random within spawnRangeFraction * communicationRange
+    # of the nodes already present, so that each one has at least a neighbor
+    # (SpawnRandomNodes with [ time, count, x, y, width, height ] spawns in a fixed rectangle instead)
+    - type: SpawnNearNodes
+      parameters: [ *spawnTime, *spawnCount, *communicationRange, *spawnRangeFraction ]
+    - type: KillRandomNodes # At killTime, random nodes are removed until only survivors are left
+      parameters: [ *killTime, *survivors ]
 
 _pool: &program
   - time-distribution: 1
@@ -41,12 +57,13 @@ _pool: &program
 deployments:
   - type: Rectangle
     parameters: [*nodes, 0, 0, 100, 100]
+    nodes: 2.0 # retention
     contents:
       - { molecule: shape, concentration: *shape } # The shape the leader holds and spreads (the ShapeProperty one if missing)
       # Anchors
       - { molecule: leaderElectionBound, concentration: 200 } # Hops within which anchor 1 is elected
-      - { molecule: minAnchorsHeight, concentration: 3.0 } # Min distance of anchor 3 from the line of anchors 1-2 (below the height of the triangle, ~0.87 * anchorsSize)
-      - { molecule: anchorsSize, concentration: 5.0 } # Side of the triangle of the anchors (path distances): small enough to fit in the shape
+      - { molecule: minAnchorsHeight, concentration: 8.0 } # Min distance of anchor 3 from the line of anchors 1-2 (below the height of the triangle, ~0.87 * anchorsSize)
+      - { molecule: anchorsSize, concentration: 8.0 } # Side of the triangle of the anchors (path distances): small enough to fit in the shape
       - { molecule: anchorPatience, concentration: 10 } # Rounds without the report of an anchor before anchor 1 replaces it
       - { molecule: maxFrameWait, concentration: 50 } # Rounds a device stays still waiting for the frame, then it explores (cut off from the anchors)
       - { molecule: maxSpeed, concentration: &maxSpeed 1.0 } # Shared with the lattice
@@ -60,23 +77,21 @@ deployments:
     programs:
       - *program
     properties:
+      - type: it.unibo.collektive.alchemist.device.BodyFrameProperty
       - type: it.unibo.collektive.alchemist.device.sensors.impl.ShapeProperty
         parameters: [ *shape ]
-      - type: it.unibo.collektive.alchemist.device.BodyFrameProperty
       # The lattice, as in repulsionOnly.yml (push per neighbor rescaled to the larger spacing)
       - type: it.unibo.collektive.coverage.LatticeParameters
         parameters:
-          repulsion: { type: Lloyd, parameters: { gain: 1.0, reach: *cellReach } } # Towards the centroid of the Voronoi cell within reach (half the range), clipped to the shape: ignores the spacing (Rprop step below damps its oscillations)
+          repulsion: { type: Lloyd, parameters: { gain: 1.0, reach: *cellReach } } # Towards the centroid of the Voronoi cell within reach (half the range), clipped to the shape: ignores the spacing, and wants the fixed step below
           maxSpeed: 1.0
-          # Adaptive (driven by the pressure of the ring), Neighborhood (of all the neighbors within 1.5 spacings) or Fixed
           spacing:
-            type: Adaptive
+            type: Adaptive # Adaptive (driven by the pressure of the ring), Neighborhood (of all the neighbors within 1.5 spacings) or Fixed
             parameters:
               initial: 2.0
               rate: 0.05 # Fraction of the pressure error recovered at each round
               pressureMargin: 0.5 # Target pressure, as a fraction of the ring radius
               max: *maxSpacing
-          # spacing: { type: Fixed, parameters: { spacing: 4.0 } } # ~sqrt(area / devices / 0.866) fills the shape
           step: { type: StepRule, parameters: { decrease: 0.5, increase: 1.2, minGain: 0.05 } } # Gain factor on an overshoot (the control reverses), while the control keeps its direction, and the smallest gain
           # step: { type: StepRule, parameters: { decrease: 1.0, increase: 1.0, minGain: 1.0 } } # Fixed step, for Lloyd
 
@@ -85,9 +100,12 @@ export:
     parameters: { fileNameRoot: *filename, interval: 10.0, exportPath: *dataPath }
     data:
       - time
-      # How evenly the devices cover the shape (see FormationMetrics). The shape is centered on the anchors, in their frame (turned, maybe mirrored)
       - type: FormationMetrics
         parameters: [ anchors ]
+      - type: CoverageMetrics
+        parameters: [ anchors ]
+  # The position of every device, with the SDF there and the leader/anchors, for the snapshots and the GIFs
+  # (python): in data/positions/dynamicDistanceBased, with the same file names as the metrics
   - type: it.unibo.alchemist.boundary.exporters.DevicePositionsExporter
     parameters: { fileNameRoot: *filename, interval: 2.0, exportPath: *positionsPath, placement: anchors }
     data:

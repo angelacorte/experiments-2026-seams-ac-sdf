@@ -179,12 +179,11 @@ curl https://raw.githubusercontent.com/domm99/experiments-acsos-2026-DPF-multi-o
 
 **NOTES:**
 - Due to Alchemist's limitations, the graphical interface will not appear if run on a docker container.
-- The tasks *in graphic mode* will run the experiments with the default parameters.
-- Graphic tasks run with the default parameters defined in the YAML.
+- The tasks *in graphic mode* will run the experiments with the default parameters defined in the YAML.
 
 **Note** that before each experiment command, it can be optionally set the `MAX_SEED` environment variable to a specific value to run the experiment,
 since that parameter is relevant only for batch experiments,
-it is suggested to not specify it or set it to `0` for the graphical experiments.
+it is suggested to **not** specify it or set it to `0` for the graphical experiments.
 
 Depending on the platform, there may be different ways to set the environment variable:
 - If you're using Bash compatible (Linux, Mac OS X, Git Bash, Cygwin): ```MAX_SEED=0 ./gradlew run<ExperimentName>Graphic```
@@ -223,28 +222,33 @@ The project is currently organized as follows:
 ```text
 || TODO
 experiments-2026-seams-ac-sdf/
+├── .github/workflows/          # CI: build-and-deploy and dispatcher workflows
 ├── data/                       # Simulation exports, used to generate the charts
 ├── docker/                     # Dockerfiles to build the containers (simulations and charts)
 ├── effects/                    # JSON specification for Alchemist's GUI visualization
 ├── gradle/                     # Gradle wrapper files
-├── python                      # Plotting utilities
+├── python/                     # Plotters (metrics, snapshots, GIFs) and their shared modules, launched by process.py
 ├── src/
-│   ├── main/
-│   │   ├── kotlin/it/unibo/    # Kotlin source code for the experiments
-│   │   │   ├── alchemist/      # Alchemist extensions: GUI effects, movement actions and strategies
-│   │   │   └── collektive/
-│   │   │       ├── alchemist/device/  # Collektive integration for Alchemist: body frame, parameters, and sensors
-│   │   │       │   └── sensors/       # Location, relative position, and shape definition (ShapeProperty)
-│   │   │       ├── catalog/           # ShapeCatalog: builds the shapes defined in shapes.yml, by name
-│   │   │       ├── entrypoint/        # Entrypoints for the experiments
-│   │   │       ├── formation/         # Shape formation: lattice spacing, repulsion, and local border of the shape
-│   │   │       ├── geometry/          # Positions and vectors in the plane, with their operations
-│   │   │       ├── localization/      # GPS-free localization: anchor election, anchor frame, and frame alignment
-│   │   │       └── sdf/               # DSL for 2D Signed Distance Fields: primitives, shapes, and text (see its README)
-│   │   ├── resources/
-│   │   │   └── shapes.yml      # The shapes the experiments batch over: SDF type and constructor parameters, by name
-│   │   └── yaml/               # YAML files for the experiments specification
-│   └── test/kotlin/it/unibo/collektive/catalog/  # Checks that the scenarios share the shapes of shapes.yml
+│   └── main/
+│       ├── kotlin/it/unibo/    # Kotlin source code for the experiments
+│       │   ├── alchemist/      # Alchemist extensions
+│       │   │   ├── boundary/   # GUI effects (effects) and data extractors: coverage, formation, and placement metrics (extractors)
+│       │   │   └── model/      # Movement actions, deployments, move strategies, and reactions (spawn and kill nodes)
+│       │   └── collektive/
+│       │       ├── alchemist/device/  # Collektive integration for Alchemist: body frame, parameters, and sensors
+│       │       │   └── sensors/       # Location, relative position, and shape definition (ShapeProperty)
+│       │       ├── catalog/           # ShapeCatalog: builds the shapes defined in shapes.yml, by name
+│       │       ├── coverage/          # Shape coverage: lattice spacing, repulsion, local border of the shape, and Voronoi cell
+│       │       ├── entrypoint/        # Entrypoints for the experiments (position, distance, and displacement based)
+│       │       ├── geometry/          # Positions and vectors in the plane, with their operations
+│       │       ├── localization/      # GPS-free localization: anchor election, anchor frame, and frame alignment
+│       │       └── sdf/               # DSL for 2D Signed Distance Fields: primitives, shapes, and text (see its README)
+│       ├── resources/
+│       │   └── shapes.yml      # The shapes the experiments batch over: SDF type and constructor parameters, by name
+│       └── yaml/               # YAML files for the experiments specification
+├── build.gradle.kts            # Gradle build, generates the simulation tasks from the YAML files
+├── docker-compose.yml          # Runs the simulations and the charts in containers
+├── process.py                  # Runs all the plotters (or some: python process.py --help)
 ```
 
 #### Simulation entrypoint
@@ -269,7 +273,7 @@ The logic is implemented || TODO
 For the current project status, result reproduction means:
 
 - running the batch simulations so that CSV estimations are exported under `data/`;
-- post-processing those CSV files with the Python scripts under `python/plotter/`;
+- post-processing those CSV files with the Python scripts under `python/`;
 - optionally adapting the plotting scripts to the exact set of experiments you want to compare.
 
 #### Reproduce the experiments with containers (recommended)
@@ -277,7 +281,7 @@ For the current project status, result reproduction means:
 1. Install [Docker](https://www.docker.com/products/docker-desktop) and [docker-compose](https://docs.docker.com/compose/install/);
 2. Run `docker-compose up` in the root folder of the repository:
    this will build the Docker images and run the containers needed to run the experiments.
-3. From the `docker-compose.yml` file, you can see that three separate containers will be created, one for each experiment, and the data will be collected in the `data` folder.
+3. From the `docker-compose.yml` file, you can see that four services are defined (`prepare`, `simulation`, `charts`, `finish`), and the data will be collected in the `data` folder.
    Note that the `volumes` field has to be updated to match your local environment.
    You may need to adjust the `volumes` paths to match your machine.
 
@@ -299,7 +303,7 @@ For the current project status, result reproduction means:
 
 **WARNING**: depending on the amount of data collected, this process may take a long time.
 
-1. Make sure you have Python 3.10 or higher installed.
+1. Make sure you have the Python version indicated in `.python-version` (3.14) installed.
 2. The data folder structure should be the following:
     ```txt
     experiments-2026-seams-ac-sdf/
@@ -317,7 +321,9 @@ For the current project status, result reproduction means:
     ```
 4. Run the script to process the data and generate the charts (this process may take some time):
     ```bash
-    python TODO
+    python process.py                 # all the plotters
+    python process.py metrics         # or some of them: metrics, snapshots, gifs (M, S, G)
+    python process.py --help          # filters (e.g. --where shape=star) and the other options
     ```
 5. The charts will be generated in the `charts` folder.
 6. If you want to regenerate the charts, you can run the script again.

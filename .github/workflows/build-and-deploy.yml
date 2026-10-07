@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: DanySK/build-check-deploy-gradle-action@4.0.47
+      - uses: DanySK/build-check-deploy-gradle-action@4.0.48
         with:
           build-command: true
           check-command: ./gradlew check runAllGraphic
@@ -95,11 +95,11 @@ jobs:
         uses: actions/setup-node@v7.0.0
         with:
           node-version: ${{ steps.node-version.outputs.version }}
-#      - name: Login to dockerhub
-#        env:
-#          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-#          DOCKER_USERNAME: ${{ github.repository_owner }}
-#        run: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin docker.io
+      - name: Login to dockerhub
+        env:
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_USERNAME: angelacortecchia
+        run: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin docker.io
       - name: Semantic Release
         env:
           GITHUB_TOKEN: ${{ secrets.DEPLOYMENT_TOKEN }}

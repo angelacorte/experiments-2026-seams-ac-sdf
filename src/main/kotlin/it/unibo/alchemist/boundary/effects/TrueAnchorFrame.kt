@@ -36,24 +36,28 @@ internal class TrueAnchorFrame private constructor(
         SpeedControl2D(vector.x * xAxis.x + vector.y * yAxis.x, vector.x * xAxis.y + vector.y * yAxis.y)
 
     companion object {
-        private val LEADER = SimpleMolecule("leader")
+        private val ANCHOR = SimpleMolecule("anchor")
 
         /**
-         * The frame of the anchors in [environment], null until they are elected. Anchor 1 is the leader with the
-         * highest id among those with two leaders as neighbors (anchors 2 and 3): a node cut off from the swarm leads
-         * alone.
+         * The frame of the anchors in [environment], null until they are elected. The anchors are told apart by their
+         * `anchor` molecule (the name of their `AnchorRole`), as they need not be neighbors: anchor 1 is the nearest
+         * one to an anchor 2 (a node cut off from the swarm leads alone), anchors 2 and 3 the nearest ones to it.
          */
         fun <T, P : Position<P>> of(environment: Environment<T, P>): TrueAnchorFrame? {
-            val leaders = environment.nodes.filter { it.getConcentration(LEADER) == true }.toSet()
-            val (anchor1, partners) = leaders.sortedByDescending { it.id }.firstNotNullOfOrNull { candidate ->
-                environment.getNeighborhood(candidate).neighbors.filter { it in leaders }
-                    .takeIf { it.size == 2 }
-                    ?.let { candidate to it }
-            } ?: return null
-            val (anchor2, anchor3) = partners // Anchor 2 is the farthest from anchor 1
-                .sortedByDescending { environment.getDistanceBetweenNodes(anchor1, it) }
-                .map { environment.getPosition(it).coordinates }
-            val origin = environment.getPosition(anchor1).coordinates
+            fun withRole(role: String) = environment.nodes.filter { it.getConcentration(ANCHOR) == role }
+            val (origin, anchor2, anchor3) = withRole("ANCHOR_1")
+                .minByOrNull { anchor1 ->
+                    withRole("ANCHOR_2").minOfOrNull { environment.getDistanceBetweenNodes(anchor1, it) }
+                        ?: Double.MAX_VALUE
+                }
+                ?.let { anchor1 ->
+                    listOf(anchor1) + listOf("ANCHOR_2", "ANCHOR_3").mapNotNull { role ->
+                        withRole(role).minByOrNull { environment.getDistanceBetweenNodes(anchor1, it) }
+                    }
+                }
+                ?.takeIf { it.size == 3 }
+                ?.map { environment.getPosition(it).coordinates }
+                ?: return null
             val length = hypot(anchor2[0] - origin[0], anchor2[1] - origin[1])
             val xAxis = SpeedControl2D((anchor2[0] - origin[0]) / length, (anchor2[1] - origin[1]) / length)
             val cross = xAxis.x * (anchor3[1] - origin[1]) - xAxis.y * (anchor3[0] - origin[0])
