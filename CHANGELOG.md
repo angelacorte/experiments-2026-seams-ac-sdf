@@ -1,3 +1,25 @@
+## [1.4.2](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/compare/1.4.1...1.4.2) (2026-10-07)
+
+### Dependency updates
+
+* **deps:** update plugin kotlin-qa to v1.9.3 ([#3](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/issues/3)) ([3be8340](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/3be83405133005def11d3e2a62e59e1b89a6c628))
+
+### Bug Fixes
+
+* remove old control for spacing ([8e1d649](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/8e1d649535d2a01515f199d851ff5254bdf5bb91))
+
+### Tests
+
+* remove wrong tests ([9569b01](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/9569b01068141a4a94be9ea9124d5da8c82d3b7c))
+
+### General maintenance
+
+* **release:** update gradle.properties .env versions to 1.4.1 [skip ci] ([1cc4839](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/1cc4839a6f92540bf09bb7f41c6fd82cfa2bae38))
+
+### Refactoring
+
+* better experiment paramters, put common code in library, clean code ([1500e1c](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/1500e1cd7f4ecbb9f8ca2837c58f7220cb96741c))
+
 ## [1.4.1](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/compare/1.4.0...1.4.1) (2026-10-06)
 
 ### Bug Fixes

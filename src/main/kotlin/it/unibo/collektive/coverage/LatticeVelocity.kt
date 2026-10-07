@@ -21,19 +21,16 @@ private const val OUTSIDE_PUSH = 0.5
 /**
  * The lattice velocity for a device at [position] whose neighbors are at [offsets] (`neighbor - self`), both in the
  * frame of [shape]: however the device got them (GPS, a leader, trilateration), it then forms the same lattice.
- * The parameters are the [LatticeParameters] of the device, built by the simulation file (see `repulsionOnly.yml`).
+ * The parameters are the [LatticeParameters] of the device, built by the simulation file (see `positionBased.yml`).
  */
 context(device: CollektiveDevice<*>)
 fun Aggregate<Int>.latticeVelocity(shape: SDF, position: Position, offsets: List<Vector2D>): SpeedControl2D {
     val parameters: LatticeParameters<Any?> = device.node.asProperty()
     val border = LocalBorder.of(shape, position)
     device["distanceToSDF"] = border.distance
-    val neighborhood = LatticeNeighborhood(offsets, border)
-    val spacing = parameters.spacing.current(shape, neighborhood)
-    device["desiredDistance"] = spacing
-    val repulsion = parameters.repulsion.control(neighborhood, spacing, shape, position)
+    val repulsion = parameters.repulsion.control(offsets, shape, position)
     val control = when {
-        border.isInside -> repulsion // The mirror images, or the shape clipping the cells, keep devices off the border
+        border.isInside -> repulsion // The shape clipping the cells keeps the devices off the border
         else -> { // The SDF pulls the device in; the neighbors push it aside, less than that, and never back out
             val aside = repulsion - border.outward * max(0.0, repulsion dot border.outward)
             border.towardsShape + aside.limitedTo(OUTSIDE_PUSH)

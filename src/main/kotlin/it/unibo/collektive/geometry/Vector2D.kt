@@ -1,6 +1,10 @@
 package it.unibo.collektive.geometry
 
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.sin
 import kotlin.math.sqrt
+import org.apache.commons.math3.random.RandomGenerator
 
 /** A vector in the plane: a displacement, a direction, or a velocity. */
 interface Vector2D {
@@ -45,3 +49,6 @@ fun Vector2D.limitedTo(maxNorm: Double): SpeedControl2D = when {
     norm > maxNorm -> this * (maxNorm / norm)
     else -> SpeedControl2D(x, y)
 }
+
+/** A unit velocity pointing in a random direction. */
+fun RandomGenerator.randomDirection(): SpeedControl2D = (2 * PI * nextDouble()).let { SpeedControl2D(cos(it), sin(it)) }

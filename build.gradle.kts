@@ -135,7 +135,7 @@ File(rootProject.rootDir.path + "/src/main/yaml")
                 """
                     terminate:
                       type: AfterTime
-                      parameters: [ 1500 ]
+                      parameters: [ 1800 ]
                     launcher:
                       type: DefaultLauncher
                       parameters:

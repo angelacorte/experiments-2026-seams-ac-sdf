@@ -4,7 +4,7 @@ shape itself (where the devices place it: fixed for the position-based scenarios
 others).
 
 Files of a run (same names as the metrics, see DevicePositionsExporter.kt):
-- <root>_<variables>.csv            time id x y sdf leader anchor
+- <root>_<variables>.csv            time id x y sdf leader anchor (only the anchors of the frame, see triangulating)
 - <root>_<variables>_placement.csv  time shape ox oy ax ay bx by
 - shapes/<shape>.csv                the SDF of the shape on a grid, in the coordinates of shapes.yml
 """
@@ -25,7 +25,7 @@ import config
 POSITIONS_DIR = config.DATA_DIR / "positions"
 CHARTS_DIR = config.ROOT / "charts" / "positions"
 CACHE_DIR = config.CACHE_DIR / "positions"
-CACHE_VERSION = 3
+CACHE_VERSION = 4
 
 DEVICE_COLUMNS = ["time", "id", "x", "y", "sdf", "leader", "anchor"]
 PLACEMENT_COLUMNS = ["time", "shape", "ox", "oy", "ax", "ay", "bx", "by"]
@@ -159,10 +159,11 @@ class Run:
         return None if rows.empty else rows.iloc[-1]
 
     def shape_outline(self, time: float):
-        """The grid of the shape moved where it lies at [time] (x, y, sdf), or None."""
+        """The grid of the shape moved where it lies at [time] (x, y, sdf), or None when it is not placed (also when
+        the anchors lose their frame, NaN in the export)."""
         where = self.placement_at(time)
         raster = self.rasters.get(where["shape"]) if where is not None else None
-        if raster is None:
+        if raster is None or where[["ox", "oy", "ax", "ay", "bx", "by"]].isna().any():
             return None
         uu, vv = np.meshgrid(raster.u, raster.v)
         x = where["ox"] + uu * where["ax"] + vv * where["bx"]
@@ -226,6 +227,25 @@ def _signature(*paths: Path) -> tuple:
     return tuple((p.stat().st_mtime_ns, p.stat().st_size) if p.exists() else None for p in paths)
 
 
+def triangulating(devices: pd.DataFrame) -> pd.DataFrame:
+    """Only the anchors that fix the frame keep their role, and the leader flag that comes with it: the ones of
+    TrueAnchorFrame, where the shape is placed. Anchor 1 is the one nearest to an anchor 2 (the others lead alone, e.g.
+    a device that just joined), anchors 2 and 3 the nearest ones to it; none until there is an anchor 2."""
+    anchors = devices[devices["anchor"] > 0]
+    gaps = lambda a, b: np.hypot(a["x"].to_numpy()[:, None] - b["x"].to_numpy(),
+                                 a["y"].to_numpy()[:, None] - b["y"].to_numpy())
+    kept = []
+    for _, frame in anchors.groupby("time"):
+        roles = [frame[frame["anchor"] == role] for role in (1, 2, 3)]
+        if roles[0].empty or roles[1].empty:
+            continue
+        anchor1 = roles[0].iloc[[gaps(roles[0], roles[1]).min(axis=1).argmin()]]
+        kept.append(anchor1.index[0])
+        kept += [rows.index[gaps(anchor1, rows)[0].argmin()] for rows in roles[1:] if not rows.empty]
+    devices.loc[anchors.index.difference(kept), ["leader", "anchor"]] = 0
+    return devices
+
+
 def load_run(scenario: str, path: Path, use_cache: bool = True) -> Run:
     placement_path = path.with_name(f"{path.stem}_placement.csv")
     cache = CACHE_DIR / scenario / f"{path.stem}.pkl"
@@ -244,7 +264,7 @@ def load_run(scenario: str, path: Path, use_cache: bool = True) -> Run:
     if not devices.empty and not _finished(path):
         # The simulation is still running (or was stopped): the last export may be written only in part
         devices = devices[devices["time"] < devices["time"].max()].reset_index(drop=True)
-    devices = devices.astype({"id": int, "leader": int, "anchor": int})
+    devices = triangulating(devices.astype({"id": int, "leader": int, "anchor": int}))
     placements = _snap(_read(placement_path, PLACEMENT_COLUMNS), interval)
     rasters = {}
     for name in placements["shape"].unique() if not placements.empty else []:

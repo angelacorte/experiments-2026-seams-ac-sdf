@@ -1,36 +1,30 @@
 package it.unibo.collektive.entrypoint
 
 import it.unibo.alchemist.collektive.device.CollektiveDevice
-import it.unibo.collektive.aggregate.Field
 import it.unibo.collektive.aggregate.api.Aggregate
-import it.unibo.collektive.aggregate.api.neighboring
-import it.unibo.collektive.aggregate.values
 import it.unibo.collektive.alchemist.device.applyVelocity
 import it.unibo.collektive.alchemist.device.parameter
 import it.unibo.collektive.alchemist.device.sensors.impl.ShapeProperty
 import it.unibo.collektive.coverage.latticeVelocity
-import it.unibo.collektive.geometry.Position
 import it.unibo.collektive.geometry.SpeedControl2D
-import it.unibo.collektive.geometry.Vector2D
-import it.unibo.collektive.geometry.minus
+import it.unibo.collektive.geometry.limitedTo
 import it.unibo.collektive.geometry.plus
+import it.unibo.collektive.geometry.randomDirection
 import it.unibo.collektive.geometry.times
 import it.unibo.collektive.geometry.zeroSpeed
+import it.unibo.collektive.library.leaderShape
 import it.unibo.collektive.localization.AnchorRole
 import it.unibo.collektive.localization.FrameAlignment
 import it.unibo.collektive.localization.electAnchors
 import it.unibo.collektive.localization.localize
-import kotlin.math.PI
-import kotlin.math.cos
-import kotlin.math.sin
-import org.apache.commons.math3.random.RandomGenerator
+import it.unibo.collektive.localization.offsetsFromEstimates
 
 /**
  * Range-only shape formation: devices sense only the distances to their neighbors (no bearing, no shared orientation).
  * Three anchors fix a frame ([electAnchors]), every device estimates its position in it ([localize]), forms the
  * lattice of [latticeVelocity] in that frame, and learns how to steer in it from how its own commands, given in its
  * body frame, move it among the anchors ([FrameAlignment]). The system stays still until the anchors are chosen.
- * All the parameters are read from the simulation file (see `rangeOnly.yml`).
+ * All the parameters are read from the simulation file (see `distanceBased.yml`).
  */
 fun Aggregate<Int>.distanceBasedEntrypoint(device: CollektiveDevice<*>, formation: ShapeProperty<*>) = with(device) {
     val neighborDistances = distances()
@@ -61,30 +55,13 @@ fun Aggregate<Int>.distanceBasedEntrypoint(device: CollektiveDevice<*>, formatio
         if (out) direction * -1.0 to false else randomGenerator.randomDirection() to true
     }.first * parameter("explorationSpeed")
     val unlocalized = evolve(0) { if (control == null) it + 1 else 0 } // Rounds since the device lost the frame
+    // Run and tumble towards the nearest neighbor: the direction is kept while the distance shrinks, else drawn anew.
     val command = when {
         control == null -> if (unlocalized > parameter("maxFrameWait")) probe else zeroSpeed
         isAnchor -> zeroSpeed // The anchors are the reference frame: they stay still.
         !steering -> probe
         else -> alignment.toBody(control) // + randomGenerator.randomDirection() * parameter("explorationNoise")
     }
-    val maxSpeed = parameter("maxSpeed")
-    val velocity = if (command.norm > maxSpeed) command * (maxSpeed / command.norm) else command
+    val velocity = command.limitedTo(parameter("maxSpeed"))
     applyVelocity(if (velocity.norm.isFinite()) velocity else zeroSpeed)
 }
-
-/**
- * The offsets of the neighbors (`neighbor - self`), in the anchor frame: the direction comes from the estimated
- * [position]s, the length from the measured [neighborDistances]. Empty until the device is localized.
- */
-private fun Aggregate<Int>.offsetsFromEstimates(
-    position: Position?,
-    neighborDistances: Field<Int, Double>,
-): List<Vector2D> = neighboring(position).alignedMapValues(neighborDistances) { neighborPosition, measuredDistance ->
-    when {
-        position == null || neighborPosition == null -> null
-        else -> (neighborPosition - position).let { it * (measuredDistance / it.norm) }
-    }
-}.neighbors.values.list.filterNotNull().filter { it.norm.isFinite() }
-
-private fun RandomGenerator.randomDirection(): SpeedControl2D =
-    (2 * PI * nextDouble()).let { SpeedControl2D(cos(it), sin(it)) }

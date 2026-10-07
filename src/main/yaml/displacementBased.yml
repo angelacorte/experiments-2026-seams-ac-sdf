@@ -27,7 +27,7 @@ seeds:
 
 network-model:
   type: AdaptiveRange
-  parameters: [*maxSpacing, 1, *communicationRange, 12, 6]
+  parameters: [*maxSpacing, 5, *communicationRange, 12, 6]
 
 _pool: &program
   - time-distribution: 1
@@ -49,20 +49,11 @@ deployments:
       - type: it.unibo.collektive.alchemist.device.sensors.impl.ShapeProperty
         parameters: [ *shape ]
       - type: it.unibo.collektive.alchemist.device.sensors.impl.RelativePositionSensorProperty
-      # The lattice, as in repulsionOnly.yml (push per neighbor rescaled to the larger spacing)
+      # The lattice, as in positionBased.yml
       - type: it.unibo.collektive.coverage.LatticeParameters
         parameters:
-          repulsion: { type: Lloyd, parameters: { gain: 1.0, reach: *cellReach } } # Towards the centroid of the Voronoi cell within reach (half the range), clipped to the shape: ignores the spacing (Rprop step below damps its oscillations)
+          repulsion: { type: Lloyd, parameters: { gain: 1.0, reach: *cellReach } } # Towards the centroid of the Voronoi cell within reach (half the range), clipped to the shape (Rprop step below damps its oscillations)
           maxSpeed: 1.0
-          # Adaptive (driven by the pressure of the ring), Neighborhood (of all the neighbors within 1.5 spacings) or Fixed
-          spacing:
-            type: Adaptive
-            parameters:
-              initial: 2.0
-              rate: 0.05 # Fraction of the pressure error recovered at each round
-              pressureMargin: 0.5 # Target pressure, as a fraction of the ring radius
-              max: *maxSpacing
-          # spacing: { type: Fixed, parameters: { spacing: 4.0 } } # ~sqrt(area / devices / 0.866) fills the shape
           step: { type: StepRule, parameters: { decrease: 0.5, increase: 1.2, minGain: 0.05 } } # Gain factor on an overshoot (the control reverses), while the control keeps its direction, and the smallest gain
           # step: { type: StepRule, parameters: { decrease: 1.0, increase: 1.0, minGain: 1.0 } } # Fixed step, for Lloyd
 

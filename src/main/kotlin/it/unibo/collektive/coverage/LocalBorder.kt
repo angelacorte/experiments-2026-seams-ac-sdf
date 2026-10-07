@@ -2,8 +2,6 @@ package it.unibo.collektive.coverage
 
 import it.unibo.collektive.geometry.Position
 import it.unibo.collektive.geometry.SpeedControl2D
-import it.unibo.collektive.geometry.Vector2D
-import it.unibo.collektive.geometry.plus
 import it.unibo.collektive.geometry.times
 import it.unibo.collektive.geometry.zeroSpeed
 import it.unibo.collektive.sdf.SDF
@@ -23,12 +21,6 @@ data class LocalBorder(val distance: Double, val outward: SpeedControl2D) {
 
     /** The unit direction towards the shape: zero inside it, or where the normal is undefined. */
     val towardsShape: SpeedControl2D get() = if (isInside) zeroSpeed else outward * -1.0
-
-    /** The mirror image across this border of the point at [offset] from the device. */
-    fun mirror(offset: Vector2D): SpeedControl2D {
-        val offsetDistance = distance + offset.x * outward.x + offset.y * outward.y // The signed distance of that point
-        return offset + outward * (-2.0 * offsetDistance)
-    }
 
     /** Factory for [LocalBorder]. */
     companion object {

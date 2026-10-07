@@ -1,6 +1,7 @@
 package it.unibo.alchemist.boundary.effects
 
 import it.unibo.alchemist.model.Environment
+import it.unibo.alchemist.model.Node
 import it.unibo.alchemist.model.Position
 import it.unibo.alchemist.model.molecules.SimpleMolecule
 import it.unibo.collektive.geometry.Position as Coordinates
@@ -39,23 +40,42 @@ internal class TrueAnchorFrame private constructor(
         private val ANCHOR = SimpleMolecule("anchor")
 
         /**
-         * The frame of the anchors in [environment], null until they are elected. The anchors are told apart by their
-         * `anchor` molecule (the name of their `AnchorRole`), as they need not be neighbors: anchor 1 is the nearest
-         * one to an anchor 2 (a node cut off from the swarm leads alone), anchors 2 and 3 the nearest ones to it.
+         * The anchors 1, 2 and 3 that fix the frame in [environment], null until they are elected. The anchors are
+         * told apart by their `anchor` molecule (the name of their `AnchorRole`), as they need not be neighbors.
+         * A split network has an anchor 1 in each part (a node cut off from the swarm leads alone): the frame is the
+         * one of the part with the most devices, with anchors 2 and 3 the nearest ones to anchor 1 within that part.
          */
-        fun <T, P : Position<P>> of(environment: Environment<T, P>): TrueAnchorFrame? {
+        fun <T, P : Position<P>> anchorsIn(environment: Environment<T, P>): List<Node<T>>? {
             fun withRole(role: String) = environment.nodes.filter { it.getConcentration(ANCHOR) == role }
-            val (origin, anchor2, anchor3) = withRole("ANCHOR_1")
-                .minByOrNull { anchor1 ->
-                    withRole("ANCHOR_2").minOfOrNull { environment.getDistanceBetweenNodes(anchor1, it) }
-                        ?: Double.MAX_VALUE
+            val parts = withRole("ANCHOR_1").map { it to environment.connectedTo(it) }
+            val largest = parts.maxOfOrNull { (_, part) -> part.size }
+            return parts.filter { (_, part) -> part.size == largest }.firstNotNullOfOrNull { (anchor1, part) ->
+                val others = listOf("ANCHOR_2", "ANCHOR_3").mapNotNull { role ->
+                    withRole(role).filter {
+                        it in part
+                    }.minByOrNull { environment.getDistanceBetweenNodes(anchor1, it) }
                 }
-                ?.let { anchor1 ->
-                    listOf(anchor1) + listOf("ANCHOR_2", "ANCHOR_3").mapNotNull { role ->
-                        withRole(role).minByOrNull { environment.getDistanceBetweenNodes(anchor1, it) }
-                    }
+                (listOf(anchor1) + others).takeIf { it.size == 3 }
+            }
+        }
+
+        /**
+         * The nodes that [node] reaches in this environment, hop by hop through the neighborhoods (itself included).
+         */
+        private fun <T, P : Position<P>> Environment<T, P>.connectedTo(node: Node<T>): Set<Node<T>> {
+            val reached = mutableSetOf(node)
+            val frontier = ArrayDeque(listOf(node))
+            while (frontier.isNotEmpty()) {
+                for (neighbor in getNeighborhood(frontier.removeFirst()).neighbors) {
+                    if (reached.add(neighbor)) frontier.addLast(neighbor)
                 }
-                ?.takeIf { it.size == 3 }
+            }
+            return reached
+        }
+
+        /** The frame of the anchors in [environment] (see [anchorsIn]), null until they are elected. */
+        fun <T, P : Position<P>> of(environment: Environment<T, P>): TrueAnchorFrame? {
+            val (origin, anchor2, anchor3) = anchorsIn(environment)
                 ?.map { environment.getPosition(it).coordinates }
                 ?: return null
             val length = hypot(anchor2[0] - origin[0], anchor2[1] - origin[1])

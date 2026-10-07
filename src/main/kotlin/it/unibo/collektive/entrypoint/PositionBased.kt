@@ -8,18 +8,14 @@ import it.unibo.collektive.alchemist.device.applyVelocity
 import it.unibo.collektive.alchemist.device.sensors.LocationSensor
 import it.unibo.collektive.alchemist.device.sensors.impl.ShapeProperty
 import it.unibo.collektive.coverage.AdaptiveStep
-import it.unibo.collektive.coverage.LatticeNeighborhood
 import it.unibo.collektive.coverage.RepulsionLaw
-import it.unibo.collektive.coverage.SpacingRule
 import it.unibo.collektive.coverage.latticeVelocity
 import it.unibo.collektive.geometry.minus
 
 /**
- * Shape formation with global positions and only repulsion between neighbors (no attraction), see [latticeVelocity]:
- * the SDF pulls devices towards the shape, while the repulsion of the nearest neighbors ([LatticeNeighborhood],
- * with a [RepulsionLaw]) spreads them out in a lattice whose spacing is fixed or adapts to the room available
- * ([SpacingRule]), with a step size that adapts to overshoots ([AdaptiveStep]).
- * All the parameters, modes included, are read from the simulation file (see `repulsionOnly.yml`).
+ * Shape formation with global positions, see [latticeVelocity]: the SDF pulls devices towards the shape, while their
+ * neighbors spread them out ([RepulsionLaw]), with a step size that adapts to overshoots ([AdaptiveStep]).
+ * All the parameters are read from the simulation file (see `positionBased.yml`).
  */
 fun Aggregate<Int>.positionBasedEntrypoint(
     device: CollektiveDevice<*>,
