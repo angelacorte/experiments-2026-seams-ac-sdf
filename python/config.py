@@ -67,7 +67,7 @@ METRICS = {
 }
 
 # Fallback for the population events, used when the yaml of a scenario cannot be read
-DEFAULT_POPULATION = {"nodes": 100, "spawnTime": 700, "spawnCount": 400, "killTime": 1000, "survivors": 50}
+DEFAULT_POPULATION = {"nodes": 100, "spawnTime": 600, "spawnCount": 400, "killTime": 1200, "survivors": 50}
 
 # Spread around the mean over the seeds, as seaborn's errorbar: "sd", ("ci", 95), ("pi", 50), "se" or None
 ERRORBAR = "sd"

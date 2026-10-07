@@ -6,9 +6,9 @@ variables:
   positionsPath: &positionsPath { formula: "'data/positions/' + filename" } # Where the node positions are exported (for the plots)
   cellReach: &cellReach { formula: 0.5 * communicationRange } # Reach of a Voronoi cell (Lloyd): half the range, so that the neighbors that shape it are in range
   spawnRangeFraction: &spawnRangeFraction 0.8 # Fraction of the communication range within which nodes spawn
-  spawnTime: &spawnTime 700
+  spawnTime: &spawnTime 600
   spawnCount: &spawnCount 400
-  killTime: &killTime 1000
+  killTime: &killTime 1200
   survivors: &survivors 50
   nodes: &nodes 100
   communicationRange: &communicationRange
@@ -88,3 +88,7 @@ export:
     parameters: { fileNameRoot: *filename, interval: 2.0, exportPath: *positionsPath, placement: global }
     data:
       - time
+
+terminate: # Three equal spans: before the spawn, between the spawn and the kill, after the kill
+  - type: AfterTime
+    parameters: [ 1800.0 ]
