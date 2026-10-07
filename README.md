@@ -238,7 +238,7 @@ experiments-2026-seams-ac-sdf/
 │       │       ├── alchemist/device/  # Collektive integration for Alchemist: body frame, parameters, and sensors
 │       │       │   └── sensors/       # Location, relative position, and shape definition (ShapeProperty)
 │       │       ├── catalog/           # ShapeCatalog: builds the shapes defined in shapes.yml, by name
-│       │       ├── coverage/          # Shape coverage: lattice spacing, repulsion, local border of the shape, and Voronoi cell
+│       │       ├── coverage/          # Shape coverage: Lloyd on the Voronoi cell, local border of the shape, and adaptive step
 │       │       ├── entrypoint/        # Entrypoints for the experiments (position, distance, and displacement based)
 │       │       ├── geometry/          # Positions and vectors in the plane, with their operations
 │       │       ├── localization/      # GPS-free localization: anchor election, anchor frame, and frame alignment

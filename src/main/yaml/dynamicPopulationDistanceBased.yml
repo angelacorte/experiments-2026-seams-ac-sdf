@@ -4,7 +4,6 @@ variables:
   filename: &filename { formula: "'dynamicDistanceBased'" } # Root of the exported file names, shared by all the exporters
   dataPath: &dataPath { formula: "'data/' + filename" } # Where the metrics are exported
   positionsPath: &positionsPath { formula: "'data/positions/' + filename" } # Where the node positions are exported (for the plots)
-  maxSpacing: &maxSpacing { formula: 0.8 * communicationRange } # Largest spacing: below the range, so that no neighbor is pushed out of it
   cellReach: &cellReach { formula: 0.5 * communicationRange } # Reach of a Voronoi cell (Lloyd): half the range, so that the neighbors that shape it are in range
   spawnRangeFraction: &spawnRangeFraction 0.8 # Fraction of the communication range within which nodes spawn
   spawnTime: &spawnTime 700
@@ -81,18 +80,11 @@ deployments:
       - type: it.unibo.collektive.alchemist.device.BodyFrameProperty
       - type: it.unibo.collektive.alchemist.device.sensors.impl.ShapeProperty
         parameters: [ *shape ]
-      # The lattice, as in repulsionOnly.yml (push per neighbor rescaled to the larger spacing)
+      # The lattice, as in positionBased.yml
       - type: it.unibo.collektive.coverage.LatticeParameters
         parameters:
-          repulsion: { type: Lloyd, parameters: { gain: 1.0, reach: *cellReach } } # Towards the centroid of the Voronoi cell within reach (half the range), clipped to the shape: ignores the spacing, and wants the fixed step below
+          repulsion: { type: Lloyd, parameters: { gain: 1.0, reach: *cellReach } } # Towards the centroid of the Voronoi cell within reach (half the range), clipped to the shape: wants the fixed step below
           maxSpeed: *maxSpeed
-          spacing:
-            type: Adaptive # Adaptive (driven by the pressure of the ring), Neighborhood (of all the neighbors within 1.5 spacings) or Fixed
-            parameters:
-              initial: 2.0
-              rate: 0.05 # Fraction of the pressure error recovered at each round
-              pressureMargin: 0.5 # Target pressure, as a fraction of the ring radius
-              max: *maxSpacing
           step: { type: StepRule, parameters: { decrease: 0.5, increase: 1.2, minGain: 0.05 } } # Gain factor on an overshoot (the control reverses), while the control keeps its direction, and the smallest gain
           # step: { type: StepRule, parameters: { decrease: 1.0, increase: 1.0, minGain: 1.0 } } # Fixed step, for Lloyd
 
