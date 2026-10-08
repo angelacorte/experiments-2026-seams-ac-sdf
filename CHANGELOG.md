@@ -1,3 +1,22 @@
+## [1.4.3](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/compare/1.4.2...1.4.3) (2026-10-08)
+
+### Dependency updates
+
+* **core-deps:** update dependency org.jetbrains.kotlin.jvm to v2.4.21 ([c6ef1c1](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/c6ef1c1f09cdb2242342c2963d7684e108518ed1))
+* **deps:** update gradle to v9.8.1 ([81a9599](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/81a95991a23d56fe2304dfda4c519a6eda518633))
+* **deps:** update plugin kotlin-qa to v1.10.0 ([1bacf63](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/1bacf635896a00ce725beeabe1125f8e64d23ac2))
+* **deps:** update plugin kotlin-qa to v1.10.1 ([5e5f919](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/5e5f9197440fb157f7a9ca87920549833fc34d13))
+* **deps:** update plugin multijvmtesting to v4.5.9 ([117b968](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/117b96884b4412f4f219fc50e2d60ae059173a17))
+
+### Build and continuous integration
+
+* **deps:** update actions/setup-node action to v7.1.0 ([8470499](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/84704998db17847e17483b2be7bb9aecf90463ec))
+
+### General maintenance
+
+* prepare for remote running ([e3327ec](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/e3327ecd74ea31bd9df6f2d57153e90e20be5e04))
+* **release:** update gradle.properties .env versions to 1.4.2 [skip ci] ([f55fbca](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/f55fbca9bffd78eb723f241540ce16e091aabe50))
+
 ## [1.4.2](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/compare/1.4.1...1.4.2) (2026-10-07)
 
 ### Dependency updates
