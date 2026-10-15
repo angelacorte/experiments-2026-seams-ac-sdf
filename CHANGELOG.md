@@ -1,3 +1,24 @@
+## [1.5.0](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/compare/1.4.3...1.5.0) (2026-10-15)
+
+### Features
+
+* make entrypoints modular ([98e7b12](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/98e7b12de57aaaf83a9081e284df5e219fada684))
+
+### Dependency updates
+
+* **deps:** update dependency numpy to v2.5.4 ([ce034a4](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/ce034a43a28b5482c159d8dc78cd89af9a06acf9))
+* **deps:** update plugin gitsemver to v7.0.25 ([f1261d8](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/f1261d852c782254ebde8eeb6000e6ee13b16a31))
+* **deps:** update plugin multijvmtesting to v4.5.10 ([6049ae5](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/6049ae54f34dad76b2ef79217f9d93df498246c0))
+* **deps:** update python docker tag to v3.14.8 ([b511fe4](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/b511fe4d2059b5b7606383407a5decc9008c665c))
+
+### Build and continuous integration
+
+* **deps:** update danysk/build-check-deploy-gradle-action action to v4.0.49 ([1281086](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/1281086664c9647ad8a2954c98ad51c6470485ce))
+
+### General maintenance
+
+* **release:** update gradle.properties .env versions to 1.4.3 [skip ci] ([1599f2a](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/1599f2aa9c820baef19da3e120154616d75588ad))
+
 ## [1.4.3](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/compare/1.4.2...1.4.3) (2026-10-08)
 
 ### Dependency updates
