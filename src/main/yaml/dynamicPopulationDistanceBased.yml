@@ -49,7 +49,7 @@ _pool: &program
     type: Event
     actions:
       - type: RunCollektiveProgram
-        parameters: [it.unibo.collektive.entrypoint.DistanceBasedKt.distanceBasedEntrypoint]
+        parameters: [ it.unibo.collektive.entrypoint.EntrypointKt.distanceBasedEntrypoint ]
       - type: SpeedToTarget
         parameters: [ ]
 

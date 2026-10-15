@@ -4,6 +4,7 @@ import it.unibo.alchemist.collektive.device.CollektiveDevice
 import it.unibo.collektive.aggregate.api.Aggregate
 import it.unibo.collektive.alchemist.device.sensors.impl.ShapeProperty
 import it.unibo.collektive.geometry.Position
+import it.unibo.collektive.localization.ReferenceFrame
 import it.unibo.collektive.sdf.SDF
 import it.unibo.collektive.sdf.deepestPointFrom
 import it.unibo.collektive.sdf.translate
@@ -14,6 +15,43 @@ import it.unibo.collektive.stdlib.spreading.hopGradientCast
  * the devices place where the shape belongs (the leader, or the centroid of the anchors).
  */
 private data class HeldShape(val name: String, val inside: Position)
+
+/**
+ * Strategy that places (translates) a target [SDF] into the [ReferenceFrame] established by positioning.
+ */
+fun interface ShapeTranslation {
+    /** Returns the target [SDF] placed in the given [frame]. */
+    fun Aggregate<Int>.translate(frame: ReferenceFrame): SDF
+
+    /** Invokes [translate] in the current [aggregate] context. */
+    context(aggregate: Aggregate<Int>)
+    operator fun invoke(frame: ReferenceFrame): SDF = aggregate.translate(frame)
+
+    /** Built-in [ShapeTranslation] strategies. */
+    companion object {
+        /** Keeps [shape] fixed in global coordinates, without translating it. */
+        fun global(shape: SDF): ShapeTranslation = ShapeTranslation { shape }
+
+        /** Keeps the shape of [formation] where `shapes.yml` places it in global coordinates. */
+        fun global(formation: ShapeProperty<*>): ShapeTranslation = global(formation.shape)
+
+        /** Translates [shape] so that its reference [center] lies on [ReferenceFrame.center]. */
+        fun centeredAtFrame(shape: SDF, center: Position = Position.origin): ShapeTranslation =
+            ShapeTranslation { frame ->
+                shape.translate(frame.center.x - center.x, frame.center.y - center.y)
+            }
+
+        /**
+         * Spreads the shape held by the leader ([ReferenceFrame.isLeader]) across the swarm and translates it so that
+         * its deepest interior point nearest to [ReferenceFrame.center] lies on [ReferenceFrame.center]
+         * (see [leaderShape]).
+         */
+        context(device: CollektiveDevice<*>)
+        fun fromLeader(formation: ShapeProperty<*>): ShapeTranslation = ShapeTranslation { frame ->
+            leaderShape(device, frame.isLeader, formation, frame.center)
+        }
+    }
+}
 
 /**
  * The shape held by the [leader], spread to every device by its nearest leader, moved so that the point inside it
