@@ -1,3 +1,13 @@
+## [1.6.0](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/compare/1.5.0...1.6.0) (2026-10-16)
+
+### Features
+
+* add more plots ([1f59574](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/1f5957408a213c4a01fd76b2948ba6309a92e867))
+
+### General maintenance
+
+* **release:** update gradle.properties .env versions to 1.5.0 [skip ci] ([2265795](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/commit/2265795794d9f835d94f2dda4fa5fbdb49a3c0ec))
+
 ## [1.5.0](https://github.com/angelacorte/experiments-2026-seams-ac-sdf/compare/1.4.3...1.5.0) (2026-10-15)
 
 ### Features
