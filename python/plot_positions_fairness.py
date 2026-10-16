@@ -57,16 +57,18 @@ def draw_fairness(ax: plt.Axes, run: pos.Run, time: float, events: dict | None, 
     t = run.nearest_time(time)
     frame = run.at(t)
     xy = frame[["x", "y"]].to_numpy()
-    owned = np.zeros(len(frame), dtype=bool)
+    in_shape = (frame["sdf"] <= 0.0).to_numpy()
     note = "shape not placed yet"
     outline = run.shape_outline(t)
     if outline is not None:
         x, y, values = outline
         inside = values <= 0
         owner = np.full(values.shape, -1)
-        owner[inside] = nearest(np.column_stack([x[inside], y[inside]]), xy)
-        share = shares(owner[inside], len(frame))
-        owned = share > 0
+        share = np.zeros(len(frame))
+        if in_shape.any():
+            inside_indices = np.flatnonzero(in_shape)
+            owner[inside] = inside_indices[nearest(np.column_stack([x[inside], y[inside]]), xy[in_shape])]
+            share = shares(owner[inside], len(frame))
         note = f"Jain {jain(share):.2f}"
         ax.pcolormesh(x, y, np.ma.masked_where(~inside, share[owner]), cmap=CMAP, norm=NORM, shading="nearest",
                       rasterized=True, zorder=0)
@@ -79,8 +81,8 @@ def draw_fairness(ax: plt.Axes, run: pos.Run, time: float, events: dict | None, 
                       shading="nearest", alpha=0.6, rasterized=True, zorder=1)
         ax.contour(x, y, values, levels=[0.0], colors=[pos.SHAPE_EDGE], linewidths=1.0, zorder=2)
     size = render.node_size(len(frame))
-    ax.scatter(xy[owned, 0], xy[owned, 1], color=DEVICE_COLOR, s=size * 0.5, linewidths=0, zorder=4)
-    ax.scatter(xy[~owned, 0], xy[~owned, 1], facecolors="none", edgecolors=DEVICE_COLOR, s=size * 0.5,
+    ax.scatter(xy[in_shape, 0], xy[in_shape, 1], color=DEVICE_COLOR, s=size * 0.5, linewidths=0, zorder=4)
+    ax.scatter(xy[~in_shape, 0], xy[~in_shape, 1], facecolors="none", edgecolors=DEVICE_COLOR, s=size * 0.5,
                linewidths=0.6, zorder=4)
     leaders = frame[(frame["leader"] == 1) & (frame["anchor"] == 0)]
     anchors = frame[frame["anchor"] > 0]

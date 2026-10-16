@@ -48,22 +48,22 @@ GRID_COLUMNS = 5
 
 # Metric -> (label on the y axis, log scale). Columns not listed here are plotted with their name.
 METRICS = {
-    "inside": ("Devices inside the shape (fraction)", False),
-    "jain": ("Jain's fairness of the shares", False),
+    "inside": ("Inside fraction", False),
+    "jain": (r"Jain's index $J(t)$", False),
     "shareCV": ("CV of the shares", False),
-    "cover95": ("Coverage gap, 95th pct (fill)", False),
-    "coverMax": ("Coverage gap, max (fill)", False),
-    "nnCV": ("CV of the nearest-neighbor distance", False),
-    "minDist": ("Min nearest-neighbor distance (fill)", False),
+    "cover95": ("Coverage gap, 95th pct", False),
+    "coverMax": ("Coverage gap, max", False),
+    "nnCV": ("NN distance CV", False),
+    "minDist": ("Min NN distance (fill)", False),
     "psi6": (r"Hexagonal order $\psi_6$", False),
     "borderRatio": ("Border ratio", False),
     "fill": ("Lattice spacing fill", False),
-    "motion": ("Motion (fill / time unit)", False),
-    "sdfMean": ("Mean SDF at the neighbors", False),
-    "sdfVariance": ("SDF variance within neighborhoods", False),
-    "sdfMeanVariance": ("Variance of the neighborhood SDF means", False),
-    "neighborDistance": ("Mean distance to the neighbors", False),
-    "neighborDistanceVariance": ("Variance of the distance to the neighbors", False),
+    "motion": ("Motion (fill/s)", False),
+    "sdfMean": ("Mean neighbor SDF", False),
+    "sdfVariance": ("Neighbor SDF variance", False),
+    "sdfMeanVariance": ("SDF mean variance", False),
+    "neighborDistance": ("Mean neighbor dist.", False),
+    "neighborDistanceVariance": ("Neighbor dist. variance", False),
 }
 
 # Fallback for the population events, used when the yaml of a scenario cannot be read
